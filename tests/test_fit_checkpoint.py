@@ -7,6 +7,7 @@ from inkgrammar.fitting.checkpoint import (
     FitCheckpoint,
     load_checkpoint,
     save_checkpoint,
+    validate_checkpoint_objective_version,
 )
 
 
@@ -50,3 +51,11 @@ def test_checkpoint_rejects_invalid_source_hashes():
 
     with pytest.raises(ValidationError, match="project_sha256"):
         FitCheckpoint.model_validate(payload)
+
+
+def test_checkpoint_objective_versions_cannot_be_mixed():
+    checkpoint_value = checkpoint()
+    validate_checkpoint_objective_version(checkpoint_value, expected_version=1)
+
+    with pytest.raises(ValueError, match="incompatible with requested objective version 2"):
+        validate_checkpoint_objective_version(checkpoint_value, expected_version=2)

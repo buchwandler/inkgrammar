@@ -4,6 +4,7 @@ samples:
   - id: sas1968-alphabet-U+0069
     kind: glyph
     text: "i"
+    active_instances: [i-underturn]
     observation_id: sas1968-alphabet-U+0069
     split: fit
     loss_regions:
@@ -13,6 +14,7 @@ samples:
   - id: sas1968-alphabet-U+0075
     kind: glyph
     text: "u"
+    active_instances: [u-underturn-a, u-underturn-b]
     observation_id: sas1968-alphabet-U+0075
     loss_regions:
       - id: u-underturn-a
@@ -25,6 +27,7 @@ samples:
   - id: sas1968-alphabet-U+0077
     kind: glyph
     text: "w"
+    active_instances: [w-underturn-a, w-underturn-b]
     observation_id: sas1968-alphabet-U+0077
     split: hold-out
     loss_regions:
@@ -52,6 +55,7 @@ samples:
   - id: sas1968-alphabet-U+0063
     kind: glyph
     text: "c"
+    active_instances: [c-oval]
     observation_id: sas1968-alphabet-U+0063
     split: fit
     loss_regions:
@@ -61,6 +65,7 @@ samples:
   - id: sas1968-alphabet-U+0061
     kind: glyph
     text: "a"
+    active_instances: [a-oval]
     observation_id: sas1968-alphabet-U+0061
     split: fit
     loss_regions:
@@ -70,6 +75,7 @@ samples:
   - id: sas1968-alphabet-U+0043
     kind: glyph
     text: "C"
+    active_instances: [C-oval]
     observation_id: sas1968-alphabet-U+0043
     split: hold-out
     loss_regions:
@@ -79,6 +85,7 @@ samples:
   - id: sas1968-alphabet-U+006C
     kind: glyph
     text: "l"
+    active_instances: [l-loop]
     observation_id: sas1968-alphabet-U+006C
     split: fit
     loss_regions:
@@ -88,6 +95,7 @@ samples:
   - id: sas1968-alphabet-U+0062
     kind: glyph
     text: "b"
+    active_instances: [b-loop]
     observation_id: sas1968-alphabet-U+0062
     split: fit
     loss_regions:
@@ -97,6 +105,7 @@ samples:
   - id: sas1968-alphabet-U+006B
     kind: glyph
     text: "k"
+    active_instances: [k-loop]
     observation_id: sas1968-alphabet-U+006B
     split: hold-out
     loss_regions:
@@ -106,6 +115,7 @@ samples:
   - id: sas1968-alphabet-U+006E
     kind: glyph
     text: "n"
+    active_instances: [n-hump]
     observation_id: sas1968-alphabet-U+006E
     split: fit
     loss_regions:
@@ -115,6 +125,7 @@ samples:
   - id: sas1968-alphabet-U+006D
     kind: glyph
     text: "m"
+    active_instances: [m-hump-a, m-hump-b]
     observation_id: sas1968-alphabet-U+006D
     split: fit
     loss_regions:
@@ -127,6 +138,7 @@ samples:
   - id: sas1968-alphabet-U+0068
     kind: glyph
     text: "h"
+    active_instances: [h-ascender-loop, h-hump]
     observation_id: sas1968-alphabet-U+0068
     split: hold-out
     loss_regions:

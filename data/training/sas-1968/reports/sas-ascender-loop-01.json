@@ -1,283 +1,715 @@
 {
-  "evaluations": 240,
+  "bound_saturation_warnings": [],
+  "comparison_v1": {
+    "hold_out": {
+      "mean_objective": 0.7736400121289445,
+      "policy": "diagnostic-only; never used for parameter selection",
+      "samples": [
+        {
+          "instances": [
+            {
+              "instance_id": "k-loop",
+              "primitive_id": "sas-ascender-loop-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 36.0,
+                "scale_y": 52.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.7559770853017418,
+          "sample_id": "sas1968-alphabet-U+006B",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.07952966321691307,
+            "complexity": 3.0,
+            "curvature_regularization": 0.0017823137129302088,
+            "distance": 0.0678537688569966,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.7559592621646125,
+            "soft_mask": 0.8794090432721265,
+            "tangent": 0.0
+          }
+        },
+        {
+          "instances": [
+            {
+              "instance_id": "h-ascender-loop",
+              "primitive_id": "sas-ascender-loop-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 30.0,
+                "scale_y": 55.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.7913029389561472,
+          "sample_id": "sas1968-alphabet-U+0068",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.1284484163597948,
+            "complexity": 3.0,
+            "curvature_regularization": 0.0018071940741907148,
+            "distance": 0.09765507759752375,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.7912848670154053,
+            "soft_mask": 0.9028354554664031,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "worst_member_objective": 0.7913029389561472
+    },
+    "training": {
+      "final_objective": 0.501042559520105,
+      "initial_objective": 0.5312702162689209,
+      "mean_objective": 0.501042559520105,
+      "samples": [
+        {
+          "final_objective": 0.4370861767553729,
+          "initial_objective": 0.49280328589190275,
+          "instances": [
+            {
+              "instance_id": "l-loop",
+              "primitive_id": "sas-ascender-loop-01",
+              "residuals": {},
+              "transform": {
+                "dx": -2.0,
+                "dy": 0.0,
+                "scale_x": 45.0,
+                "scale_y": 56.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.4370861767553729,
+          "sample_id": "sas1968-alphabet-U+006C",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.01158435987448972,
+            "complexity": 3.0,
+            "curvature_regularization": 0.0018012827678147885,
+            "distance": 0.007111579988181791,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.43706816392769476,
+            "soft_mask": 0.43706816392769476,
+            "tangent": 0.0
+          }
+        },
+        {
+          "final_objective": 0.5649989422848372,
+          "initial_objective": 0.5697371466459391,
+          "instances": [
+            {
+              "instance_id": "b-loop",
+              "primitive_id": "sas-ascender-loop-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 38.0,
+                "scale_y": 55.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.5649989422848372,
+          "sample_id": "sas1968-alphabet-U+0062",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.008275864429911942,
+            "complexity": 3.0,
+            "curvature_regularization": 0.0017822317095038725,
+            "distance": 0.03698305941125272,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.5649811199677421,
+            "soft_mask": 0.6758535629867726,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "selection_split": "fit",
+      "worst_member_objective": 0.5649989422848372
+    }
+  },
+  "evaluations": 1127,
   "format": "inkgrammar-fit-report",
-  "format_version": 1,
-  "generalization_gap": 0.2725974526088395,
+  "format_version": 2,
+  "generalization_gap": 0.8002337887217172,
   "hold_out": {
-    "mean_objective": 0.7736400121289445,
-    "policy": "diagnostic-only; never used for parameter selection",
+    "mean_objective": 1.032865193977528,
+    "median_objective": 1.032865193977528,
+    "policy": "Evaluated after fitting. Alignment deltas are diagnostic only and do not update shared geometry.",
+    "raw_nominal_mean_objective": 2.712627188313112,
     "samples": [
       {
-        "instances": [
+        "aligned_diagnostic_objective": 0.7241812165608499,
+        "aligned_instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": true
+            },
+            "delta": {
+              "dx": 1.1984777707508076,
+              "dy": -2.7034587017178904,
+              "log_scale_x": -0.08980412627785062,
+              "log_scale_y": -0.11904731753721035,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 1.1984777707508076,
+              "dy": -2.7034587017178904,
+              "scale_x": 32.90796784467352,
+              "scale_y": 46.16382122961255,
+              "shear_x": 0.0
+            },
             "instance_id": "k-loop",
-            "primitive_id": "sas-ascender-loop-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 36.0,
               "scale_y": 52.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 2.284415502080879,
+              "centerline_valid_fraction": 0.625,
+              "endpoint_rms_px": 3.018282088226583,
+              "estimated_stroke_width_px": 3.85,
+              "path_to_ink_rms_px": 4.955369310979062,
+              "tangent_rms": 0.1799647645380553,
+              "weighted_squared_cost": 118.76571951597938
             }
           }
         ],
-        "objective": 0.7559770853017418,
+        "instances": [
+          {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "log_scale_x": 0.0,
+              "log_scale_y": 0.0,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 36.0,
+              "scale_y": 52.0,
+              "shear_x": 0.0
+            },
+            "instance_id": "k-loop",
+            "nominal_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 36.0,
+              "scale_y": 52.0,
+              "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 2.4714846527611374,
+              "centerline_valid_fraction": 0.5,
+              "endpoint_rms_px": 0.00035232909407982175,
+              "estimated_stroke_width_px": 3.8125,
+              "path_to_ink_rms_px": 8.785855327079458,
+              "tangent_rms": 0.1467975070334155,
+              "weighted_squared_cost": 327.9032840408239
+            }
+          }
+        ],
+        "objective": 0.7241812165608499,
+        "raw_nominal_objective": 1.999410268541609,
+        "raw_terms": {
+          "endpoint_rms_px": 0.00035232909407982175,
+          "normal_center_rms_px": 2.4714846527611374,
+          "path_to_ink_rms_px": 8.785855327079458,
+          "tangent_rms": 0.1467975070334155
+        },
         "sample_id": "sas1968-alphabet-U+006B",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.07952966321691307,
-          "complexity": 3.0,
-          "curvature_regularization": 0.0017823137129302088,
-          "distance": 0.0678537688569966,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.7559592621646125,
-          "soft_mask": 0.8794090432721265,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 4.137859684503597e-9,
+          "normal_center": 0.28443324495986155,
+          "path_to_ink": 9.648906728546311,
+          "tangent": 0.014602203646240106
         }
       },
       {
-        "instances": [
+        "aligned_diagnostic_objective": 1.3415491713942058,
+        "aligned_instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": true,
+              "log_scale_y": true
+            },
+            "delta": {
+              "dx": -1.4548563438871498,
+              "dy": -3.586808827679419,
+              "log_scale_x": 0.10926953208740359,
+              "log_scale_y": -0.11874300444618344,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -1.4548563438871498,
+              "dy": -3.586808827679419,
+              "scale_x": 33.46388888664219,
+              "scale_y": 48.84197960071626,
+              "shear_x": 0.0
+            },
             "instance_id": "h-ascender-loop",
-            "primitive_id": "sas-ascender-loop-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 30.0,
               "scale_y": 55.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 2.27192297379888,
+              "centerline_valid_fraction": 0.5,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 4.0625,
+              "path_to_ink_rms_px": 7.106831236190619,
+              "tangent_rms": 0.17204935147620465,
+              "weighted_squared_cost": 220.01406410864976
             }
           }
         ],
-        "objective": 0.7913029389561472,
+        "instances": [
+          {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "log_scale_x": 0.0,
+              "log_scale_y": 0.0,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 55.0,
+              "shear_x": 0.0
+            },
+            "instance_id": "h-ascender-loop",
+            "nominal_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 55.0,
+              "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 2.7589193024299647,
+              "centerline_valid_fraction": 0.40625,
+              "endpoint_rms_px": 1.8859491995926845,
+              "estimated_stroke_width_px": 3.6923076923076925,
+              "path_to_ink_rms_px": 11.68598410618057,
+              "tangent_rms": 0.1666221088104276,
+              "weighted_squared_cost": 561.8384337258768
+            }
+          }
+        ],
+        "objective": 1.3415491713942058,
+        "raw_nominal_objective": 3.4258441080846156,
+        "raw_terms": {
+          "endpoint_rms_px": 1.8859491995926845,
+          "normal_center_rms_px": 2.7589193024299647,
+          "path_to_ink_rms_px": 11.68598410618057,
+          "tangent_rms": 0.1666221088104276
+        },
         "sample_id": "sas1968-alphabet-U+0068",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.1284484163597948,
-          "complexity": 3.0,
-          "curvature_regularization": 0.0018071940741907148,
-          "distance": 0.09765507759752375,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.7912848670154053,
-          "soft_mask": 0.9028354554664031,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 0.1053867965464974,
+          "normal_center": 0.21875960550250145,
+          "path_to_ink": 17.07027806623811,
+          "tangent": 0.018240213561113522
         }
       }
     ],
-    "worst_member_objective": 0.7913029389561472
+    "std_objective": 0.30868397741667797,
+    "worst_member_objective": 1.3415491713942058
   },
   "initial_parameters": {
-    "segments.0.c1.y": 0.193548,
-    "segments.0.c2.x": 0.902439
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_y": 0.0,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_y": 0.0,
+    "shared.segments.0.c1.y": 0.193548,
+    "shared.segments.0.c2.x": 0.902439
   },
   "input_hashes": {
-    "corpus_sha256": "bbf2be60c17fc8ad6d89f118296e259335c303634247f3995afa1b3d3247158f",
+    "corpus_sha256": "594f91aa4d6a0d5dd6f099231eac266fcaf77b7be74f87237e6606a419edab12",
     "project_sha256": "b6fbdb5437aac2af99c388a45fb14dc8bfafd727d87d2c978f25aa22e1cc9688",
     "source_lock_sha256": "4547faa9d99879d7d8721a23881e45c5fffd3fc72e7528e39096e9a558ded111",
     "support_sha256": {
       "anchors": "f2c004d9a2718f3de7af1616f6f9161a6cdf2688b678cc4abfa0894cc2b296ef",
-      "families": "bac5582f44bdb3fd70df0fa9b480d4de92e98c7affa9a6791ff10654a735d63e",
-      "fit_config": "acf1a378b7d5a1ff8eee07dad47031283148d34520a4e080e9284d6037187ae8",
+      "families": "03a6895ced16a88799b291035276ce055d8b1d4576f46709d880b1812f179b24",
+      "fit_config": "31acbcd1e2f3f07aa5e75a900c37a9fac1e518f3821ec16548b25c717aafab3e",
       "observation_manifest": "ddf77ca78af5e33c6f29b7518aa59ab7bd67878cceaa947b35f07429c5a60e38",
       "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
       "topology": "bda0a2fe38775bb6508b81d6f276bb52bbb9c897dc42021ce0f4e9cd54fabe6c",
       "training_materialization": "78e698e0261b98d0bab8c3d8d76737e5901ff61c8562d7d740cb917b4627b260"
     }
   },
-  "objective_version": 1,
+  "objective_version": 2,
+  "occurrences": {
+    "sas1968-alphabet-U+0062--b-loop": {
+      "delta": {
+        "dx": -0.4609166079918392,
+        "dy": -0.7187550774412301,
+        "log_scale_x": -0.03658263215918546,
+        "log_scale_y": -0.04157618756396149,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": -0.4609166079918392,
+        "dy": -0.7187550774412301,
+        "scale_x": 36.634980215466776,
+        "scale_y": 52.760193620026584,
+        "shear_x": 0.0
+      },
+      "instance_id": "b-loop",
+      "nominal_transform": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "scale_x": 38.0,
+        "scale_y": 55.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0062"
+    },
+    "sas1968-alphabet-U+006C--l-loop": {
+      "delta": {
+        "dx": 0.2527245048099065,
+        "dy": 0.4627093430308893,
+        "log_scale_x": -0.006091052071496114,
+        "log_scale_y": 0.010021101947998073,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": -1.7472754951900935,
+        "dy": 0.4627093430308893,
+        "scale_x": 44.72673573507848,
+        "scale_y": 56.564002954768654,
+        "shear_x": 0.0
+      },
+      "instance_id": "l-loop",
+      "nominal_transform": {
+        "dx": -2.0,
+        "dy": 0.0,
+        "scale_x": 45.0,
+        "scale_y": 56.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+006C"
+    }
+  },
   "optimizer": {
-    "de_dimension_limit": 12,
-    "de_max_iterations": 20,
-    "de_population_size": 8,
-    "max_iterations": 200,
-    "method": "powell",
-    "seed": 1968,
-    "tolerance": 1e-05
+    "accepted_candidate": {
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dx": -0.4609166079918392,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dy": -0.7187550774412301,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_x": -0.03658263215918546,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_y": -0.04157618756396149,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dx": 0.2527245048099065,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dy": 0.4627093430308893,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_x": -0.006091052071496114,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_y": 0.010021101947998073,
+      "shared.segments.0.c1.y": 0.2038040764881499,
+      "shared.segments.0.c2.x": 0.8561657942561304
+    },
+    "accepted_history_index": 995,
+    "backend": "scipy-least-squares-trf",
+    "candidate_count": 43,
+    "config": {
+      "convergence_relative": 0.0005,
+      "de_dimension_limit": 12,
+      "de_max_iterations": 20,
+      "de_population_size": 8,
+      "f_scale": 1.0,
+      "joint_refine": true,
+      "loss": "soft_l1",
+      "max_cycles": 6,
+      "max_iterations": 200,
+      "max_nfev": 250,
+      "method": "alternating-least-squares",
+      "restarts": 8,
+      "seed": 1968,
+      "tolerance": 1e-5
+    },
+    "evaluations": 1127,
+    "message": "`xtol` termination condition is satisfied.",
+    "restarts": 8,
+    "solver_candidate": {
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dx": -0.7549779526659659,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dy": -1.0307436906405698,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_x": -0.02915609334161172,
+      "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_y": -0.05497257917827297,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dx": 0.35826232922604273,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dy": 0.14653096549777622,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_x": -0.019738668362462103,
+      "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_y": 0.010534527461560306,
+      "shared.segments.0.c1.y": 0.20887843334986567,
+      "shared.segments.0.c2.x": 0.8766775771552455
+    },
+    "status": 3,
+    "strategy": "alternating-least-squares",
+    "success": true
   },
   "parameter_bounds": {
-    "segments.0.c1.y": [
-      0.1,
-      0.3
-    ],
-    "segments.0.c2.x": [
-      0.8,
-      1.0
-    ]
+    "segments.0.c1.y": [0.1, 0.3],
+    "segments.0.c2.x": [0.8, 1.0]
   },
   "parameters": {
-    "segments.0.c1.y": 0.12450013987987334,
-    "segments.0.c2.x": 0.8066844808467861
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dx": -0.4609166079918392,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.dy": -0.7187550774412301,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_x": -0.03658263215918546,
+    "occurrence.sas1968-alphabet-U+0062--b-loop.delta.log_scale_y": -0.04157618756396149,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dx": 0.2527245048099065,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.dy": 0.4627093430308893,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_x": -0.006091052071496114,
+    "occurrence.sas1968-alphabet-U+006C--l-loop.delta.log_scale_y": 0.010021101947998073,
+    "shared.segments.0.c1.y": 0.2038040764881499,
+    "shared.segments.0.c2.x": 0.8561657942561304
   },
   "primitive": {
     "bounds": {
-      "segments.0.c1.y": [
-        0.1,
-        0.3
-      ],
-      "segments.0.c2.x": [
-        0.8,
-        1.0
-      ]
+      "segments.0.c1.y": [0.1, 0.3],
+      "segments.0.c2.x": [0.8, 1.0]
     },
     "frame": {
-      "nominal_end": [
-        0.390244,
-        0.0
-      ],
-      "start": [
-        0.0,
-        0.0
-      ]
+      "nominal_end": [0.390244, 0.0],
+      "start": [0.0, 0.0]
     },
-    "free_parameters": [
-      "segments.0.c1.y",
-      "segments.0.c2.x"
-    ],
+    "free_parameters": ["segments.0.c1.y", "segments.0.c2.x"],
     "id": "sas-ascender-loop-01",
     "kind": "cubic-chain",
-    "locked_parameters": [
-      "frame.start",
-      "segments.2.end"
-    ],
+    "locked_parameters": ["frame.start", "segments.2.end"],
     "provenance": {
       "construction": "source-backed",
       "trajectory": "inferred"
     },
     "segments": [
       {
-        "c1": [
-          0.365854,
-          0.12450013987987334
-        ],
-        "c2": [
-          0.8066844808467861,
-          0.741935
-        ],
-        "end": [
-          0.926829,
-          0.83871
-        ]
+        "c1": [0.365854, 0.2038040764881499],
+        "c2": [0.8561657942561304, 0.741935],
+        "end": [0.926829, 0.83871]
       },
       {
-        "c1": [
-          1.0,
-          1.0
-        ],
-        "c2": [
-          0.682927,
-          0.870968
-        ],
-        "end": [
-          0.536585,
-          0.612903
-        ]
+        "c1": [1.0, 1.0],
+        "c2": [0.682927, 0.870968],
+        "end": [0.536585, 0.612903]
       },
       {
-        "c1": [
-          0.390244,
-          0.354839
-        ],
-        "c2": [
-          0.195122,
-          0.0
-        ],
-        "end": [
-          0.390244,
-          0.0
-        ]
+        "c1": [0.390244, 0.354839],
+        "c2": [0.195122, 0.0],
+        "end": [0.390244, 0.0]
       }
     ]
   },
   "primitive_id": "sas-ascender-loop-01",
   "project_id": "sas-1968",
+  "selection_objective": {
+    "blocks": {
+      "curvature": 9.408834007399472e-5,
+      "family_spread": 0.008637008587270394,
+      "family_worst": 0.08384042628047889,
+      "mean": 0.23263140525581066,
+      "median": 0.23263140525581066,
+      "shape_prior": 0.0014039979217157941,
+      "smooth_worst": 0.33536170512191554,
+      "squared_residual_total": 0.35515353805711775,
+      "std": 0.08637008587270394,
+      "total": 0.3511747681098083,
+      "transform_prior": 0.028546611671767995,
+      "worst": 0.3190014911285146
+    },
+    "total": 0.3511747681098083
+  },
+  "shared_parameters": {
+    "segments.0.c1.y": 0.2038040764881499,
+    "segments.0.c2.x": 0.8561657942561304
+  },
   "stage": "primitive:sas-ascender-loop-01",
   "training": {
-    "final_objective": 0.501042559520105,
-    "initial_objective": 0.5312702162689209,
-    "mean_objective": 0.501042559520105,
+    "final_objective": 0.3511747681098083,
+    "initial_objective": 0.43688044444258023,
+    "mean_objective": 0.23263140525581066,
+    "median_objective": 0.23263140525581066,
     "samples": [
       {
-        "final_objective": 0.4370861767553729,
-        "initial_objective": 0.49280328589190275,
+        "final_objective": 0.14626131938310674,
+        "initial_objective": 0.2347440247896771,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.2527245048099065,
+              "dy": 0.4627093430308893,
+              "log_scale_x": -0.006091052071496114,
+              "log_scale_y": 0.010021101947998073,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -1.7472754951900935,
+              "dy": 0.4627093430308893,
+              "scale_x": 44.72673573507848,
+              "scale_y": 56.564002954768654,
+              "shear_x": 0.0
+            },
             "instance_id": "l-loop",
-            "primitive_id": "sas-ascender-loop-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": -2.0,
               "dy": 0.0,
               "scale_x": 45.0,
               "scale_y": 56.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 1.5650823567854715,
+              "centerline_valid_fraction": 0.90625,
+              "endpoint_rms_px": 0.5753878215725842,
+              "estimated_stroke_width_px": 5.310344827586207,
+              "path_to_ink_rms_px": 0.6028297737431269,
+              "tangent_rms": 0.12046179980107115,
+              "weighted_squared_cost": 23.98685637882951
             }
           }
         ],
-        "objective": 0.4370861767553729,
+        "objective": 0.14626131938310674,
+        "raw_terms": {
+          "endpoint_rms_px": 0.5753878215725842,
+          "normal_center_rms_px": 1.5650823567854715,
+          "path_to_ink_rms_px": 0.6028297737431269,
+          "tangent_rms": 0.12046179980107115
+        },
         "sample_id": "sas1968-alphabet-U+006C",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.01158435987448972,
-          "complexity": 3.0,
-          "curvature_regularization": 0.0018012827678147885,
-          "distance": 0.007111579988181791,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.43706816392769476,
-          "soft_mask": 0.43706816392769476,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 0.022071409680936266,
+          "normal_center": 0.3366786016180523,
+          "path_to_ink": 0.04542546701389869,
+          "tangent": 0.014023832689150917
         }
       },
       {
-        "final_objective": 0.5649989422848372,
-        "initial_objective": 0.5697371466459391,
+        "final_objective": 0.3190014911285146,
+        "initial_objective": 0.41791066089767387,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -0.4609166079918392,
+              "dy": -0.7187550774412301,
+              "log_scale_x": -0.03658263215918546,
+              "log_scale_y": -0.04157618756396149,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -0.4609166079918392,
+              "dy": -0.7187550774412301,
+              "scale_x": 36.634980215466776,
+              "scale_y": 52.760193620026584,
+              "shear_x": 0.0
+            },
             "instance_id": "b-loop",
-            "primitive_id": "sas-ascender-loop-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 38.0,
               "scale_y": 55.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {
+              "centerline_rms_px": 2.634370749527935,
+              "centerline_valid_fraction": 0.875,
+              "endpoint_rms_px": 3.0670359972303327,
+              "estimated_stroke_width_px": 3.642857142857143,
+              "path_to_ink_rms_px": 2.7081874153709786,
+              "tangent_rms": 0.1972547039493416,
+              "weighted_squared_cost": 52.3162445450764
             }
           }
         ],
-        "objective": 0.5649989422848372,
+        "objective": 0.3190014911285146,
+        "raw_terms": {
+          "endpoint_rms_px": 3.0670359972303327,
+          "normal_center_rms_px": 2.634370749527935,
+          "path_to_ink_rms_px": 2.7081874153709786,
+          "tangent_rms": 0.1972547039493416
+        },
         "sample_id": "sas1968-alphabet-U+0062",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.008275864429911942,
-          "complexity": 3.0,
-          "curvature_regularization": 0.0017822317095038725,
-          "distance": 0.03698305941125272,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.5649811199677421,
-          "soft_mask": 0.6758535629867726,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 0.04445478414903381,
+          "normal_center": 0.3323930030350542,
+          "path_to_ink": 0.9167848845967177,
+          "tangent": 0.023877451674091166
         }
       }
     ],
     "selection_split": "fit",
-    "worst_member_objective": 0.5649989422848372
+    "std_objective": 0.08637008587270394,
+    "worst_member_objective": 0.3190014911285146
   },
   "validation": {
     "mean_objective": null,
-    "policy": "evaluated after fitting; not used for parameter optimization",
+    "median_objective": null,
+    "policy": "no samples in this split",
+    "raw_nominal_mean_objective": null,
     "samples": [],
+    "std_objective": null,
     "worst_member_objective": null
   },
   "visual_review": {
     "region_overlay_count": 4,
     "scope": "private work directory",
     "sheet": "overlays/sas-ascender-loop-01/review-sheet.png",
-    "status": "promotion_pending"
+    "status": "promotion_pending",
+    "variants": ["nominal", "aligned"]
   }
 }

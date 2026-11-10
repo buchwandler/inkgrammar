@@ -156,15 +156,10 @@ def _verify_directory(root: Path, release: str) -> None:
     ):
         raise ValueError("unsupported or inconsistent release manifest")
     requirement = manifest.get("requires_inkgrammar")
-    if not requirement or Version(package_version("inkgrammar")) not in SpecifierSet(
-        requirement
-    ):
+    if not requirement or Version(package_version("inkgrammar")) not in SpecifierSet(requirement):
         raise ValueError("data release is incompatible with installed inkgrammar")
     catalog = json.loads((root / "catalog.json").read_text(encoding="utf-8"))
-    if (
-        catalog.get("format") != "inkgrammar-catalog"
-        or catalog.get("release_version") != release
-    ):
+    if catalog.get("format") != "inkgrammar-catalog" or catalog.get("release_version") != release:
         raise ValueError("inconsistent catalog")
     ids = set()
     for item in catalog["models"]:

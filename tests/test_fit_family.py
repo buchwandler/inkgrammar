@@ -379,3 +379,250 @@ def test_fit_rejects_output_directory_symlinks(tmp_path, output_name):
     with pytest.raises(ValueError, match="must not be a symlink"):
         optimize_primitive_family(bundle, PRIMITIVE_ID)
     assert list(external.iterdir()) == []
+
+
+def test_objective_v2_fit_keeps_hold_out_out_of_parameter_selection(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    families_path = project_dir / "families.yaml"
+    families = yaml.safe_load(families_path.read_text(encoding="utf-8"))
+    families["families"][0]["alignment"] = {"free": []}
+    _write_yaml(families_path, families)
+
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"]["version"] = 2
+    config["optimizer"].update(
+        {
+            "method": "alternating-least-squares",
+            "max_cycles": 1,
+            "max_nfev": 30,
+            "restarts": 2,
+        }
+    )
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    first = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    first_parameters = first.report["parameters"]
+    first_holdout = first.report["hold_out"]["samples"][0]["objective"]
+    assert first.report["format_version"] == 2
+    assert first.report["training"]["selection_split"] == "fit"
+    assert first.report["validation"]["samples"] == []
+    blocks = first.report["selection_objective"]["blocks"]
+    assert {"mean", "family_worst", "family_spread", "transform_prior", "shape_prior"} <= set(
+        blocks
+    )
+    assert first.report["optimizer"]["strategy"] == "alternating-least-squares"
+    assert first.private_review_sheet_path.is_file()
+    overlay_dir = bundle.private_work_dir / "overlays" / PRIMITIVE_ID
+    assert (overlay_dir / "sample-C--oval-core--nominal.png").is_file()
+    assert (overlay_dir / "sample-C--oval-core--aligned.png").is_file()
+
+    changed_mask = np.zeros((64, 64), dtype=np.uint8)
+    changed_mask[31:34, 12:52] = 255
+    Image.fromarray(changed_mask, mode="L").save(
+        bundle.private_work_dir / "materialized" / "masks" / "sample-C.png",
+        format="PNG",
+        optimize=False,
+        compress_level=9,
+    )
+    distance = distance_transform_edt(changed_mask == 0).astype(np.float32)
+    with (bundle.private_work_dir / "materialized" / "distance-fields" / "sample-C.npy").open(
+        "wb"
+    ) as stream:
+        np.save(stream, distance, allow_pickle=False)
+
+    second = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    assert second.report["parameters"] == pytest.approx(first_parameters, abs=1e-8)
+    assert second.report["hold_out"]["samples"][0]["objective"] != first_holdout
+
+
+def test_objective_v2_recovers_shared_shape_with_occurrence_alignment(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    topology_path = project_dir / "topology.yaml"
+    topology = yaml.safe_load(topology_path.read_text(encoding="utf-8"))
+    topology["glyphs"]["a"]["strokes"][0]["parts"][0]["transform"] = {
+        "scale_x": 50.0,
+        "scale_y": 40.0,
+        "dx": -3.0,
+    }
+    _write_yaml(topology_path, topology)
+
+    families_path = project_dir / "families.yaml"
+    families = yaml.safe_load(families_path.read_text(encoding="utf-8"))
+    families["families"][0]["alignment"] = {"free": ["dx", "dy", "log_scale_x", "log_scale_y"]}
+    _write_yaml(families_path, families)
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"]["version"] = 2
+    config["optimizer"].update(
+        {
+            "method": "alternating-least-squares",
+            "max_cycles": 2,
+            "max_nfev": 60,
+            "restarts": 2,
+        }
+    )
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    result = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    fitted = result.report["primitive"]["segments"][0]["c1"][1]
+    assert fitted > 0.6
+    aligned = result.report["occurrences"]["sample-a--a-oval"]["effective_transform"]
+    assert abs(aligned["scale_x"] - 45.0) < abs(50.0 - 45.0)
+    assert abs(aligned["dx"]) < 3.0
+
+
+def test_objective_v2_reports_occurrence_bound_saturation(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    families_path = project_dir / "families.yaml"
+    families = yaml.safe_load(families_path.read_text(encoding="utf-8"))
+    families["families"][0]["alignment"] = {
+        "free": ["dx"],
+        "bounds": {"dx": [0.0, 1.0]},
+    }
+    _write_yaml(families_path, families)
+
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"]["version"] = 2
+    config["optimizer"].update(
+        {"max_cycles": 1, "max_nfev": 30, "restarts": 1, "joint_refine": False}
+    )
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    result = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    assert any("sample-a--a-oval.dx" in item for item in result.report["bound_saturation_warnings"])
+
+
+def test_compositional_glyph_fit_uses_only_active_instances_and_fit_data(tmp_path):
+    from inkgrammar.fitting.glyph_fit import fit_compositional_glyphs
+
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    corpus_path = project_dir / "corpus.yaml"
+    corpus = yaml.safe_load(corpus_path.read_text(encoding="utf-8"))
+    sample = next(item for item in corpus["samples"] if item["id"] == "sample-a")
+    sample["active_instances"] = ["a-oval"]
+    _write_yaml(corpus_path, corpus)
+
+    topology_path = project_dir / "topology.yaml"
+    topology = yaml.safe_load(topology_path.read_text(encoding="utf-8"))
+    topology["glyphs"]["a"]["strokes"].append(
+        {
+            "id": "inactive-extra",
+            "parts": [
+                {
+                    "instance": "a-unused",
+                    "primitive": PRIMITIVE_ID,
+                    "attach": False,
+                    "transform": {"scale_x": 8.0, "scale_y": 8.0},
+                }
+            ],
+        }
+    )
+    _write_yaml(topology_path, topology)
+
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"]["version"] = 2
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    first = fit_compositional_glyphs(bundle, sample_ids={"sample-a"})[0]
+    assert first.report["active_instances"] == ["a-oval"]
+    assert first.report["composed_instances"] == ["a-oval"]
+    assert first.report["shared_geometry_updated"] is False
+    assert set(first.report["occurrences"]) == {"a-oval"}
+    assert first.overlay_path.is_file()
+
+    holdout_mask = np.zeros((64, 64), dtype=np.uint8)
+    holdout_mask[30:34, 10:54] = 255
+    Image.fromarray(holdout_mask, mode="L").save(
+        bundle.private_work_dir / "materialized" / "masks" / "sample-C.png",
+        format="PNG",
+        optimize=False,
+        compress_level=9,
+    )
+    holdout_distance = distance_transform_edt(holdout_mask == 0).astype(np.float32)
+    with (bundle.private_work_dir / "materialized" / "distance-fields" / "sample-C.npy").open(
+        "wb"
+    ) as stream:
+        np.save(stream, holdout_distance, allow_pickle=False)
+
+    second = fit_compositional_glyphs(bundle, sample_ids={"sample-a"})[0]
+    assert second.report["occurrences"]["a-oval"]["delta"] == pytest.approx(
+        first.report["occurrences"]["a-oval"]["delta"], abs=1e-8
+    )
+
+
+def test_word_validation_is_diagnostic_only_for_holdout_words(tmp_path):
+    from inkgrammar.fitting.glyph_fit import fit_compositional_glyphs
+    from inkgrammar.fitting.word_validation import validate_composed_words
+
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    corpus_path = project_dir / "corpus.yaml"
+    corpus = yaml.safe_load(corpus_path.read_text(encoding="utf-8"))
+    sample = next(item for item in corpus["samples"] if item["id"] == "sample-a")
+    sample["active_instances"] = ["a-oval"]
+    word_sample = dict(sample)
+    word_sample.update(
+        {
+            "id": "sample-word",
+            "kind": "word",
+            "text": "aa",
+            "split": "hold-out",
+            "active_instances": ["0:a-oval", "1:a-oval"],
+            "loss_regions": [],
+        }
+    )
+    corpus["samples"].append(word_sample)
+    _write_yaml(corpus_path, corpus)
+
+    anchors_path = project_dir / "anchors.json"
+    anchors = json.loads(anchors_path.read_text(encoding="utf-8"))
+    anchors["samples"]["sample-word"] = dict(anchors["samples"]["sample-a"])
+    _write_json(anchors_path, anchors)
+
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"]["version"] = 2
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    fit_compositional_glyphs(bundle, sample_ids={"sample-a"})
+    first = validate_composed_words(bundle, sample_ids={"sample-word"})[0]
+    assert first.report["parameter_updates"] is False
+    assert first.report["selection_split"] is None
+    assert first.report["occurrence_fit_sources"] == {"a": "sample-a"}
+    assert first.report["connection_checks"][-1]["status"] == "not-specified"
+    assert first.overlay_path.is_file()
+
+    holdout_mask = np.zeros((64, 64), dtype=np.uint8)
+    Image.fromarray(holdout_mask, mode="L").save(
+        bundle.private_work_dir / "materialized" / "masks" / "sample-word.png",
+        format="PNG",
+        optimize=False,
+        compress_level=9,
+    )
+    holdout_distance = distance_transform_edt(holdout_mask == 0).astype(np.float32)
+    with (bundle.private_work_dir / "materialized" / "distance-fields" / "sample-word.npy").open(
+        "wb"
+    ) as stream:
+        np.save(stream, holdout_distance, allow_pickle=False)
+
+    second = validate_composed_words(bundle, sample_ids={"sample-word"})[0]
+    assert second.report["metrics"] != first.report["metrics"]
+    assert second.report["occurrence_fit_sources"] == first.report["occurrence_fit_sources"]
+    assert second.report["parameter_updates"] is False

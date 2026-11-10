@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
@@ -83,3 +84,45 @@ def test_fitting_models_are_strict_and_validate_corpus_ids():
     )
     with pytest.raises(ValidationError, match="duplicate fit sample id"):
         FitCorpus(samples=[sample, sample])
+
+    with pytest.raises(ValidationError, match="active instance IDs must be unique"):
+        FitSample.model_validate(sample.model_dump() | {"active_instances": ["part-a", "part-a"]})
+
+
+def test_occurrence_transform_composes_nominal_values_with_bounded_deltas():
+    from inkgrammar.fitting.models import (
+        OccurrenceDelta,
+        OccurrenceFitBounds,
+        OccurrenceFitState,
+        TopologyTransform,
+        compose_occurrence_transform,
+    )
+
+    nominal = TopologyTransform(scale_x=30, scale_y=32, shear_x=0.1, dx=-3, dy=2)
+    delta = OccurrenceDelta(dx=1.5, dy=-2.0, log_scale_x=0.05, log_scale_y=-0.05, shear_x=0.02)
+    state = OccurrenceFitState(
+        instance_id="loop",
+        nominal_transform=nominal,
+        delta=delta,
+        bounds=OccurrenceFitBounds(),
+        free_parameters=["dx", "dy", "log_scale_x", "log_scale_y", "shear_x"],
+    )
+
+    effective = compose_occurrence_transform(state.nominal_transform, state.delta)
+
+    assert effective.dx == -1.5
+    assert effective.dy == 0.0
+    assert effective.scale_x == pytest.approx(30 * np.exp(0.05))
+    assert effective.scale_y == pytest.approx(32 * np.exp(-0.05))
+    assert effective.shear_x == pytest.approx(0.12)
+
+
+def test_occurrence_fit_state_rejects_delta_outside_configured_bounds():
+    from inkgrammar.fitting.models import OccurrenceFitState, TopologyTransform
+
+    with pytest.raises(ValidationError, match="outside bounds"):
+        OccurrenceFitState(
+            instance_id="loop",
+            nominal_transform=TopologyTransform(),
+            delta={"dx": 5.0},
+        )

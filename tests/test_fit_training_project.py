@@ -43,7 +43,7 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     )
     assert len(source_lock.sources) == 5
     assert len(corpus.samples) == 15
-    assert objective.version == 1
+    assert objective.version == 2
     assert optimizer.seed == 1968
     assert set(topology.glyphs) <= {sample.text for sample in corpus.samples}
     assert all(

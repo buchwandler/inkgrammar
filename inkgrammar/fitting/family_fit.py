@@ -19,7 +19,14 @@ from .checkpoint import (
     load_checkpoint,
     save_checkpoint,
 )
-from .models import FitSample, PrimitiveTemplate, TopologyPart, TopologyTransform
+from .models import (
+    FitSample,
+    OccurrenceDelta,
+    PrimitiveTemplate,
+    TopologyPart,
+    TopologyTransform,
+    compose_occurrence_transform,
+)
 from .objective import LocalRegion, ObjectiveConfig, ObjectiveResult, evaluate_objective
 from .optimizer import (
     checkpoint_from_result,
@@ -80,7 +87,9 @@ def primitive_path(template: PrimitiveTemplate, transform: TopologyTransform) ->
 def _prepare_sample(
     bundle: FitProjectBundle,
     sample: FitSample,
-    primitive_id: str,
+    primitive_id: str | None,
+    *,
+    active_instances: set[str] | None = None,
 ) -> _PreparedSample:
     materialized = bundle.private_work_dir / "materialized"
     mask_path = materialized / "masks" / f"{sample.id}.png"
@@ -98,11 +107,19 @@ def _prepare_sample(
     glyph = bundle.topology.glyphs.get(sample.text)
     if glyph is None:
         raise ValueError(f"no topology recipe for fit sample {sample.id}")
+    active_ids = active_instances
+    if active_ids is None and sample.active_instances:
+        active_ids = set(sample.active_instances)
     parts = tuple(
-        part for stroke in glyph.strokes for part in stroke.parts if part.primitive == primitive_id
+        part
+        for stroke in glyph.strokes
+        for part in stroke.parts
+        if (primitive_id is None or part.primitive == primitive_id)
+        and (active_ids is None or part.instance in active_ids)
     )
     if not parts:
-        raise ValueError(f"glyph {sample.text!r} has no instance of {primitive_id}")
+        target = primitive_id or "active instances"
+        raise ValueError(f"glyph {sample.text!r} has no topology parts for {target}")
     if len({part.instance for part in parts}) != len(parts):
         raise ValueError(f"duplicate primitive instance in glyph {sample.text!r}")
 
@@ -144,8 +161,18 @@ def _render_sample(
     template: PrimitiveTemplate,
     prepared: _PreparedSample,
     bundle: FitProjectBundle,
+    occurrence_deltas: dict[str, OccurrenceDelta] | None = None,
 ) -> tuple[FittingRender, tuple[str, ...]]:
-    paths = {part.instance: primitive_path(template, part.transform) for part in prepared.parts}
+    deltas = occurrence_deltas or {}
+    paths = {
+        part.instance: primitive_path(
+            template,
+            compose_occurrence_transform(part.transform, deltas[part.instance])
+            if part.instance in deltas
+            else part.transform,
+        )
+        for part in prepared.parts
+    }
     rendered = render_paths(
         paths,
         canvas_size=prepared.canvas_size,
@@ -211,6 +238,9 @@ def _write_private_overlays(
     primitive_id: str,
     template: PrimitiveTemplate,
     samples: list[_PreparedSample],
+    occurrence_deltas: dict[str, dict[str, OccurrenceDelta]] | None = None,
+    *,
+    include_nominal: bool = False,
 ) -> Path:
     overlays_root = bundle.private_work_dir / "overlays"
     if overlays_root.is_symlink():
@@ -223,39 +253,47 @@ def _write_private_overlays(
 
     images: list[tuple[str, Image.Image]] = []
     for prepared in samples:
-        rendered, _ = _render_sample(template, prepared, bundle)
-        for region_id, mask, instance_ids in prepared.regions:
-            _safe_fit_id(prepared.sample.id)
-            _safe_fit_id(region_id)
-            ys, xs = np.nonzero(mask)
-            top, bottom = int(ys.min()), int(ys.max()) + 1
-            left, right = int(xs.min()), int(xs.max()) + 1
-            component = np.zeros(prepared.reference.shape, dtype=np.float32)
-            for instance_id in instance_ids:
-                component = np.maximum(component, rendered.part_layers[instance_id])
-            region_reference = prepared.reference[top:bottom, left:right]
-            region_generated = component[top:bottom, left:right]
-            region_mask = mask[top:bottom, left:right] > 0
-            reference_ink = (region_reference > 0.05) & region_mask
-            generated_ink = (region_generated > 0.05) & region_mask
-            overlay = np.full((*region_reference.shape, 3), 255, dtype=np.uint8)
-            overlay[reference_ink] = (220, 40, 40)
-            overlay[generated_ink] = (40, 70, 220)
-            overlay[reference_ink & generated_ink] = (30, 30, 30)
-            label = f"{prepared.sample.id} | {region_id}"
-            image = Image.fromarray(overlay)
-            scale = 4
-            enlarged = image.resize(
-                (image.width * scale, image.height * scale), Image.Resampling.NEAREST
-            )
-            labeled = Image.new("RGB", (enlarged.width, enlarged.height + 20), "white")
-            ImageDraw.Draw(labeled).text((2, 2), label, fill="black")
-            labeled.paste(enlarged, (0, 20))
-            output_path = output_dir / f"{prepared.sample.id}--{region_id}.png"
-            if output_path.is_symlink():
-                raise ValueError("private overlay output must not be a symlink")
-            labeled.save(output_path, format="PNG", optimize=False, compress_level=9)
-            images.append((label, labeled))
+        deltas = (occurrence_deltas or {}).get(prepared.sample.id)
+        variants = (
+            [("nominal", None), ("aligned", deltas)] if include_nominal else [("fit", deltas)]
+        )
+        for variant, variant_deltas in variants:
+            rendered, _ = _render_sample(template, prepared, bundle, variant_deltas)
+            for region_id, mask, instance_ids in prepared.regions:
+                _safe_fit_id(prepared.sample.id)
+                _safe_fit_id(region_id)
+                ys, xs = np.nonzero(mask)
+                top, bottom = int(ys.min()), int(ys.max()) + 1
+                left, right = int(xs.min()), int(xs.max()) + 1
+                component = np.zeros(prepared.reference.shape, dtype=np.float32)
+                for instance_id in instance_ids:
+                    component = np.maximum(component, rendered.part_layers[instance_id])
+                region_reference = prepared.reference[top:bottom, left:right]
+                region_generated = component[top:bottom, left:right]
+                region_mask = mask[top:bottom, left:right] > 0
+                reference_ink = (region_reference > 0.05) & region_mask
+                generated_ink = (region_generated > 0.05) & region_mask
+                overlay = np.full((*region_reference.shape, 3), 255, dtype=np.uint8)
+                overlay[reference_ink] = (220, 40, 40)
+                overlay[generated_ink] = (40, 70, 220)
+                overlay[reference_ink & generated_ink] = (30, 30, 30)
+                label = f"{prepared.sample.id} | {region_id}"
+                if include_nominal:
+                    label = f"{label} | {variant}"
+                image = Image.fromarray(overlay)
+                scale = 4
+                enlarged = image.resize(
+                    (image.width * scale, image.height * scale), Image.Resampling.NEAREST
+                )
+                labeled = Image.new("RGB", (enlarged.width, enlarged.height + 20), "white")
+                ImageDraw.Draw(labeled).text((2, 2), label, fill="black")
+                labeled.paste(enlarged, (0, 20))
+                suffix = f"--{variant}" if include_nominal else ""
+                output_path = output_dir / f"{prepared.sample.id}--{region_id}{suffix}.png"
+                if output_path.is_symlink():
+                    raise ValueError("private overlay output must not be a symlink")
+                labeled.save(output_path, format="PNG", optimize=False, compress_level=9)
+                images.append((label, labeled))
 
     columns, cell_width, cell_height = 3, 180, 120
     rows = (len(images) + columns - 1) // columns
@@ -386,9 +424,7 @@ def refresh_primitive_artifact_hashes(
     checkpoint_path = (
         _project_output_directory(bundle.project_dir, "checkpoints") / f"{primitive_id}.json"
     )
-    report_path = (
-        _project_output_directory(bundle.project_dir, "reports") / f"{primitive_id}.json"
-    )
+    report_path = _project_output_directory(bundle.project_dir, "reports") / f"{primitive_id}.json"
     if checkpoint_path.is_symlink() or report_path.is_symlink():
         raise ValueError("fitting output files must not be symlinks")
 
@@ -409,7 +445,12 @@ def refresh_primitive_artifact_hashes(
 
 
 def _optimizer_backend(method: str) -> str:
-    return "scipy-powell" if method == "powell" else "scipy-differential-evolution+powell"
+    return {
+        "powell": "scipy-powell",
+        "differential_evolution+powell": "scipy-differential-evolution+powell",
+        "least_squares": "scipy-least-squares-trf",
+        "alternating-least-squares": "inkgrammar-alternating-least-squares",
+    }[method]
 
 
 def _report_markdown(report: dict[str, Any]) -> str:
@@ -501,6 +542,10 @@ def optimize_primitive_family(
     resume: bool = False,
 ) -> FitRunArtifacts:
     _safe_fit_id(primitive_id)
+    if bundle.fit_config.objective.version == 2:
+        from .family_fit_v2 import optimize_primitive_family_v2
+
+        return optimize_primitive_family_v2(bundle, primitive_id, resume=resume)
     family = next(
         (family for family in bundle.families.families if family.primitive == primitive_id),
         None,

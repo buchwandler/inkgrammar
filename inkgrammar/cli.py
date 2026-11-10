@@ -244,6 +244,49 @@ def fit_optimize_primitive(
     typer.echo(f"Visual review sheet: {artifacts.private_review_sheet_path}")
 
 
+@fit_app.command("fit-glyphs")
+def fit_glyphs(project: Path = typer.Argument(..., exists=True)) -> None:  # noqa: B008
+    """Fit active occurrences in fit-split glyphs with shared primitive geometry fixed."""
+    from .fitting.glyph_fit import fit_compositional_glyphs
+    from .fitting.workspace import load_fit_project
+
+    try:
+        artifacts = fit_compositional_glyphs(load_fit_project(project))
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if not artifacts:
+        typer.echo("No fit-split glyphs with active instances.")
+        return
+    for artifact in artifacts:
+        typer.echo(f"Fitted {artifact.report['sample_id']}")
+        typer.echo(f"Report: {artifact.report_path}")
+        typer.echo(f"Composition overlay: {artifact.overlay_path}")
+
+
+@fit_app.command("validate-words")
+def fit_validate_words(project: Path = typer.Argument(..., exists=True)) -> None:  # noqa: B008
+    """Evaluate fit, validation, and hold-out word compositions without fitting parameters."""
+    from .fitting.word_validation import validate_composed_words
+    from .fitting.workspace import load_fit_project
+
+    try:
+        artifacts = validate_composed_words(load_fit_project(project))
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if not artifacts:
+        typer.echo("No word samples found.")
+        return
+    for artifact in artifacts:
+        metrics = artifact.report["metrics"]
+        typer.echo(
+            f"Validated {artifact.report['sample_id']} ({artifact.report['split']}): "
+            f"soft-mask loss {metrics['soft_mask_loss']:.6f}, "
+            f"distance loss {metrics['symmetric_distance_loss']:.6f}"
+        )
+        typer.echo(f"Report: {artifact.report_path}")
+        typer.echo(f"Composition overlay: {artifact.overlay_path}")
+
+
 @fit_app.command("report")
 def fit_report(
     project: Path = typer.Argument(..., exists=True),  # noqa: B008

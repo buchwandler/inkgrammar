@@ -115,3 +115,45 @@ def test_resume_rejects_checkpoint_with_different_parameter_names():
         resume_optimization(unsupported, space, lambda vector: float(vector.sum()))
     with pytest.raises(ValueError, match="parameter names do not match"):
         resume_optimization(source, space, lambda vector: float(vector.sum()))
+
+
+def test_optimizer_accepts_best_evaluated_candidate_over_worse_solver_result(monkeypatch):
+    from types import SimpleNamespace
+
+    import scipy.optimize
+
+    space = ParameterSpace.from_primitive(primitive())
+    calls = []
+
+    def fake_minimize(function, initial, **kwargs):
+        better = np.array([0.5, 0.4])
+        worse = np.array([-0.9, -0.8])
+        calls.append(function(better))
+        calls.append(function(worse))
+        return SimpleNamespace(x=worse, success=True, status=0, message="finished")
+
+    monkeypatch.setattr(scipy.optimize, "minimize", fake_minimize)
+    result = optimize_parameters(space, quadratic)
+
+    np.testing.assert_allclose(result.parameters, [0.25, 0.7])
+    np.testing.assert_allclose(result.solver_parameters, [-0.45, 0.1])
+    assert result.objective < result.solver_objective
+    assert result.accepted_history_index < len(result.history) - 1
+    assert result.success is True
+    assert result.status == 0
+    assert result.backend == "scipy-powell"
+
+
+def test_least_squares_backend_fits_residual_vector():
+    space = ParameterSpace.from_primitive(primitive())
+    result = optimize_parameters(
+        space,
+        lambda vector: vector - np.array([0.25, 0.7]),
+        config=OptimizerConfig(method="least_squares", loss="linear"),
+    )
+
+    np.testing.assert_allclose(result.parameters, [0.25, 0.7], atol=1e-7)
+    assert result.objective < 1e-12
+    assert result.backend == "scipy-least-squares-trf"
+    assert result.status is not None
+    assert result.success is True

@@ -1,7 +1,7 @@
 format: inkgrammar-fit-config
 format_version: 1
 objective:
-  version: 1
+  version: 2
   weights:
     soft_mask: 1.0
     distance: 0.75
@@ -14,11 +14,31 @@ objective:
     complexity: 0.02
     local_region: 0.5
   residual_sigma: 0.05
+  geometry:
+    path_to_ink: 1.0
+    normal_center: 1.5
+    endpoint: 0.6
+    tangent: 0.25
+    assigned_coverage: 0.2
+  priors:
+    transform: 0.2
+    shape: 0.05
+    curvature: 0.02
+  family:
+    worst: 0.25
+    spread: 0.1
 optimizer:
-  method: powell
+  method: alternating-least-squares
   seed: 1968
   max_iterations: 200
   tolerance: 0.00001
+  loss: soft_l1
+  f_scale: 1.0
+  max_nfev: 250
+  max_cycles: 6
+  convergence_relative: 0.0005
+  joint_refine: true
+  restarts: 8
   de_max_iterations: 20
   de_population_size: 8
   de_dimension_limit: 12

@@ -7,6 +7,7 @@ from .family_fit import (
     optimize_primitive_family,
     primitive_path,
 )
+from .glyph_fit import GlyphFitArtifacts, fit_compositional_glyphs
 from .models import (
     DuctusModel,
     FitAnchorRecord,
@@ -42,6 +43,7 @@ from .optimizer import (
 from .parameterization import ParameterSpace, ParameterSpec
 from .render import FittingRender, render_paths, render_traces
 from .trace import CompiledPartTrace, compile_glyph_trace
+from .word_validation import WordValidationArtifacts, validate_composed_words
 from .workspace import (
     FitProjectBundle,
     MaterializationResult,
@@ -51,6 +53,8 @@ from .workspace import (
 
 __all__ = [
     "FittingRender",
+    "GlyphFitArtifacts",
+    "WordValidationArtifacts",
     "LocalRegion",
     "ObjectiveConfig",
     "ObjectiveResult",
@@ -94,4 +98,6 @@ __all__ = [
     "load_fit_reports",
     "optimize_primitive_family",
     "primitive_path",
+    "fit_compositional_glyphs",
+    "validate_composed_words",
 ]

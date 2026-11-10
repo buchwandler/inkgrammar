@@ -1,117 +1,393 @@
 {
-  "evaluations": 266,
+  "bound_saturation_warnings": [],
+  "comparison_v1": {
+    "hold_out": {
+      "mean_objective": 0.8083627672817797,
+      "policy": "diagnostic-only; never used for parameter selection",
+      "samples": [
+        {
+          "instances": [
+            {
+              "instance_id": "C-oval",
+              "primitive_id": "sas-open-oval-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 48.0,
+                "scale_y": 60.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.8083627672817797,
+          "sample_id": "sas1968-alphabet-U+0043",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.07819027124459066,
+            "complexity": 2.0,
+            "curvature_regularization": 0.002474532172725277,
+            "distance": 0.0310747005950445,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.8083380219600524,
+            "soft_mask": 0.8083380219600524,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "worst_member_objective": 0.8083627672817797
+    },
+    "training": {
+      "final_objective": 0.7139254928109124,
+      "initial_objective": 0.738782515960142,
+      "mean_objective": 0.7139254928109124,
+      "samples": [
+        {
+          "final_objective": 0.8050917594656712,
+          "initial_objective": 0.8155327136714894,
+          "instances": [
+            {
+              "instance_id": "c-oval",
+              "primitive_id": "sas-open-oval-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 45.0,
+                "scale_y": 35.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.8050917594656712,
+          "sample_id": "sas1968-alphabet-U+0063",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.006648285462873495,
+            "complexity": 2.0,
+            "curvature_regularization": 0.003912082480153725,
+            "distance": 0.03359733349619103,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.8050526386408697,
+            "soft_mask": 0.81869990516919,
+            "tangent": 0.0
+          }
+        },
+        {
+          "final_objective": 0.6227592261561535,
+          "initial_objective": 0.6620323182487946,
+          "instances": [
+            {
+              "instance_id": "a-oval",
+              "primitive_id": "sas-open-oval-01",
+              "residuals": {},
+              "transform": {
+                "dx": 6.0,
+                "dy": 0.0,
+                "scale_x": 45.0,
+                "scale_y": 35.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.6227592261561535,
+          "sample_id": "sas1968-alphabet-U+0061",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.061814908186769844,
+            "complexity": 2.0,
+            "curvature_regularization": 0.003912082480153725,
+            "distance": 0.013886461928828397,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.622720105331352,
+            "soft_mask": 0.6348467393461299,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "selection_split": "fit",
+      "worst_member_objective": 0.8050917594656712
+    }
+  },
+  "evaluations": 1190,
   "format": "inkgrammar-fit-report",
-  "format_version": 1,
-  "generalization_gap": 0.09443727447086725,
+  "format_version": 2,
+  "generalization_gap": 0.1649576731058709,
   "hold_out": {
-    "mean_objective": 0.8083627672817797,
-    "policy": "diagnostic-only; never used for parameter selection",
+    "mean_objective": 0.4388080227075534,
+    "median_objective": 0.4388080227075534,
+    "policy": "Evaluated after fitting. Alignment deltas are diagnostic only and do not update shared geometry.",
+    "raw_nominal_mean_objective": 0.6735373650395966,
     "samples": [
       {
-        "instances": [
+        "aligned_diagnostic_objective": 0.4388080227075534,
+        "aligned_instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -1.1164237393299885,
+              "dy": -0.9125041294689114,
+              "log_scale_x": 0.013661145526421281,
+              "log_scale_y": 0.0965864663993079,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -1.1164237393299885,
+              "dy": -0.9125041294689114,
+              "scale_x": 48.66023449694604,
+              "scale_y": 66.08428869209125,
+              "shear_x": 0.0
+            },
             "instance_id": "C-oval",
-            "primitive_id": "sas-open-oval-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 48.0,
               "scale_y": 60.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {
+              "centerline_rms_px": 3.050520286682795,
+              "centerline_valid_fraction": 0.875,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 3.125,
+              "path_to_ink_rms_px": 3.008110344351104,
+              "tangent_rms": 0.1818850011110342,
+              "weighted_squared_cost": 71.96451572403876
             }
           }
         ],
-        "objective": 0.8083627672817797,
+        "instances": [
+          {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "log_scale_x": 0.0,
+              "log_scale_y": 0.0,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 48.0,
+              "scale_y": 60.0,
+              "shear_x": 0.0
+            },
+            "instance_id": "C-oval",
+            "nominal_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 48.0,
+              "scale_y": 60.0,
+              "shear_x": 0.0
+            },
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {
+              "centerline_rms_px": 2.8638951173367753,
+              "centerline_valid_fraction": 0.59375,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 3.289473684210526,
+              "path_to_ink_rms_px": 4.681724050040909,
+              "tangent_rms": 0.16999938199176323,
+              "weighted_squared_cost": 110.46012786649386
+            }
+          }
+        ],
+        "objective": 0.4388080227075534,
+        "raw_nominal_objective": 0.6735373650395966,
+        "raw_terms": {
+          "endpoint_rms_px": 0.0,
+          "normal_center_rms_px": 2.8638951173367753,
+          "path_to_ink_rms_px": 4.681724050040909,
+          "tangent_rms": 0.16999938199176323
+        },
         "sample_id": "sas1968-alphabet-U+0043",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.07819027124459066,
-          "complexity": 2.0,
-          "curvature_regularization": 0.002474532172725277,
-          "distance": 0.0310747005950445,
+        "weighted_terms": {
           "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.8083380219600524,
-          "soft_mask": 0.8083380219600524,
-          "tangent": 0.0
+          "normal_center": 0.3357648049496035,
+          "path_to_ink": 2.7398175100914313,
+          "tangent": 0.020265937918647524
         }
       }
     ],
-    "worst_member_objective": 0.8083627672817797
+    "std_objective": 0.0,
+    "worst_member_objective": 0.4388080227075534
   },
   "initial_parameters": {
-    "segments.0.c1.y": 1.0,
-    "segments.0.c2.x": 0.0,
-    "segments.1.c1.x": 0.081081
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_y": 0.0,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_y": 0.0,
+    "shared.segments.0.c1.y": 1.0,
+    "shared.segments.0.c2.x": 0.0,
+    "shared.segments.1.c1.x": 0.081081
   },
   "input_hashes": {
-    "corpus_sha256": "bbf2be60c17fc8ad6d89f118296e259335c303634247f3995afa1b3d3247158f",
+    "corpus_sha256": "594f91aa4d6a0d5dd6f099231eac266fcaf77b7be74f87237e6606a419edab12",
     "project_sha256": "b6fbdb5437aac2af99c388a45fb14dc8bfafd727d87d2c978f25aa22e1cc9688",
     "source_lock_sha256": "4547faa9d99879d7d8721a23881e45c5fffd3fc72e7528e39096e9a558ded111",
     "support_sha256": {
       "anchors": "f2c004d9a2718f3de7af1616f6f9161a6cdf2688b678cc4abfa0894cc2b296ef",
-      "families": "bac5582f44bdb3fd70df0fa9b480d4de92e98c7affa9a6791ff10654a735d63e",
-      "fit_config": "acf1a378b7d5a1ff8eee07dad47031283148d34520a4e080e9284d6037187ae8",
+      "families": "03a6895ced16a88799b291035276ce055d8b1d4576f46709d880b1812f179b24",
+      "fit_config": "31acbcd1e2f3f07aa5e75a900c37a9fac1e518f3821ec16548b25c717aafab3e",
       "observation_manifest": "ddf77ca78af5e33c6f29b7518aa59ab7bd67878cceaa947b35f07429c5a60e38",
       "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
       "topology": "bda0a2fe38775bb6508b81d6f276bb52bbb9c897dc42021ce0f4e9cd54fabe6c",
       "training_materialization": "15d0a09db971fca5b4bbf90c3243df4615f7cb67e9676ae1d2a980c5a298593f"
     }
   },
-  "objective_version": 1,
+  "objective_version": 2,
+  "occurrences": {
+    "sas1968-alphabet-U+0061--a-oval": {
+      "delta": {
+        "dx": 0.6946697371780424,
+        "dy": -0.784436833190687,
+        "log_scale_x": -0.01920695203037112,
+        "log_scale_y": 0.007711743318627284,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": 6.694669737178042,
+        "dy": -0.784436833190687,
+        "scale_x": 44.1439346786273,
+        "scale_y": 35.2709544388678,
+        "shear_x": 0.0
+      },
+      "instance_id": "a-oval",
+      "nominal_transform": {
+        "dx": 6.0,
+        "dy": 0.0,
+        "scale_x": 45.0,
+        "scale_y": 35.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0061"
+    },
+    "sas1968-alphabet-U+0063--c-oval": {
+      "delta": {
+        "dx": 0.485559558996715,
+        "dy": 0.1778331962461177,
+        "log_scale_x": 0.005469592851254479,
+        "log_scale_y": -0.015542977010073858,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": 0.485559558996715,
+        "dy": 0.1778331962461177,
+        "scale_x": 45.2468060272513,
+        "scale_y": 34.460201708049844,
+        "shear_x": 0.0
+      },
+      "instance_id": "c-oval",
+      "nominal_transform": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "scale_x": 45.0,
+        "scale_y": 35.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0063"
+    }
+  },
   "optimizer": {
-    "de_dimension_limit": 12,
-    "de_max_iterations": 20,
-    "de_population_size": 8,
-    "max_iterations": 200,
-    "method": "powell",
-    "seed": 1968,
-    "tolerance": 1e-05
+    "accepted_candidate": {
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dx": 0.6946697371780424,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dy": -0.784436833190687,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_x": -0.01920695203037112,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_y": 0.007711743318627284,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dx": 0.485559558996715,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dy": 0.1778331962461177,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_x": 0.005469592851254479,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_y": -0.015542977010073858,
+      "shared.segments.0.c1.y": 1.0305161086884487,
+      "shared.segments.0.c2.x": 0.09249543889019951,
+      "shared.segments.1.c1.x": 0.10460715312853178
+    },
+    "accepted_history_index": 120,
+    "backend": "scipy-least-squares-trf",
+    "candidate_count": 33,
+    "config": {
+      "convergence_relative": 0.0005,
+      "de_dimension_limit": 12,
+      "de_max_iterations": 20,
+      "de_population_size": 8,
+      "f_scale": 1.0,
+      "joint_refine": true,
+      "loss": "soft_l1",
+      "max_cycles": 6,
+      "max_iterations": 200,
+      "max_nfev": 250,
+      "method": "alternating-least-squares",
+      "restarts": 8,
+      "seed": 1968,
+      "tolerance": 1e-5
+    },
+    "evaluations": 1190,
+    "message": "`ftol` termination condition is satisfied.",
+    "restarts": 8,
+    "solver_candidate": {
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dx": 1.2737895023961059,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dy": -0.8382564682802824,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_x": -0.03187406604597298,
+      "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_y": 0.013921830953828457,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dx": 0.6964162878111066,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dy": -0.9456916288280617,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_x": 0.013750905119509632,
+      "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_y": -0.01831558223724282,
+      "shared.segments.0.c1.y": 0.9880154742035586,
+      "shared.segments.0.c2.x": 0.006029731512848288,
+      "shared.segments.1.c1.x": 0.14353736327504826
+    },
+    "status": 2,
+    "strategy": "alternating-least-squares",
+    "success": true
   },
   "parameter_bounds": {
-    "segments.0.c1.y": [
-      0.85,
-      1.1
-    ],
-    "segments.0.c2.x": [
-      -0.1,
-      0.1
-    ],
-    "segments.1.c1.x": [
-      0.0,
-      0.2
-    ]
+    "segments.0.c1.y": [0.85, 1.1],
+    "segments.0.c2.x": [-0.1, 0.1],
+    "segments.1.c1.x": [0.0, 0.2]
   },
   "parameters": {
-    "segments.0.c1.y": 1.0349516912944703,
-    "segments.0.c2.x": 0.09423633540569609,
-    "segments.1.c1.x": 0.18378333328386898
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dx": 0.6946697371780424,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.dy": -0.784436833190687,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_x": -0.01920695203037112,
+    "occurrence.sas1968-alphabet-U+0061--a-oval.delta.log_scale_y": 0.007711743318627284,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dx": 0.485559558996715,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.dy": 0.1778331962461177,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_x": 0.005469592851254479,
+    "occurrence.sas1968-alphabet-U+0063--c-oval.delta.log_scale_y": -0.015542977010073858,
+    "shared.segments.0.c1.y": 1.0305161086884487,
+    "shared.segments.0.c2.x": 0.09249543889019951,
+    "shared.segments.1.c1.x": 0.10460715312853178
   },
   "primitive": {
     "bounds": {
-      "segments.0.c1.y": [
-        0.85,
-        1.1
-      ],
-      "segments.0.c2.x": [
-        -0.1,
-        0.1
-      ],
-      "segments.1.c1.x": [
-        0.0,
-        0.2
-      ]
+      "segments.0.c1.y": [0.85, 1.1],
+      "segments.0.c2.x": [-0.1, 0.1],
+      "segments.1.c1.x": [0.0, 0.2]
     },
     "frame": {
-      "nominal_end": [
-        0.837838,
-        0.276596
-      ],
-      "start": [
-        1.0,
-        0.659574
-      ]
+      "nominal_end": [0.837838, 0.276596],
+      "start": [1.0, 0.659574]
     },
     "free_parameters": [
       "segments.0.c1.y",
@@ -120,131 +396,194 @@
     ],
     "id": "sas-open-oval-01",
     "kind": "cubic-chain",
-    "locked_parameters": [
-      "frame.start",
-      "segments.1.end"
-    ],
+    "locked_parameters": ["frame.start", "segments.1.end"],
     "provenance": {
       "construction": "source-backed",
       "trajectory": "inferred"
     },
     "segments": [
       {
-        "c1": [
-          0.567568,
-          1.0349516912944703
-        ],
-        "c2": [
-          0.09423633540569609,
-          0.425532
-        ],
-        "end": [
-          0.027027,
-          0.212766
-        ]
+        "c1": [0.567568, 1.0305161086884487],
+        "c2": [0.09249543889019951, 0.425532],
+        "end": [0.027027, 0.212766]
       },
       {
-        "c1": [
-          0.18378333328386898,
-          0.0
-        ],
-        "c2": [
-          0.594595,
-          0.106383
-        ],
-        "end": [
-          0.837838,
-          0.276596
-        ]
+        "c1": [0.10460715312853178, 0.0],
+        "c2": [0.594595, 0.106383],
+        "end": [0.837838, 0.276596]
       }
     ]
   },
   "primitive_id": "sas-open-oval-01",
   "project_id": "sas-1968",
+  "selection_objective": {
+    "blocks": {
+      "curvature": 4.050470852684526e-5,
+      "family_spread": 0.00979538953785737,
+      "family_worst": 0.09624843309257326,
+      "mean": 0.27385034960168253,
+      "median": 0.27385034960168253,
+      "shape_prior": 0.0040436979774117875,
+      "smooth_worst": 0.38499373237029305,
+      "squared_residual_total": 0.3973717672766437,
+      "std": 0.09795389537857369,
+      "total": 0.39248381524142384,
+      "transform_prior": 0.013393392358591966,
+      "worst": 0.3718042449802562
+    },
+    "total": 0.39248381524142384
+  },
+  "shared_parameters": {
+    "segments.0.c1.y": 1.0305161086884487,
+    "segments.0.c2.x": 0.09249543889019951,
+    "segments.1.c1.x": 0.10460715312853178
+  },
   "stage": "primitive:sas-open-oval-01",
   "training": {
-    "final_objective": 0.7139254928109124,
-    "initial_objective": 0.738782515960142,
-    "mean_objective": 0.7139254928109124,
+    "final_objective": 0.39248381524142384,
+    "initial_objective": 0.4633253021597894,
+    "mean_objective": 0.27385034960168253,
+    "median_objective": 0.27385034960168253,
     "samples": [
       {
-        "final_objective": 0.8050917594656712,
-        "initial_objective": 0.8155327136714894,
+        "final_objective": 0.3718042449802562,
+        "initial_objective": 0.44140747800110114,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.485559558996715,
+              "dy": 0.1778331962461177,
+              "log_scale_x": 0.005469592851254479,
+              "log_scale_y": -0.015542977010073858,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 0.485559558996715,
+              "dy": 0.1778331962461177,
+              "scale_x": 45.2468060272513,
+              "scale_y": 34.460201708049844,
+              "shear_x": 0.0
+            },
             "instance_id": "c-oval",
-            "primitive_id": "sas-open-oval-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 45.0,
               "scale_y": 35.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {
+              "centerline_rms_px": 3.2172908947919425,
+              "centerline_valid_fraction": 0.78125,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 3.5,
+              "path_to_ink_rms_px": 2.6943861464222083,
+              "tangent_rms": 0.20548737359613853,
+              "weighted_squared_cost": 60.97589617676202
             }
           }
         ],
-        "objective": 0.8050917594656712,
+        "objective": 0.3718042449802562,
+        "raw_terms": {
+          "endpoint_rms_px": 0.0,
+          "normal_center_rms_px": 3.2172908947919425,
+          "path_to_ink_rms_px": 2.6943861464222083,
+          "tangent_rms": 0.20548737359613853
+        },
         "sample_id": "sas1968-alphabet-U+0063",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.006648285462873495,
-          "complexity": 2.0,
-          "curvature_regularization": 0.003912082480153725,
-          "distance": 0.03359733349619103,
+        "weighted_terms": {
           "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.8050526386408697,
-          "soft_mask": 0.81869990516919,
-          "tangent": 0.0
+          "normal_center": 0.47227574196699185,
+          "path_to_ink": 0.9074645882539898,
+          "tangent": 0.026740341667919974
         }
       },
       {
-        "final_objective": 0.6227592261561535,
-        "initial_objective": 0.6620323182487946,
+        "final_objective": 0.17589645422310884,
+        "initial_objective": 0.2524127904476654,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.6946697371780424,
+              "dy": -0.784436833190687,
+              "log_scale_x": -0.01920695203037112,
+              "log_scale_y": 0.007711743318627284,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 6.694669737178042,
+              "dy": -0.784436833190687,
+              "scale_x": 44.1439346786273,
+              "scale_y": 35.2709544388678,
+              "shear_x": 0.0
+            },
             "instance_id": "a-oval",
-            "primitive_id": "sas-open-oval-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 6.0,
               "dy": 0.0,
               "scale_x": 45.0,
               "scale_y": 35.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {
+              "centerline_rms_px": 1.8202551899405146,
+              "centerline_valid_fraction": 0.90625,
+              "endpoint_rms_px": 3.6776370654946544,
+              "estimated_stroke_width_px": 5.293103448275862,
+              "path_to_ink_rms_px": 0.9255564214479887,
+              "tangent_rms": 0.28471164969830876,
+              "weighted_squared_cost": 28.847018492589854
             }
           }
         ],
-        "objective": 0.6227592261561535,
+        "objective": 0.17589645422310884,
+        "raw_terms": {
+          "endpoint_rms_px": 3.6776370654946544,
+          "normal_center_rms_px": 1.8202551899405146,
+          "path_to_ink_rms_px": 0.9255564214479887,
+          "tangent_rms": 0.28471164969830876
+        },
         "sample_id": "sas1968-alphabet-U+0061",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.061814908186769844,
-          "complexity": 2.0,
-          "curvature_regularization": 0.003912082480153725,
-          "distance": 0.013886461928828397,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.622720105331352,
-          "soft_mask": 0.6348467393461299,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 0.20037058348889078,
+          "normal_center": 0.3399204943865759,
+          "path_to_ink": 0.10708183616045086,
+          "tangent": 0.04475009001185942
         }
       }
     ],
     "selection_split": "fit",
-    "worst_member_objective": 0.8050917594656712
+    "std_objective": 0.09795389537857369,
+    "worst_member_objective": 0.3718042449802562
   },
   "validation": {
     "mean_objective": null,
-    "policy": "evaluated after fitting; not used for parameter optimization",
+    "median_objective": null,
+    "policy": "no samples in this split",
+    "raw_nominal_mean_objective": null,
     "samples": [],
+    "std_objective": null,
     "worst_member_objective": null
   },
   "visual_review": {
     "region_overlay_count": 3,
     "scope": "private work directory",
     "sheet": "overlays/sas-open-oval-01/review-sheet.png",
-    "status": "promotion_pending"
+    "status": "promotion_pending",
+    "variants": ["nominal", "aligned"]
   }
 }

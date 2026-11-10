@@ -49,6 +49,47 @@ def test_parameter_space_rejects_wrong_shape_nonfinite_and_out_of_bounds_vectors
         space.decode([0.31, 0.5], state)
 
 
+def test_composite_parameter_space_round_trips_shared_and_occurrence_parameters():
+    from inkgrammar.fitting.models import OccurrenceFitState, TopologyTransform
+    from inkgrammar.fitting.parameterization import CompositeParameterSpace
+
+    state = OccurrenceFitState(
+        instance_id="loop",
+        nominal_transform=TopologyTransform(scale_x=30, scale_y=32),
+        delta={"dx": 1.0, "log_scale_x": 0.05},
+    )
+    shared = primitive()
+    space = CompositeParameterSpace.from_primitive(shared, [state])
+    raw = space.encode(shared)
+    normalized = space.encode_optimizer_space(raw)
+
+    fitted_shape, fitted_states = space.decode(space.decode_optimizer_space(normalized), shared)
+
+    np.testing.assert_allclose(raw[:2], [0.1, 0.4])
+    np.testing.assert_allclose(space.decode_optimizer_space(normalized), raw, atol=1e-15)
+    assert fitted_shape == shared
+    assert fitted_states[0].delta.dx == 1.0
+    assert fitted_states[0].delta.log_scale_x == pytest.approx(0.05)
+    assert all(bounds == (-1.0, 1.0) for bounds in space.normalized_bounds())
+
+
+def test_optimizer_coordinates_normalize_radically_different_parameter_scales():
+    space = ParameterSpace(
+        [
+            ParameterSpec("bezier", -1.0, 1.0, 0.3),
+            ParameterSpec("translation", -4.0, 4.0, 4.0),
+            ParameterSpec("log_scale", -0.12, 0.12, 0.05),
+        ]
+    )
+    raw = np.array([0.3, 4.0, 0.05])
+
+    normalized = space.encode_optimizer_space(raw)
+
+    np.testing.assert_allclose(normalized, [0.3, 1.0, 0.05 / 0.12], atol=1e-15)
+    np.testing.assert_allclose(space.decode_optimizer_space(normalized), raw, atol=1e-15)
+    assert space.normalized_bounds() == [(-1.0, 1.0)] * 3
+
+
 def test_parameter_spec_and_space_reject_invalid_bounds_and_duplicate_names():
     with pytest.raises(ValueError, match="less than upper"):
         ParameterSpec("x", 1, 1, 1)

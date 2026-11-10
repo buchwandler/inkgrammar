@@ -55,6 +55,15 @@ class FitCheckpoint(StrictModel):
     history: list[CheckpointIteration] = Field(default_factory=list)
 
 
+def validate_checkpoint_objective_version(checkpoint: FitCheckpoint, expected_version: int) -> None:
+    actual_version = checkpoint.optimizer.objective_version
+    if actual_version != expected_version:
+        raise ValueError(
+            f"checkpoint objective version {actual_version} is incompatible with requested "
+            f"objective version {expected_version}"
+        )
+
+
 def save_checkpoint(checkpoint: FitCheckpoint, path: str | Path) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)

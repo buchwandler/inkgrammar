@@ -1,129 +1,540 @@
 {
-  "evaluations": 182,
+  "bound_saturation_warnings": [
+    "segments.0.c1.y is within 2% of a shared-shape bound"
+  ],
+  "comparison_v1": {
+    "hold_out": {
+      "mean_objective": 0.8289279013453096,
+      "policy": "diagnostic-only; never used for parameter selection",
+      "samples": [
+        {
+          "instances": [
+            {
+              "instance_id": "w-underturn-a",
+              "primitive_id": "sas-underturn-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 32.0,
+                "scale_y": 27.0,
+                "shear_x": 0.0
+              }
+            },
+            {
+              "instance_id": "w-underturn-b",
+              "primitive_id": "sas-underturn-01",
+              "residuals": {},
+              "transform": {
+                "dx": 25.0,
+                "dy": 0.0,
+                "scale_x": 32.0,
+                "scale_y": 27.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.8289279013453096,
+          "sample_id": "sas1968-alphabet-U+0077",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.0003770620583537702,
+            "complexity": 2.0,
+            "curvature_regularization": 0.0020353881989316892,
+            "distance": 0.05726299107516011,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.8289075474633203,
+            "soft_mask": 0.7753697473712864,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "worst_member_objective": 0.8289279013453096
+    },
+    "training": {
+      "final_objective": 0.548245134631949,
+      "initial_objective": 0.6131302030486298,
+      "mean_objective": 0.548245134631949,
+      "samples": [
+        {
+          "final_objective": 0.49780060554656047,
+          "initial_objective": 0.7292395381004217,
+          "instances": [
+            {
+              "instance_id": "i-underturn",
+              "primitive_id": "sas-underturn-01",
+              "residuals": {},
+              "transform": {
+                "dx": -3.0,
+                "dy": 0.0,
+                "scale_x": 38.0,
+                "scale_y": 38.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.49780060554656047,
+          "sample_id": "sas1968-alphabet-U+0069",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.02509197103969281,
+            "complexity": 2.0,
+            "curvature_regularization": 0.0018260241497751093,
+            "distance": 0.015558954623823406,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.4977823453050627,
+            "soft_mask": 0.5135305640458341,
+            "tangent": 0.0
+          }
+        },
+        {
+          "final_objective": 0.5986896637173375,
+          "initial_objective": 0.4970208679968378,
+          "instances": [
+            {
+              "instance_id": "u-underturn-a",
+              "primitive_id": "sas-underturn-01",
+              "residuals": {},
+              "transform": {
+                "dx": 0.0,
+                "dy": 0.0,
+                "scale_x": 30.0,
+                "scale_y": 32.0,
+                "shear_x": 0.0
+              }
+            },
+            {
+              "instance_id": "u-underturn-b",
+              "primitive_id": "sas-underturn-01",
+              "residuals": {},
+              "transform": {
+                "dx": 23.0,
+                "dy": 0.0,
+                "scale_x": 30.0,
+                "scale_y": 32.0,
+                "shear_x": 0.0
+              }
+            }
+          ],
+          "objective": 0.5986896637173375,
+          "sample_id": "sas1968-alphabet-U+0075",
+          "terms": {
+            "anchor": 0.0,
+            "bbox": 0.019903170886979838,
+            "complexity": 2.0,
+            "curvature_regularization": 0.0017597901316560595,
+            "distance": 0.012923019228373894,
+            "endpoint": 0.0,
+            "instance_regularization": 0.0,
+            "local_region": 0.5986720658160208,
+            "soft_mask": 0.5611856072840751,
+            "tangent": 0.0
+          }
+        }
+      ],
+      "selection_split": "fit",
+      "worst_member_objective": 0.5986896637173375
+    }
+  },
+  "evaluations": 1247,
   "format": "inkgrammar-fit-report",
-  "format_version": 1,
-  "generalization_gap": 0.28068276671336057,
+  "format_version": 2,
+  "generalization_gap": 0.263698881231035,
   "hold_out": {
-    "mean_objective": 0.8289279013453096,
-    "policy": "diagnostic-only; never used for parameter selection",
+    "mean_objective": 0.450313948434958,
+    "median_objective": 0.450313948434958,
+    "policy": "Evaluated after fitting. Alignment deltas are diagnostic only and do not update shared geometry.",
+    "raw_nominal_mean_objective": 10.364726541084787,
     "samples": [
       {
-        "instances": [
+        "aligned_diagnostic_objective": 0.450313948434958,
+        "aligned_instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -0.0020488510497549406,
+              "dy": 0.00038771730328601706,
+              "log_scale_x": -8.09255034696088e-5,
+              "log_scale_y": 2.3886374371784314e-5,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -0.0020488510497549406,
+              "dy": 0.00038771730328601706,
+              "scale_x": 31.99741048866914,
+              "scale_y": 27.00064493981065,
+              "shear_x": 0.0
+            },
             "instance_id": "w-underturn-a",
-            "primitive_id": "sas-underturn-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 32.0,
               "scale_y": 27.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 2.2157850986465415,
+              "centerline_valid_fraction": 0.875,
+              "endpoint_rms_px": 4.5,
+              "estimated_stroke_width_px": 4.517857142857143,
+              "path_to_ink_rms_px": 1.5903869091051148,
+              "tangent_rms": 0.3405998296862887,
+              "weighted_squared_cost": 40.65894229804006
             }
           },
           {
+            "bound_saturation": {
+              "dx": true,
+              "dy": false,
+              "log_scale_x": true,
+              "log_scale_y": true
+            },
+            "delta": {
+              "dx": -3.949934730353901,
+              "dy": 2.860254882513199,
+              "log_scale_x": -0.11992207608080385,
+              "log_scale_y": 0.11276415251717106,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 21.050065269646097,
+              "dy": 2.860254882513199,
+              "scale_x": 28.383665655245533,
+              "scale_y": 30.222933346231564,
+              "shear_x": 0.0
+            },
             "instance_id": "w-underturn-b",
-            "primitive_id": "sas-underturn-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 25.0,
               "dy": 0.0,
               "scale_x": 32.0,
               "scale_y": 27.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 2.3876634114592643,
+              "centerline_valid_fraction": 0.71875,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 4.543478260869565,
+              "path_to_ink_rms_px": 4.309578593810259,
+              "tangent_rms": 0.34116960061021284,
+              "weighted_squared_cost": 107.04403278862617
             }
           }
         ],
-        "objective": 0.8289279013453096,
+        "instances": [
+          {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "log_scale_x": 0.0,
+              "log_scale_y": 0.0,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 32.0,
+              "scale_y": 27.0,
+              "shear_x": 0.0
+            },
+            "instance_id": "w-underturn-a",
+            "nominal_transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 32.0,
+              "scale_y": 27.0,
+              "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 2.2162564216899727,
+              "centerline_valid_fraction": 0.875,
+              "endpoint_rms_px": 4.499999999999998,
+              "estimated_stroke_width_px": 4.517857142857143,
+              "path_to_ink_rms_px": 1.5921776648410875,
+              "tangent_rms": 0.3405504565778395,
+              "weighted_squared_cost": 40.68939824836308
+            }
+          },
+          {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "log_scale_x": 0.0,
+              "log_scale_y": 0.0,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 25.0,
+              "dy": 0.0,
+              "scale_x": 32.0,
+              "scale_y": 27.0,
+              "shear_x": 0.0
+            },
+            "instance_id": "w-underturn-b",
+            "nominal_transform": {
+              "dx": 25.0,
+              "dy": 0.0,
+              "scale_x": 32.0,
+              "scale_y": 27.0,
+              "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 3.5922529702357493,
+              "centerline_valid_fraction": 0.25,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 2.625,
+              "path_to_ink_rms_px": 28.91808414884591,
+              "tangent_rms": 0.055294084293181736,
+              "weighted_squared_cost": 3358.940907227447
+            }
+          }
+        ],
+        "objective": 0.450313948434958,
+        "raw_nominal_objective": 10.364726541084787,
+        "raw_terms": {
+          "endpoint_rms_px": 2.249999999999999,
+          "normal_center_rms_px": 2.904254695962861,
+          "path_to_ink_rms_px": 15.2551309068435,
+          "tangent_rms": 0.1979222704355106
+        },
         "sample_id": "sas1968-alphabet-U+0077",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.0003770620583537702,
-          "complexity": 2.0,
-          "curvature_regularization": 0.0020353881989316892,
-          "distance": 0.05726299107516011,
+        "weighted_terms": {
           "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.8289075474633203,
-          "soft_mask": 0.7753697473712864,
-          "tangent": 0.0
+          "normal_center": 0.3003385983958053,
+          "path_to_ink": 52.42441378475949,
+          "tangent": 0.047066270754218965
         }
       }
     ],
-    "worst_member_objective": 0.8289279013453096
+    "std_objective": 0.0,
+    "worst_member_objective": 0.450313948434958
   },
   "initial_parameters": {
-    "segments.0.c1.x": 0.666667,
-    "segments.0.c1.y": 0.625,
-    "segments.0.c2.x": 0.0
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_y": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_y": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dx": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dy": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_x": 0.0,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_y": 0.0,
+    "shared.segments.0.c1.x": 0.666667,
+    "shared.segments.0.c1.y": 0.625,
+    "shared.segments.0.c2.x": 0.0
   },
   "input_hashes": {
-    "corpus_sha256": "bbf2be60c17fc8ad6d89f118296e259335c303634247f3995afa1b3d3247158f",
+    "corpus_sha256": "594f91aa4d6a0d5dd6f099231eac266fcaf77b7be74f87237e6606a419edab12",
     "project_sha256": "b6fbdb5437aac2af99c388a45fb14dc8bfafd727d87d2c978f25aa22e1cc9688",
     "source_lock_sha256": "4547faa9d99879d7d8721a23881e45c5fffd3fc72e7528e39096e9a558ded111",
     "support_sha256": {
       "anchors": "f2c004d9a2718f3de7af1616f6f9161a6cdf2688b678cc4abfa0894cc2b296ef",
-      "families": "bac5582f44bdb3fd70df0fa9b480d4de92e98c7affa9a6791ff10654a735d63e",
-      "fit_config": "acf1a378b7d5a1ff8eee07dad47031283148d34520a4e080e9284d6037187ae8",
+      "families": "03a6895ced16a88799b291035276ce055d8b1d4576f46709d880b1812f179b24",
+      "fit_config": "31acbcd1e2f3f07aa5e75a900c37a9fac1e518f3821ec16548b25c717aafab3e",
       "observation_manifest": "ddf77ca78af5e33c6f29b7518aa59ab7bd67878cceaa947b35f07429c5a60e38",
       "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
       "topology": "bda0a2fe38775bb6508b81d6f276bb52bbb9c897dc42021ce0f4e9cd54fabe6c",
       "training_materialization": "f21bedddd2c0ca71785657871fc0bf27c0439cc0a4fd9b57caeac937f75d887e"
     }
   },
-  "objective_version": 1,
+  "objective_version": 2,
+  "occurrences": {
+    "sas1968-alphabet-U+0069--i-underturn": {
+      "delta": {
+        "dx": -0.5973370234363151,
+        "dy": -0.33846704015369156,
+        "log_scale_x": -0.03060421798631141,
+        "log_scale_y": -0.012452040686723814,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": -3.597337023436315,
+        "dy": -0.33846704015369156,
+        "scale_x": 36.85465530043906,
+        "scale_y": 37.52975627694563,
+        "shear_x": 0.0
+      },
+      "instance_id": "i-underturn",
+      "nominal_transform": {
+        "dx": -3.0,
+        "dy": 0.0,
+        "scale_x": 38.0,
+        "scale_y": 38.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0069"
+    },
+    "sas1968-alphabet-U+0075--u-underturn-a": {
+      "delta": {
+        "dx": -0.433589473940176,
+        "dy": 0.6898431536028244,
+        "log_scale_x": -0.007177186498203564,
+        "log_scale_y": 0.014970457284937094,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": -0.433589473940176,
+        "dy": 0.6898431536028244,
+        "scale_x": 29.785455239900074,
+        "scale_y": 32.48265842760548,
+        "shear_x": 0.0
+      },
+      "instance_id": "u-underturn-a",
+      "nominal_transform": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "scale_x": 30.0,
+        "scale_y": 32.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0075"
+    },
+    "sas1968-alphabet-U+0075--u-underturn-b": {
+      "delta": {
+        "dx": -0.8441604107821701,
+        "dy": 0.563067289447071,
+        "log_scale_x": -0.0233154674115624,
+        "log_scale_y": 0.020886084720858678,
+        "shear_x": 0.0
+      },
+      "effective_transform": {
+        "dx": 22.15583958921783,
+        "dy": 0.563067289447071,
+        "scale_x": 29.308627137912588,
+        "scale_y": 32.67538321498371,
+        "shear_x": 0.0
+      },
+      "instance_id": "u-underturn-b",
+      "nominal_transform": {
+        "dx": 23.0,
+        "dy": 0.0,
+        "scale_x": 30.0,
+        "scale_y": 32.0,
+        "shear_x": 0.0
+      },
+      "sample_id": "sas1968-alphabet-U+0075"
+    }
+  },
   "optimizer": {
-    "de_dimension_limit": 12,
-    "de_max_iterations": 20,
-    "de_population_size": 8,
-    "max_iterations": 200,
-    "method": "powell",
-    "seed": 1968,
-    "tolerance": 1e-05
+    "accepted_candidate": {
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dx": -0.5973370234363151,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dy": -0.33846704015369156,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_x": -0.03060421798631141,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_y": -0.012452040686723814,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dx": -0.433589473940176,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dy": 0.6898431536028244,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_x": -0.007177186498203564,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_y": 0.014970457284937094,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dx": -0.8441604107821701,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dy": 0.563067289447071,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_x": -0.0233154674115624,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_y": 0.020886084720858678,
+      "shared.segments.0.c1.x": 0.7185164676218236,
+      "shared.segments.0.c1.y": 0.504101149208737,
+      "shared.segments.0.c2.x": -0.03411280713277241
+    },
+    "accepted_history_index": 527,
+    "backend": "scipy-least-squares-trf",
+    "candidate_count": 42,
+    "config": {
+      "convergence_relative": 0.0005,
+      "de_dimension_limit": 12,
+      "de_max_iterations": 20,
+      "de_population_size": 8,
+      "f_scale": 1.0,
+      "joint_refine": true,
+      "loss": "soft_l1",
+      "max_cycles": 6,
+      "max_iterations": 200,
+      "max_nfev": 250,
+      "method": "alternating-least-squares",
+      "restarts": 8,
+      "seed": 1968,
+      "tolerance": 1e-5
+    },
+    "evaluations": 1247,
+    "message": "`xtol` termination condition is satisfied.",
+    "restarts": 8,
+    "solver_candidate": {
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dx": -0.1266273067058976,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dy": -0.5157150114083047,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_x": -0.0016892414888308727,
+      "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_y": -0.024907888494445612,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dx": -0.17962392079773082,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dy": 0.41550389008966526,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_x": -0.0013185555640658209,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_y": 0.00189563961014802,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dx": -1.256495581083513,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dy": 0.2018848721898303,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_x": -0.027475336631233027,
+      "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_y": -8.213910494560273e-5,
+      "shared.segments.0.c1.x": 0.6834830639963276,
+      "shared.segments.0.c1.y": 0.5986746988352432,
+      "shared.segments.0.c2.x": -0.0035145265606082443
+    },
+    "status": 3,
+    "strategy": "alternating-least-squares",
+    "success": true
   },
   "parameter_bounds": {
-    "segments.0.c1.x": [
-      0.55,
-      0.8
-    ],
-    "segments.0.c1.y": [
-      0.5,
-      0.75
-    ],
-    "segments.0.c2.x": [
-      -0.1,
-      0.1
-    ]
+    "segments.0.c1.x": [0.55, 0.8],
+    "segments.0.c1.y": [0.5, 0.75],
+    "segments.0.c2.x": [-0.1, 0.1]
   },
   "parameters": {
-    "segments.0.c1.x": 0.7889615538331415,
-    "segments.0.c1.y": 0.5334429805649807,
-    "segments.0.c2.x": -0.022091485917398877
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dx": -0.5973370234363151,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.dy": -0.33846704015369156,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_x": -0.03060421798631141,
+    "occurrence.sas1968-alphabet-U+0069--i-underturn.delta.log_scale_y": -0.012452040686723814,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dx": -0.433589473940176,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.dy": 0.6898431536028244,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_x": -0.007177186498203564,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-a.delta.log_scale_y": 0.014970457284937094,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dx": -0.8441604107821701,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.dy": 0.563067289447071,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_x": -0.0233154674115624,
+    "occurrence.sas1968-alphabet-U+0075--u-underturn-b.delta.log_scale_y": 0.020886084720858678,
+    "shared.segments.0.c1.x": 0.7185164676218236,
+    "shared.segments.0.c1.y": 0.504101149208737,
+    "shared.segments.0.c2.x": -0.03411280713277241
   },
   "primitive": {
     "bounds": {
-      "segments.0.c1.x": [
-        0.55,
-        0.8
-      ],
-      "segments.0.c1.y": [
-        0.5,
-        0.75
-      ],
-      "segments.0.c2.x": [
-        -0.1,
-        0.1
-      ]
+      "segments.0.c1.x": [0.55, 0.8],
+      "segments.0.c1.y": [0.5, 0.75],
+      "segments.0.c2.x": [-0.1, 0.1]
     },
     "frame": {
-      "nominal_end": [
-        1.0,
-        0.28125
-      ],
-      "start": [
-        1.0,
-        1.0
-      ]
+      "nominal_end": [1.0, 0.28125],
+      "start": [1.0, 1.0]
     },
     "free_parameters": [
       "segments.0.c1.x",
@@ -132,143 +543,234 @@
     ],
     "id": "sas-underturn-01",
     "kind": "cubic-chain",
-    "locked_parameters": [
-      "frame.start",
-      "segments.1.end"
-    ],
+    "locked_parameters": ["frame.start", "segments.1.end"],
     "provenance": {
       "construction": "source-backed",
       "trajectory": "inferred"
     },
     "segments": [
       {
-        "c1": [
-          0.7889615538331415,
-          0.5334429805649807
-        ],
-        "c2": [
-          -0.022091485917398877,
-          0.09375
-        ],
-        "end": [
-          0.333333,
-          0.0625
-        ]
+        "c1": [0.7185164676218236, 0.504101149208737],
+        "c2": [-0.03411280713277241, 0.09375],
+        "end": [0.333333, 0.0625]
       },
       {
-        "c1": [
-          0.533333,
-          0.0
-        ],
-        "c2": [
-          0.8,
-          0.125
-        ],
-        "end": [
-          1.0,
-          0.28125
-        ]
+        "c1": [0.533333, 0.0],
+        "c2": [0.8, 0.125],
+        "end": [1.0, 0.28125]
       }
     ]
   },
   "primitive_id": "sas-underturn-01",
   "project_id": "sas-1968",
+  "selection_objective": {
+    "blocks": {
+      "curvature": 3.2768374995255634e-5,
+      "family_spread": 0.0009051867236524376,
+      "family_worst": 0.06408472712963027,
+      "mean": 0.18661506720392296,
+      "median": 0.18661506720392296,
+      "shape_prior": 0.005099508015116278,
+      "smooth_worst": 0.2563389085185211,
+      "squared_residual_total": 0.2766240788452982,
+      "std": 0.009051867236524375,
+      "total": 0.2741936360660031,
+      "transform_prior": 0.019886821397981074,
+      "worst": 0.19566693444044733
+    },
+    "total": 0.2741936360660031
+  },
+  "shared_parameters": {
+    "segments.0.c1.x": 0.7185164676218236,
+    "segments.0.c1.y": 0.504101149208737,
+    "segments.0.c2.x": -0.03411280713277241
+  },
   "stage": "primitive:sas-underturn-01",
   "training": {
-    "final_objective": 0.548245134631949,
-    "initial_objective": 0.6131302030486298,
-    "mean_objective": 0.548245134631949,
+    "final_objective": 0.2741936360660031,
+    "initial_objective": 5.190298575180583,
+    "mean_objective": 0.18661506720392296,
+    "median_objective": 0.18661506720392296,
     "samples": [
       {
-        "final_objective": 0.49780060554656047,
-        "initial_objective": 0.7292395381004217,
+        "final_objective": 0.17756319996739858,
+        "initial_objective": 7.516964588377794,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -0.5973370234363151,
+              "dy": -0.33846704015369156,
+              "log_scale_x": -0.03060421798631141,
+              "log_scale_y": -0.012452040686723814,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -3.597337023436315,
+              "dy": -0.33846704015369156,
+              "scale_x": 36.85465530043906,
+              "scale_y": 37.52975627694563,
+              "shear_x": 0.0
+            },
             "instance_id": "i-underturn",
-            "primitive_id": "sas-underturn-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": -3.0,
               "dy": 0.0,
               "scale_x": 38.0,
               "scale_y": 38.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 1.2234338913861245,
+              "centerline_valid_fraction": 0.6875,
+              "endpoint_rms_px": 2.7705007572714297,
+              "estimated_stroke_width_px": 4.340909090909091,
+              "path_to_ink_rms_px": 2.193675711014612,
+              "tangent_rms": 0.14431263264314542,
+              "weighted_squared_cost": 29.12036479465337
             }
           }
         ],
-        "objective": 0.49780060554656047,
+        "objective": 0.17756319996739858,
+        "raw_terms": {
+          "endpoint_rms_px": 2.7705007572714297,
+          "normal_center_rms_px": 1.2234338913861245,
+          "path_to_ink_rms_px": 2.193675711014612,
+          "tangent_rms": 0.14431263264314542
+        },
         "sample_id": "sas1968-alphabet-U+0069",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.02509197103969281,
-          "complexity": 2.0,
-          "curvature_regularization": 0.0018260241497751093,
-          "distance": 0.015558954623823406,
-          "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.4977823453050627,
-          "soft_mask": 0.5135305640458341,
-          "tangent": 0.0
+        "weighted_terms": {
+          "endpoint": 0.05618049221630551,
+          "normal_center": 0.13090427668615956,
+          "path_to_ink": 0.6015266406369328,
+          "tangent": 0.019826822148313748
         }
       },
       {
-        "final_objective": 0.5986896637173375,
-        "initial_objective": 0.4970208679968378,
+        "final_objective": 0.19566693444044733,
+        "initial_objective": 3.640882402654829,
         "instances": [
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -0.433589473940176,
+              "dy": 0.6898431536028244,
+              "log_scale_x": -0.007177186498203564,
+              "log_scale_y": 0.014970457284937094,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": -0.433589473940176,
+              "dy": 0.6898431536028244,
+              "scale_x": 29.785455239900074,
+              "scale_y": 32.48265842760548,
+              "shear_x": 0.0
+            },
             "instance_id": "u-underturn-a",
-            "primitive_id": "sas-underturn-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 0.0,
               "dy": 0.0,
               "scale_x": 30.0,
               "scale_y": 32.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 1.1716901764776089,
+              "centerline_valid_fraction": 0.8125,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 5.5,
+              "path_to_ink_rms_px": 1.232664868962281,
+              "tangent_rms": 0.1852658802013466,
+              "weighted_squared_cost": 19.539226432022375
             }
           },
           {
+            "bound_saturation": {
+              "dx": false,
+              "dy": false,
+              "log_scale_x": false,
+              "log_scale_y": false
+            },
+            "delta": {
+              "dx": -0.8441604107821701,
+              "dy": 0.563067289447071,
+              "log_scale_x": -0.0233154674115624,
+              "log_scale_y": 0.020886084720858678,
+              "shear_x": 0.0
+            },
+            "effective_transform": {
+              "dx": 22.15583958921783,
+              "dy": 0.563067289447071,
+              "scale_x": 29.308627137912588,
+              "scale_y": 32.67538321498371,
+              "shear_x": 0.0
+            },
             "instance_id": "u-underturn-b",
-            "primitive_id": "sas-underturn-01",
-            "residuals": {},
-            "transform": {
+            "nominal_transform": {
               "dx": 23.0,
               "dy": 0.0,
               "scale_x": 30.0,
               "scale_y": 32.0,
               "shear_x": 0.0
+            },
+            "primitive_id": "sas-underturn-01",
+            "residuals": {
+              "centerline_rms_px": 1.622064982903637,
+              "centerline_valid_fraction": 0.75,
+              "endpoint_rms_px": 0.0,
+              "estimated_stroke_width_px": 5.1875,
+              "path_to_ink_rms_px": 2.3861230931730795,
+              "tangent_rms": 0.19404731419418603,
+              "weighted_squared_cost": 44.63952806444435
             }
           }
         ],
-        "objective": 0.5986896637173375,
+        "objective": 0.19566693444044733,
+        "raw_terms": {
+          "endpoint_rms_px": 0.0,
+          "normal_center_rms_px": 1.396877579690623,
+          "path_to_ink_rms_px": 1.8093939810676802,
+          "tangent_rms": 0.1896565971977663
+        },
         "sample_id": "sas1968-alphabet-U+0075",
-        "terms": {
-          "anchor": 0.0,
-          "bbox": 0.019903170886979838,
-          "complexity": 2.0,
-          "curvature_regularization": 0.0017597901316560595,
-          "distance": 0.012923019228373894,
+        "weighted_terms": {
           "endpoint": 0.0,
-          "instance_regularization": 0.0,
-          "local_region": 0.5986720658160208,
-          "soft_mask": 0.5611856072840751,
-          "tangent": 0.0
+          "normal_center": 0.2403645675383958,
+          "path_to_ink": 0.4508153809342288,
+          "tangent": 0.03562426149813612
         }
       }
     ],
     "selection_split": "fit",
-    "worst_member_objective": 0.5986896637173375
+    "std_objective": 0.009051867236524375,
+    "worst_member_objective": 0.19566693444044733
   },
   "validation": {
     "mean_objective": null,
-    "policy": "evaluated after fitting; not used for parameter optimization",
+    "median_objective": null,
+    "policy": "no samples in this split",
+    "raw_nominal_mean_objective": null,
     "samples": [],
+    "std_objective": null,
     "worst_member_objective": null
   },
   "visual_review": {
     "region_overlay_count": 5,
     "scope": "private work directory",
     "sheet": "overlays/sas-underturn-01/review-sheet.png",
-    "status": "promotion_pending"
+    "status": "promotion_pending",
+    "variants": ["nominal", "aligned"]
   }
 }

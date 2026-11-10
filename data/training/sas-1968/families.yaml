@@ -3,6 +3,8 @@ format_version: 1
 families:
   - id: sas-underturn-01
     primitive: sas-underturn-01
+    alignment:
+      free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+0069
       - sas1968-alphabet-U+0075
@@ -13,6 +15,8 @@ families:
     trajectory_evidence: inferred
   - id: sas-open-oval-01
     primitive: sas-open-oval-01
+    alignment:
+      free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+0063
       - sas1968-alphabet-U+0061
@@ -23,6 +27,8 @@ families:
     trajectory_evidence: inferred
   - id: sas-ascender-loop-01
     primitive: sas-ascender-loop-01
+    alignment:
+      free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+006C
       - sas1968-alphabet-U+0062
@@ -34,6 +40,8 @@ families:
     trajectory_evidence: inferred
   - id: sas-hump-01
     primitive: sas-hump-01
+    alignment:
+      free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+006E
       - sas1968-alphabet-U+006D

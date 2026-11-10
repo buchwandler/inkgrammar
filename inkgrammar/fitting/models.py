@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from math import exp, isfinite
 from typing import Literal
 
 from pydantic import Field, model_validator
@@ -140,6 +141,7 @@ class FitLossRegion(StrictModel):
     id: str
     instances: list[str] = Field(min_length=1)
     bbox_source: tuple[float, float, float, float]
+    mode: Literal["local-dice", "stroke-track"] = "local-dice"
 
     @model_validator(mode="after")
     def validate_bbox(self) -> FitLossRegion:
@@ -159,6 +161,14 @@ class FitSample(StrictModel):
     active_instances: list[str] = Field(default_factory=list)
     loss_regions: list[FitLossRegion] = Field(default_factory=list)
     weight: float = Field(default=1.0, gt=0)
+
+    @model_validator(mode="after")
+    def validate_active_instances(self) -> FitSample:
+        if len(set(self.active_instances)) != len(self.active_instances):
+            raise ValueError("active instance IDs must be unique")
+        if any(not instance.strip() for instance in self.active_instances):
+            raise ValueError("active instance IDs must not be empty")
+        return self
 
 
 class FitCorpus(StrictModel):
@@ -261,12 +271,104 @@ class SourceLockFile(StrictModel):
         return self
 
 
+class TopologyTransform(StrictModel):
+    scale_x: float = Field(default=1.0, gt=0)
+    scale_y: float = Field(default=1.0, gt=0)
+    shear_x: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+
+
+class OccurrenceDelta(StrictModel):
+    dx: float = 0.0
+    dy: float = 0.0
+    log_scale_x: float = 0.0
+    log_scale_y: float = 0.0
+    shear_x: float = 0.0
+
+
+class OccurrenceFitBounds(StrictModel):
+    dx: tuple[float, float] = (-4.0, 4.0)
+    dy: tuple[float, float] = (-4.0, 4.0)
+    log_scale_x: tuple[float, float] = (-0.12, 0.12)
+    log_scale_y: tuple[float, float] = (-0.12, 0.12)
+    shear_x: tuple[float, float] = (-0.08, 0.08)
+
+    @model_validator(mode="after")
+    def validate_bounds(self) -> OccurrenceFitBounds:
+        for name in ("dx", "dy", "log_scale_x", "log_scale_y", "shear_x"):
+            lower, upper = getattr(self, name)
+            if not isfinite(lower) or not isfinite(upper) or lower >= upper:
+                raise ValueError(f"occurrence bounds must be finite and increasing: {name}")
+        return self
+
+
+class OccurrenceFitState(StrictModel):
+    instance_id: str
+    nominal_transform: TopologyTransform
+    delta: OccurrenceDelta = Field(default_factory=OccurrenceDelta)
+    bounds: OccurrenceFitBounds = Field(default_factory=OccurrenceFitBounds)
+    free_parameters: list[Literal["dx", "dy", "log_scale_x", "log_scale_y", "shear_x"]] = Field(
+        default_factory=lambda: ["dx", "dy", "log_scale_x", "log_scale_y"]
+    )
+
+    @model_validator(mode="after")
+    def validate_fit_state(self) -> OccurrenceFitState:
+        if not self.instance_id:
+            raise ValueError("occurrence instance_id must not be empty")
+        if len(set(self.free_parameters)) != len(self.free_parameters):
+            raise ValueError("occurrence free parameter names must be unique")
+        for name in self.free_parameters:
+            lower, upper = getattr(self.bounds, name)
+            value = getattr(self.delta, name)
+            if not lower <= value <= upper:
+                raise ValueError(f"occurrence delta is outside bounds: {self.instance_id}.{name}")
+        return self
+
+
+def compose_occurrence_transform(
+    nominal: TopologyTransform, delta: OccurrenceDelta
+) -> TopologyTransform:
+    return TopologyTransform(
+        scale_x=nominal.scale_x * exp(delta.log_scale_x),
+        scale_y=nominal.scale_y * exp(delta.log_scale_y),
+        shear_x=nominal.shear_x + delta.shear_x,
+        dx=nominal.dx + delta.dx,
+        dy=nominal.dy + delta.dy,
+    )
+
+
+class OccurrenceAlignmentOverride(StrictModel):
+    free: list[Literal["dx", "dy", "log_scale_x", "log_scale_y", "shear_x"]] | None = None
+    bounds: OccurrenceFitBounds | None = None
+
+
+class FamilyAlignmentConfig(StrictModel):
+    free: list[Literal["dx", "dy", "log_scale_x", "log_scale_y", "shear_x"]] = Field(
+        default_factory=lambda: ["dx", "dy", "log_scale_x", "log_scale_y"]
+    )
+    bounds: OccurrenceFitBounds = Field(default_factory=OccurrenceFitBounds)
+    overrides: dict[str, OccurrenceAlignmentOverride] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_alignment(self) -> FamilyAlignmentConfig:
+        if len(set(self.free)) != len(self.free):
+            raise ValueError("family alignment free parameters must be unique")
+        if any(not instance_id for instance_id in self.overrides):
+            raise ValueError("alignment override instance IDs must not be empty")
+        for override in self.overrides.values():
+            if override.free is not None and len(set(override.free)) != len(override.free):
+                raise ValueError("instance alignment free parameters must be unique")
+        return self
+
+
 class FamilyDefinition(StrictModel):
     id: str
     primitive: str
     fit: list[str] = Field(default_factory=list)
     validation: list[str] = Field(default_factory=list)
     hold_out: list[str] = Field(default_factory=list)
+    alignment: FamilyAlignmentConfig = Field(default_factory=FamilyAlignmentConfig)
     review_status: Literal["pending", "provisional", "reviewed", "uncertain"] = "provisional"
     construction_evidence: str = "inferred"
     trajectory_evidence: str = "inferred"
@@ -290,14 +392,6 @@ class FitFamiliesFile(StrictModel):
         if len(set(ids)) != len(ids):
             raise ValueError("duplicate fit family id")
         return self
-
-
-class TopologyTransform(StrictModel):
-    scale_x: float = Field(default=1.0, gt=0)
-    scale_y: float = Field(default=1.0, gt=0)
-    shear_x: float = 0.0
-    dx: float = 0.0
-    dy: float = 0.0
 
 
 class TopologyPart(StrictModel):

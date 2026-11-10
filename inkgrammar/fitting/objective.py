@@ -24,9 +24,32 @@ class ObjectiveWeights(StrictModel):
     local_region: float = Field(default=0.50, ge=0)
 
 
+class GeometryResidualWeights(StrictModel):
+    path_to_ink: float = Field(default=1.0, ge=0)
+    normal_center: float = Field(default=1.5, ge=0)
+    endpoint: float = Field(default=0.6, ge=0)
+    tangent: float = Field(default=0.25, ge=0)
+    assigned_coverage: float = Field(default=0.2, ge=0)
+
+
+class PriorWeights(StrictModel):
+    transform: float = Field(default=0.2, ge=0)
+    shape: float = Field(default=0.05, ge=0)
+    curvature: float = Field(default=0.02, ge=0)
+
+
+class FamilyBalanceWeights(StrictModel):
+    worst: float = Field(default=0.25, ge=0)
+    spread: float = Field(default=0.1, ge=0)
+
+
 class ObjectiveConfig(StrictModel):
     version: int = Field(default=1, gt=0)
     weights: ObjectiveWeights = Field(default_factory=ObjectiveWeights)
+    geometry: GeometryResidualWeights = Field(default_factory=GeometryResidualWeights)
+    priors: PriorWeights = Field(default_factory=PriorWeights)
+    family: FamilyBalanceWeights = Field(default_factory=FamilyBalanceWeights)
+
     residual_sigma: float = Field(default=0.05, gt=0)
 
 
