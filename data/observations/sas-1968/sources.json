@@ -1,0 +1,47 @@
+[
+  {
+    "id": "sas-1968-alphabet",
+    "title": "Schulausgangsschrift 1968: Alphabet and digit reference plate",
+    "kind": "scan",
+    "authors": [],
+    "year": 1968,
+    "locator": "prepared-image:sas-1968-01-alphabet-plate.png",
+    "rights": "Do not redistribute this source image or derivatives until rights are documented."
+  },
+  {
+    "id": "sas-1968-components",
+    "title": "Schulausgangsschrift 1968: Recurring component/family table",
+    "kind": "scan",
+    "authors": [],
+    "year": 1968,
+    "locator": "prepared-image:sas-1968-02-component-families.png",
+    "rights": "Do not redistribute this source image or derivatives until rights are documented."
+  },
+  {
+    "id": "sas-1968-stroke-order",
+    "title": "Schulausgangsschrift 1968: Stroke-order markings and special/reference forms",
+    "kind": "scan",
+    "authors": [],
+    "year": 1968,
+    "locator": "prepared-image:sas-1968-03-stroke-order-and-special-forms.png",
+    "rights": "Do not redistribute this source image or derivatives until rights are documented."
+  },
+  {
+    "id": "sas-1968-connections-numbered",
+    "title": "Schulausgangsschrift 1968: Numbered connected examples",
+    "kind": "scan",
+    "authors": [],
+    "year": 1968,
+    "locator": "prepared-image:sas-1968-04-numbered-connection-examples.png",
+    "rights": "Do not redistribute this source image or derivatives until rights are documented."
+  },
+  {
+    "id": "sas-1968-connection-categories",
+    "title": "Schulausgangsschrift 1968: Explicit SAS connection categories",
+    "kind": "scan",
+    "authors": [],
+    "year": 1968,
+    "locator": "prepared-image:sas-1968-05-connection-categories.png",
+    "rights": "Do not redistribute this source image or derivatives until rights are documented."
+  }
+]

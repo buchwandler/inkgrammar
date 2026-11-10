@@ -23,6 +23,7 @@ StrokeRole = Literal[
 ]
 FormName = Literal["isolated", "initial", "medial", "final", "default"]
 
+ConnectionMode = Literal["continuous-bridge", "direct", "attached", "none"]
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
@@ -76,6 +77,7 @@ class Component(StrictModel):
     d: str = Field(min_length=1)
     description: str | None = None
     provenance: Provenance
+    unused_reason: str | None = None
 
 
 class Transform(StrictModel):
@@ -144,6 +146,7 @@ class GlyphModel(StrictModel):
     unicode: list[str] = Field(min_length=1)
     forms: dict[FormName, GlyphForm]
     provenance: Provenance
+    required_forms: list[FormName] = Field(default_factory=list)
 
     @field_validator("unicode")
     @classmethod
@@ -167,6 +170,13 @@ class ConnectionRule(StrictModel):
     gap: float = 0
     tension: float = Field(default=60, ge=0, le=1000)
     continuous: bool = True
+    mode: ConnectionMode | None = None
+
+    @property
+    def effective_mode(self) -> ConnectionMode:
+        if self.mode is not None:
+            return self.mode
+        return "continuous-bridge" if self.continuous else "attached"
 
 
 class PairOverride(StrictModel):

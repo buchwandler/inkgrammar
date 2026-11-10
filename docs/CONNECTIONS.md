@@ -20,6 +20,28 @@ The supplied source examples distinguish, among other things, connections leavin
 baseline, connections leaving from the middle line, and attached connections. ScriptStrokes
 therefore models connection behavior explicitly rather than assuming one universal join.
 
+## Connection modes
+
+`ConnectionRule.mode` controls compilation independently of its class names:
+
+- `continuous-bridge` adds a cubic connector between the declared endpoints.
+- `direct` adds no path and requires the translated endpoints to meet (within
+  0.000001 model units). Incompatible endpoints raise an error and fail QC.
+- `attached` keeps separate pen-down strokes and adds no synthetic bridge. A
+  target-specific reattachment stroke must be encoded in the glyph form.
+- `none` adds no connection. Declared spacing still applies.
+
+All modes retain rule gaps and pair spacing overrides. Tension only affects
+continuous bridges. An explicit mode takes precedence over legacy `continuous`.
+Without `mode`, `continuous: true` means `continuous-bridge` and
+`continuous: false` means `attached`. Existing true-valued rules remain compatible.
+
+The SAS class IDs are `baseline-single`, `midline-single`, and `attached`.
+Their source labels are respectively “Die einzügige Verbindung von der
+Grundlinie aus”, “Die einzügige Verbindung von der Mittellinie aus”, and
+“Die angesetzte Verbindung”. Category evidence does not establish the exact
+geometry or trajectory of a generated connector.
+
 ## Pair regression
 
 Once a model can render a pair, compare it against an observed pair crop:

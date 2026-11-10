@@ -22,6 +22,7 @@ keywords = [
 dependencies = [
   "fonttools>=4.55",
   "numpy>=1.24",
+  "packaging>=24",
   "Pillow>=10",
   "pydantic>=2.8",
   "PyYAML>=6.0",

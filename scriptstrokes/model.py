@@ -205,7 +205,21 @@ def compile_text(
         next_origin = x_origins[-1] + current.advance_width + gap
         x_origins.append(next_origin)
         if rule and current.exit and nxt.entry:
-            connectors.append((index, pair, next_origin, tension))
+            if rule.effective_mode == "continuous-bridge":
+                connectors.append((index, pair, next_origin, tension))
+            elif rule.effective_mode == "direct":
+                left_stroke = _stroke_by_id(current, current.exit[0])
+                right_stroke = _stroke_by_id(nxt, nxt.entry[0])
+                if left_stroke.d is None or right_stroke.d is None:
+                    raise ValueError(f"direct connection {pair!r} needs path endpoints")
+                left_info = analyze_path(left_stroke.d)
+                right_info = analyze_path(right_stroke.d)
+                left_point = left_info.start if current.exit[1] == "start" else left_info.end
+                right_point = right_info.start if nxt.entry[1] == "start" else right_info.end
+                dx = left_point[0] + x_origins[-2] - right_point[0] - next_origin
+                dy = left_point[1] - right_point[1]
+                if dx * dx + dy * dy > 1e-12:
+                    raise ValueError(f"direct connection {pair!r} endpoints do not meet")
 
     for index, (glyph, x_origin) in enumerate(zip(compiled, x_origins, strict=False)):
         for stroke in glyph.strokes:

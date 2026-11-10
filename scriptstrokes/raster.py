@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +37,7 @@ def threshold_image(image: Image.Image) -> np.ndarray:
             best_variance = variance
             threshold = level
 
-    return gray < threshold
+    return gray <= threshold
 
 
 def crop_to_ink(mask: np.ndarray, pad: int = 2) -> np.ndarray:
@@ -79,15 +81,72 @@ def compare_masks(reference: np.ndarray, generated: np.ndarray) -> dict[str, flo
         "recall": float(intersection / ref_count) if ref_count else 0.0,
     }
 
+def compare_anchored_masks(
+    reference: np.ndarray,
+    generated: np.ndarray,
+    *,
+    reference_anchor: tuple[float, float],
+    generated_anchor: tuple[float, float],
+    generated_pixels_per_reference_pixel: float = 1.0,
+) -> dict[str, float]:
+    """Compare in the reference frame without independently normalizing ink.
 
-def render_text_mask(
+    Anchors are explicit pixel coordinates, typically the writing origin on
+    the baseline. Scale is supplied from writing metrics, never inferred from
+    the ink bounding box. Positive scale preserves the source aspect ratio.
+    """
+    if generated_pixels_per_reference_pixel <= 0:
+        raise ValueError("pixel scale must be positive")
+    if reference.ndim != 2 or generated.ndim != 2:
+        raise ValueError("masks must be two-dimensional")
+    scale = generated_pixels_per_reference_pixel
+    image = Image.fromarray(generated.astype(np.uint8) * 255)
+    aligned = np.asarray(image.transform(
+        (reference.shape[1], reference.shape[0]), Image.Transform.AFFINE,
+        (scale, 0, generated_anchor[0] - reference_anchor[0] * scale,
+         0, scale, generated_anchor[1] - reference_anchor[1] * scale),
+        resample=Image.Resampling.NEAREST,
+    )) > 0
+    intersection = np.logical_and(reference, aligned).sum()
+    union = np.logical_or(reference, aligned).sum()
+    result = compare_masks(reference, generated)
+    result["baseline_aligned_iou"] = float(intersection / union) if union else 1.0
+
+    def bounds_and_center(mask):
+        ys, xs = np.nonzero(mask)
+        if not len(xs):
+            return 0.0, 0.0, (0.0, 0.0)
+        return (float(xs.max() - xs.min() + 1), float(ys.max() - ys.min() + 1),
+                (float(xs.mean()), float(ys.mean())))
+
+    rw, rh, rc = bounds_and_center(reference)
+    gw, gh, gc = bounds_and_center(generated)
+    result["reference_ink_bbox_ratio"] = rw / rh if rh else 0.0
+    result["generated_ink_bbox_ratio"] = gw / gh if gh else 0.0
+    result["ink_bbox_width_ratio"] = gw / scale / rw if rw else 0.0
+    result["ink_bbox_height_ratio"] = gh / scale / rh if rh else 0.0
+    dx = (gc[0] - generated_anchor[0]) / scale + reference_anchor[0] - rc[0]
+    dy = (gc[1] - generated_anchor[1]) / scale + reference_anchor[1] - rc[1]
+    result["center_of_mass_offset"] = float(np.hypot(dx, dy))
+    return result
+
+
+
+@dataclass(frozen=True)
+class RasterFrame:
+    image: Image.Image
+    origin: tuple[float, float]
+    scale: float
+
+
+def render_text_frame(
     model: WritingModel,
     text: str,
     *,
     gap_override: float | None = None,
     tension_override: float | None = None,
     scale: float = 0.7,
-) -> Image.Image:
+) -> RasterFrame:
     plan = compile_text(
         model,
         text,
@@ -95,21 +154,31 @@ def render_text_mask(
         tension_override=tension_override,
     )
     metrics = model.metrics
-    width = max(32, int((plan.width + metrics.default_stroke_width * 2) * scale))
-    height_units = metrics.ascender - metrics.descender
-    height = max(32, int(height_units * scale))
+    if scale <= 0:
+        raise ValueError("render scale must be positive")
+    paths = {stroke.id: sample_path(stroke.d, 18) for stroke in plan.strokes
+             if stroke.d is not None}
+    ink_points = [point for points in paths.values() for point in points]
+    ink_points.extend(stroke.tap for stroke in plan.strokes if stroke.tap is not None)
+    padding = metrics.default_stroke_width / 2 + 1 / scale
+    left = min([0.0] + [point[0] - padding for point in ink_points])
+    right = max([plan.width] + [point[0] + padding for point in ink_points])
+    top = max([metrics.ascender] + [point[1] + padding for point in ink_points])
+    bottom = min([metrics.descender] + [point[1] - padding for point in ink_points])
+    width = max(32, math.ceil((right - left) * scale))
+    height = max(32, math.ceil((top - bottom) * scale))
     image = Image.new("L", (width, height), 255)
     draw = ImageDraw.Draw(image)
     stroke_width = max(1, int(metrics.default_stroke_width * scale))
 
     def to_pixel(point):
-        x = point[0] * scale
-        y = (metrics.ascender - point[1]) * scale
+        x = (point[0] - left) * scale
+        y = (top - point[1]) * scale
         return (x, y)
 
     for stroke in plan.strokes:
         if stroke.d is not None:
-            points = [to_pixel(point) for point in sample_path(stroke.d, 18)]
+            points = [to_pixel(point) for point in paths[stroke.id]]
             if len(points) >= 2:
                 draw.line(
                     points,
@@ -124,7 +193,19 @@ def render_text_mask(
                 (x - radius, y - radius, x + radius, y + radius),
                 fill=0,
             )
-    return image
+    return RasterFrame(image, (-left * scale, (top - metrics.baseline) * scale), scale)
+
+
+def render_text_mask(
+    model: WritingModel,
+    text: str,
+    *,
+    gap_override: float | None = None,
+    tension_override: float | None = None,
+    scale: float = 0.7,
+) -> Image.Image:
+    return render_text_frame(model, text, gap_override=gap_override,
+                             tension_override=tension_override, scale=scale).image
 
 
 def compare_text_to_image(

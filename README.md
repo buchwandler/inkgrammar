@@ -112,4 +112,6 @@ See:
 - `docs/ARCHITECTURE.md`
 - `docs/IMAGE-IMPORT.md`
 - `docs/CONNECTIONS.md`
+- `docs/DATA.md`
+- `docs/SAS-1968.md`
 - `docs/ROADMAP.md`

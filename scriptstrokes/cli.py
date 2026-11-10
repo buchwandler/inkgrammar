@@ -7,6 +7,7 @@ import typer
 import yaml
 
 from . import __version__
+from .data_cli import app as data_app
 from .fit import fit_join
 from .io import load_layout, load_model
 from .page import extract_labeled_page
@@ -19,6 +20,7 @@ page_app = typer.Typer(no_args_is_help=True, help="Scan-page extraction tools.")
 model_app = typer.Typer(no_args_is_help=True, help="Writing-model tools.")
 app.add_typer(page_app, name="page")
 app.add_typer(model_app, name="model")
+app.add_typer(data_app, name="data")
 
 
 @app.command()
@@ -60,6 +62,36 @@ def model_validate(
         f"{report.errors} error(s), {report.warnings} warning(s)"
     )
     if report.errors or (strict and report.warnings):
+        raise typer.Exit(1)
+
+
+@model_app.command("coverage")
+def model_coverage_command(
+    model: Path = typer.Argument(..., exists=True),  # noqa: B008
+    format_: str = typer.Option("json", "--format"),  # noqa: B008
+    fail_incomplete: bool = typer.Option(False, "--fail-incomplete"),  # noqa: B008
+) -> None:
+    """Report glyph, provenance, regression and rights coverage."""
+    from .coverage import coverage_markdown, model_coverage
+    from .observations import ObservationManifest
+    from .regression import RegressionManifest
+
+    loaded = load_model(model)
+    root = model.parent.parent
+    observation_path = root / "observations" / loaded.id / "manifest.json"
+    regression_path = root / "regressions" / loaded.id / "manifest.json"
+    observations = (ObservationManifest.model_validate_json(observation_path.read_text())
+                    if observation_path.exists() else None)
+    regressions = (RegressionManifest.model_validate_json(regression_path.read_text())
+                   if regression_path.exists() else None)
+    report = model_coverage(loaded, observations=observations, regressions=regressions)
+    if format_ == "json":
+        typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
+    elif format_ == "markdown":
+        typer.echo(coverage_markdown(report))
+    else:
+        raise typer.BadParameter("format must be json or markdown")
+    if fail_incomplete and not report["complete"]:
         raise typer.Exit(1)
 
 
@@ -125,8 +157,14 @@ def build_release_command(
     models: list[Path] = typer.Argument(..., exists=True),  # noqa: B008
     version: str = typer.Option(..., "--version"),  # noqa: B008
     output: Path = typer.Option(Path("dist"), "--output"),  # noqa: B008
+    requires_scriptstrokes: str | None = typer.Option(None, "--requires-scriptstrokes"),  # noqa: B008
+    git_commit: str | None = typer.Option(None, "--git-commit", envvar="GITHUB_SHA"),  # noqa: B008
 ) -> None:
     """Build a consumer-only JSON/schema/QC release ZIP."""
-    release_root, archive = build_release(models, output, version)
+    release_root, archive = build_release(
+        models, output, version, requires_scriptstrokes=requires_scriptstrokes,
+        git_commit=git_commit,
+    )
     typer.echo(f"Built {release_root}")
     typer.echo(f"Built {archive}")
+    typer.echo(f"Built {archive.with_suffix('.zip.sha256')}")
