@@ -1,0 +1,192 @@
+schema_version: 2
+id: demo-looped
+name:
+  en: Demo component cursive
+script: Latn
+languages: [en, de]
+regions: []
+status: experimental
+license: CC0-1.0
+description:
+  en: Synthetic model used only to exercise ScriptStrokes writing-model mechanics.
+metrics:
+  units_per_em: 1000
+  baseline: 0
+  x_height: 450
+  cap_height: 700
+  ascender: 750
+  descender: -250
+  slant_degrees: -8
+  default_stroke_width: 52
+
+sources:
+  - id: demo-original
+    title: ScriptStrokes synthetic demonstration geometry
+    kind: project-original
+    authors: [ScriptStrokes contributors]
+    year: 2026
+    rights: Project-original synthetic geometry; not an instructional source.
+    license: CC0-1.0
+
+components:
+  underturn:
+    d: "M 0 0 C 10 115 22 255 65 270 C 108 285 125 215 112 125 C 101 52 118 5 158 0"
+    description: Baseline-to-baseline underturn component.
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+  overturn:
+    d: "M 0 0 C 10 100 30 225 67 265 C 95 296 128 281 143 245 C 159 205 145 90 150 0"
+    description: Baseline-to-baseline overturn/hump component.
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+  oval:
+    d: "M 0 0 C -25 145 15 310 102 332 C 188 354 232 255 214 150 C 196 42 92 -18 0 0"
+    description: Synthetic oval-like body.
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+  exit:
+    d: "M 0 0 C 38 4 76 24 118 58"
+    description: Short rising exit connector.
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+
+connection_rules:
+  - id: baseline-default
+    from_class: baseline
+    to_class: baseline
+    gap: -28
+    tension: 55
+    continuous: true
+
+pair_overrides: {}
+
+glyphs:
+  i:
+    character: i
+    unicode: [U+0069]
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+    forms:
+      default:
+        advance_width: 185
+        strokes:
+          - id: main
+            role: body
+            parts:
+              - component: underturn
+          - id: dot
+            role: dot
+            at: [78, 470]
+        connections:
+          entry: {stroke: main, endpoint: start, class: baseline}
+          exit: {stroke: main, endpoint: end, class: baseline}
+
+  u:
+    character: u
+    unicode: [U+0075]
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+    forms:
+      default:
+        advance_width: 345
+        strokes:
+          - id: main
+            role: body
+            parts:
+              - component: underturn
+              - component: underturn
+        connections:
+          entry: {stroke: main, endpoint: start, class: baseline}
+          exit: {stroke: main, endpoint: end, class: baseline}
+
+  n:
+    character: n
+    unicode: [U+006E]
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+    forms:
+      default:
+        advance_width: 335
+        strokes:
+          - id: main
+            role: body
+            parts:
+              - component: overturn
+              - component: overturn
+        connections:
+          entry: {stroke: main, endpoint: start, class: baseline}
+          exit: {stroke: main, endpoint: end, class: baseline}
+
+  m:
+    character: m
+    unicode: [U+006D]
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+    forms:
+      default:
+        advance_width: 485
+        strokes:
+          - id: main
+            role: body
+            parts:
+              - component: overturn
+              - component: overturn
+              - component: overturn
+        connections:
+          entry: {stroke: main, endpoint: start, class: baseline}
+          exit: {stroke: main, endpoint: end, class: baseline}
+
+  o:
+    character: o
+    unicode: [U+006F]
+    provenance:
+      status: synthetic
+      source_ids: [demo-original]
+    forms:
+      isolated:
+        advance_width: 345
+        strokes:
+          - id: body
+            role: body
+            parts:
+              - component: oval
+              - component: exit
+        connections: {}
+      initial:
+        advance_width: 345
+        strokes:
+          - id: body
+            role: body
+            parts:
+              - component: oval
+              - component: exit
+        connections:
+          exit: {stroke: body, endpoint: end, class: baseline}
+      medial:
+        advance_width: 345
+        strokes:
+          - id: body
+            role: body
+            parts:
+              - component: oval
+              - component: exit
+        connections:
+          entry: {stroke: body, endpoint: start, class: baseline}
+          exit: {stroke: body, endpoint: end, class: baseline}
+      final:
+        advance_width: 345
+        strokes:
+          - id: body
+            role: body
+            parts:
+              - component: oval
+        connections:
+          entry: {stroke: body, endpoint: start, class: baseline}

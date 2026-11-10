@@ -1,0 +1,42 @@
+schema_version: 1
+id: sas-1968-alphabet-page
+description: >
+  Layout template for the supplied "Schulausgangsschrift 1968" alphabet plate.
+  Coordinates are normalized to page size. Character identity comes from the
+  declared row sequence; extracted labels must be reviewed against the scan.
+rows:
+  - id: uppercase-1
+    y: [0.225, 0.305]
+    x: [0.055, 0.950]
+    labels: [A, B, C, D, E, F, G, H, I, J, K, L]
+    centers: [0.105, 0.178, 0.258, 0.344, 0.413, 0.480, 0.552, 0.628, 0.690, 0.748, 0.824, 0.902]
+  - id: uppercase-2
+    y: [0.315, 0.390]
+    x: [0.135, 0.845]
+    labels: [M, N, O, P, Q, R, S, T]
+    centers: [0.235, 0.350, 0.455, 0.535, 0.606, 0.670, 0.730, 0.800]
+  - id: uppercase-3
+    y: [0.400, 0.485]
+    x: [0.245, 0.780]
+    labels: [U, V, W, X, Y, Z]
+    centers: [0.285, 0.370, 0.455, 0.535, 0.620, 0.705]
+  - id: lowercase-1
+    y: [0.525, 0.605]
+    x: [0.060, 0.915]
+    labels: [a, b, c, d, e, f, g, h, i, j, k]
+    centers: [0.112, 0.190, 0.258, 0.340, 0.412, 0.490, 0.560, 0.640, 0.713, 0.775, 0.855]
+  - id: lowercase-2
+    y: [0.610, 0.700]
+    x: [0.060, 0.905]
+    labels: [l, m, n, o, p, q, r, s, ß, t, u]
+    centers: [0.102, 0.175, 0.255, 0.330, 0.410, 0.490, 0.565, 0.635, 0.710, 0.785, 0.865]
+  - id: lowercase-3
+    y: [0.715, 0.780]
+    x: [0.315, 0.760]
+    labels: [v, w, x, y, z]
+    centers: [0.345, 0.420, 0.495, 0.565, 0.635]
+  - id: digits
+    y: [0.835, 0.915]
+    x: [0.065, 0.925]
+    labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    centers: [0.095, 0.170, 0.250, 0.335, 0.430, 0.515, 0.605, 0.695, 0.790, 0.885]
