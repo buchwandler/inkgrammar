@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import re
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
 
 VerificationStatus = Literal[
     "synthetic",
@@ -100,7 +99,7 @@ class RawPathPart(StrictModel):
 
 
 StrokePart = Annotated[
-    Union[ComponentPart, RawPathPart],
+    ComponentPart | RawPathPart,
     Field(discriminator=None),
 ]
 
@@ -118,7 +117,7 @@ class TapStrokeRecipe(StrictModel):
 
 
 StrokeRecipe = Annotated[
-    Union[PathStrokeRecipe, TapStrokeRecipe],
+    PathStrokeRecipe | TapStrokeRecipe,
     Field(discriminator=None),
 ]
 
@@ -155,7 +154,7 @@ class GlyphModel(StrictModel):
         return values
 
     @model_validator(mode="after")
-    def require_usable_form(self) -> "GlyphModel":
+    def require_usable_form(self) -> GlyphModel:
         if "default" not in self.forms and "isolated" not in self.forms:
             raise ValueError("glyph needs at least a default or isolated form")
         return self
@@ -224,7 +223,7 @@ class LayoutRow(StrictModel):
         return value
 
     @model_validator(mode="after")
-    def validate_centers(self) -> "LayoutRow":
+    def validate_centers(self) -> LayoutRow:
         if self.centers is not None:
             if len(self.centers) != len(self.labels):
                 raise ValueError("centers must contain one normalized x position per label")

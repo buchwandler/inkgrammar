@@ -23,8 +23,12 @@ def build_release(
     output_root: str | Path,
     version: str,
 ) -> tuple[Path, Path]:
-    models = [WritingModel.model_validate_json(Path(path).read_text()) if str(path).endswith(".json")
-              else None for path in model_paths]
+    models = [
+        WritingModel.model_validate_json(Path(path).read_text())
+        if str(path).endswith(".json")
+        else None
+        for path in model_paths
+    ]
     if any(model is not None for model in models):
         raise ValueError("JSON source models are not supported in this MVP; use YAML")
 

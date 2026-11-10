@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 import yaml
@@ -14,7 +13,6 @@ from .page import extract_labeled_page
 from .qc import validate_model
 from .raster import compare_text_to_image, render_text_mask
 from .release import build_release
-
 
 app = typer.Typer(no_args_is_help=True, help="ScriptStrokes writing-model tools.")
 page_app = typer.Typer(no_args_is_help=True, help="Scan-page extraction tools.")
@@ -31,9 +29,9 @@ def version() -> None:
 
 @page_app.command("extract")
 def page_extract(
-    image: Path = typer.Argument(..., exists=True),
-    layout: Path = typer.Option(..., "--layout", exists=True),
-    output: Path = typer.Option(Path("work/page"), "--output"),
+    image: Path = typer.Argument(..., exists=True),  # noqa: B008
+    layout: Path = typer.Option(..., "--layout", exists=True),  # noqa: B008
+    output: Path = typer.Option(Path("work/page"), "--output"),  # noqa: B008
 ) -> None:
     """Segment and label an alphabet/sample page using a declared row layout."""
     manifest = extract_labeled_page(
@@ -41,26 +39,22 @@ def page_extract(
         load_layout(layout),
         output,
     )
-    typer.echo(
-        f"Extracted {len(manifest['detections'])} labelled crops into {output}"
-    )
+    typer.echo(f"Extracted {len(manifest['detections'])} labelled crops into {output}")
     typer.echo(f"Review: {output / 'review.png'}")
     typer.echo(f"Manifest: {output / 'detections.json'}")
 
 
 @model_app.command("validate")
 def model_validate(
-    model: Path = typer.Argument(..., exists=True),
-    strict: bool = typer.Option(False, help="Treat warnings as failure."),
+    model: Path = typer.Argument(..., exists=True),  # noqa: B008
+    strict: bool = typer.Option(False, help="Treat warnings as failure."),  # noqa: B008
 ) -> None:
     """Validate components, glyph forms, provenance, and joins."""
     loaded = load_model(model)
     report = validate_model(loaded)
     for issue in report.issues:
         location = "/".join(value for value in (issue.model, issue.glyph) if value)
-        typer.echo(
-            f"{issue.severity.upper()} {issue.code} [{location}]: {issue.message}"
-        )
+        typer.echo(f"{issue.severity.upper()} {issue.code} [{location}]: {issue.message}")
     typer.echo(
         f"QC: {report.glyph_count} glyph(s), {report.component_count} component(s), "
         f"{report.errors} error(s), {report.warnings} warning(s)"
@@ -71,9 +65,9 @@ def model_validate(
 
 @model_app.command("render")
 def model_render(
-    model: Path = typer.Argument(..., exists=True),
-    text: str = typer.Argument(...),
-    output: Path = typer.Option(Path("render.png"), "--output"),
+    model: Path = typer.Argument(..., exists=True),  # noqa: B008
+    text: str = typer.Argument(...),  # noqa: B008
+    output: Path = typer.Option(Path("render.png"), "--output"),  # noqa: B008
 ) -> None:
     """Render text from the writing model."""
     image = render_text_mask(load_model(model), text)
@@ -84,9 +78,9 @@ def model_render(
 
 @model_app.command("compare")
 def model_compare(
-    model: Path = typer.Argument(..., exists=True),
-    text: str = typer.Argument(...),
-    reference: Path = typer.Argument(..., exists=True),
+    model: Path = typer.Argument(..., exists=True),  # noqa: B008
+    text: str = typer.Argument(...),  # noqa: B008
+    reference: Path = typer.Argument(..., exists=True),  # noqa: B008
 ) -> None:
     """Compare generated model output with an observed reference crop."""
     metrics = compare_text_to_image(load_model(model), text, reference)
@@ -95,10 +89,10 @@ def model_compare(
 
 @model_app.command("fit-join")
 def model_fit_join(
-    model: Path = typer.Argument(..., exists=True),
-    text: str = typer.Argument(...),
-    reference: Path = typer.Argument(..., exists=True),
-    output: Optional[Path] = typer.Option(None, "--output"),
+    model: Path = typer.Argument(..., exists=True),  # noqa: B008
+    text: str = typer.Argument(...),  # noqa: B008
+    reference: Path = typer.Argument(..., exists=True),  # noqa: B008
+    output: Path | None = typer.Option(None, "--output"),  # noqa: B008
 ) -> None:
     """Grid-search pair spacing/tension against an observed two-letter crop."""
     result = fit_join(load_model(model), text, reference)
@@ -128,9 +122,9 @@ def model_fit_join(
 
 @app.command("build-release")
 def build_release_command(
-    models: list[Path] = typer.Argument(..., exists=True),
-    version: str = typer.Option(..., "--version"),
-    output: Path = typer.Option(Path("dist"), "--output"),
+    models: list[Path] = typer.Argument(..., exists=True),  # noqa: B008
+    version: str = typer.Option(..., "--version"),  # noqa: B008
+    output: Path = typer.Option(Path("dist"), "--output"),  # noqa: B008
 ) -> None:
     """Build a consumer-only JSON/schema/QC release ZIP."""
     release_root, archive = build_release(models, output, version)

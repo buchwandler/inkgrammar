@@ -1,14 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from math import hypot, isfinite
-from typing import Iterable
 
 from fontTools.pens.recordingPen import RecordingPen
 from fontTools.svgLib.path import parse_path
 
 from .models import Transform
-
 
 Point = tuple[float, float]
 
@@ -49,7 +48,7 @@ def _cubic(p0: Point, p1: Point, p2: Point, p3: Point, t: float) -> Point:
 
 def _segment_length(points: Iterable[Point]) -> float:
     values = list(points)
-    return sum(hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(values, values[1:]))
+    return sum(hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(values, values[1:], strict=False))
 
 
 def _record(d: str):
@@ -239,14 +238,9 @@ def path_without_initial_move(d: str) -> str:
         if operator == "lineTo":
             chunks.append(f"L {fmt(tuple(map(float, args[0])))}")
         elif operator == "curveTo":
-            chunks.append(
-                "C " + " ".join(fmt(tuple(map(float, p))) for p in args)
-            )
+            chunks.append("C " + " ".join(fmt(tuple(map(float, p))) for p in args))
         elif operator == "qCurveTo":
-            chunks.append(
-                "Q "
-                + " ".join(fmt(tuple(map(float, p))) for p in args if p is not None)
-            )
+            chunks.append("Q " + " ".join(fmt(tuple(map(float, p))) for p in args if p is not None))
         elif operator in {"endPath", "closePath"}:
             continue
         elif operator == "moveTo":

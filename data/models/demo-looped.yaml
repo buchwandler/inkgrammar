@@ -83,8 +83,8 @@ glyphs:
             role: dot
             at: [78, 470]
         connections:
-          entry: {stroke: main, endpoint: start, class: baseline}
-          exit: {stroke: main, endpoint: end, class: baseline}
+          entry: { stroke: main, endpoint: start, class: baseline }
+          exit: { stroke: main, endpoint: end, class: baseline }
 
   u:
     character: u
@@ -102,8 +102,8 @@ glyphs:
               - component: underturn
               - component: underturn
         connections:
-          entry: {stroke: main, endpoint: start, class: baseline}
-          exit: {stroke: main, endpoint: end, class: baseline}
+          entry: { stroke: main, endpoint: start, class: baseline }
+          exit: { stroke: main, endpoint: end, class: baseline }
 
   n:
     character: n
@@ -121,8 +121,8 @@ glyphs:
               - component: overturn
               - component: overturn
         connections:
-          entry: {stroke: main, endpoint: start, class: baseline}
-          exit: {stroke: main, endpoint: end, class: baseline}
+          entry: { stroke: main, endpoint: start, class: baseline }
+          exit: { stroke: main, endpoint: end, class: baseline }
 
   m:
     character: m
@@ -141,8 +141,8 @@ glyphs:
               - component: overturn
               - component: overturn
         connections:
-          entry: {stroke: main, endpoint: start, class: baseline}
-          exit: {stroke: main, endpoint: end, class: baseline}
+          entry: { stroke: main, endpoint: start, class: baseline }
+          exit: { stroke: main, endpoint: end, class: baseline }
 
   o:
     character: o
@@ -169,7 +169,7 @@ glyphs:
               - component: oval
               - component: exit
         connections:
-          exit: {stroke: body, endpoint: end, class: baseline}
+          exit: { stroke: body, endpoint: end, class: baseline }
       medial:
         advance_width: 345
         strokes:
@@ -179,8 +179,8 @@ glyphs:
               - component: oval
               - component: exit
         connections:
-          entry: {stroke: body, endpoint: start, class: baseline}
-          exit: {stroke: body, endpoint: end, class: baseline}
+          entry: { stroke: body, endpoint: start, class: baseline }
+          exit: { stroke: body, endpoint: end, class: baseline }
       final:
         advance_width: 345
         strokes:
@@ -189,4 +189,4 @@ glyphs:
             parts:
               - component: oval
         connections:
-          entry: {stroke: body, endpoint: start, class: baseline}
+          entry: { stroke: body, endpoint: start, class: baseline }

@@ -4,7 +4,6 @@ from scriptstrokes.fit import fit_join
 from scriptstrokes.io import load_model
 from scriptstrokes.raster import compare_text_to_image, render_text_mask
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "data" / "models" / "demo-looped.yaml"
 

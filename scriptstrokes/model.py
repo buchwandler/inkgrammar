@@ -15,7 +15,6 @@ from .models import (
     PathStrokeRecipe,
     RawPathPart,
     TapStrokeRecipe,
-    Transform,
     WritingModel,
 )
 
@@ -172,9 +171,7 @@ def compile_text(
     for index, character in enumerate(characters):
         has_prev = index > 0
         has_next = index < len(characters) - 1
-        compiled.append(
-            compile_glyph(model, character, _form_name(has_prev, has_next))
-        )
+        compiled.append(compile_glyph(model, character, _form_name(has_prev, has_next)))
 
     output: list[CompiledStroke] = []
     x_origins = [0.0]
@@ -210,7 +207,7 @@ def compile_text(
         if rule and current.exit and nxt.entry:
             connectors.append((index, pair, next_origin, tension))
 
-    for index, (glyph, x_origin) in enumerate(zip(compiled, x_origins)):
+    for index, (glyph, x_origin) in enumerate(zip(compiled, x_origins, strict=False)):
         for stroke in glyph.strokes:
             if stroke.d is not None:
                 output.append(
@@ -244,17 +241,9 @@ def compile_text(
         right_info = analyze_path(translate_path(right_stroke.d, next_origin, 0))
 
         p0 = left_info.start if left.exit[1] == "start" else left_info.end
-        t0 = (
-            left_info.tangent_start
-            if left.exit[1] == "start"
-            else left_info.tangent_end
-        )
+        t0 = left_info.tangent_start if left.exit[1] == "start" else left_info.tangent_end
         p3 = right_info.start if right.entry[1] == "start" else right_info.end
-        t3 = (
-            right_info.tangent_start
-            if right.entry[1] == "start"
-            else right_info.tangent_end
-        )
+        t3 = right_info.tangent_start if right.entry[1] == "start" else right_info.tangent_end
 
         output.append(
             CompiledStroke(

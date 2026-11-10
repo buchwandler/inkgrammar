@@ -85,8 +85,7 @@ def extract_labeled_page(
             centers = [round(value * width) for value in row.centers]
             absolute_boundaries = [row_x0]
             absolute_boundaries.extend(
-                round((left + right) / 2)
-                for left, right in zip(centers, centers[1:])
+                round((left + right) / 2) for left, right in zip(centers, centers[1:], strict=False)
             )
             absolute_boundaries.append(row_x1)
             boundaries = [value - row_x0 for value in absolute_boundaries]
@@ -110,30 +109,40 @@ def extract_labeled_page(
             filename = f"{row.id}-{index:02d}-{codepoints}.png"
             crop.save(output_dir / filename)
 
-            gap_left = projection[
-                max(0, boundaries[index] - 1):
-                min(len(projection), boundaries[index] + 2)
-            ].mean() if index > 0 else 0.0
-            gap_right = projection[
-                max(0, boundaries[index + 1] - 1):
-                min(len(projection), boundaries[index + 1] + 2)
-            ].mean() if index < len(row.labels) - 1 else 0.0
+            gap_left = (
+                projection[
+                    max(0, boundaries[index] - 1) : min(len(projection), boundaries[index] + 2)
+                ].mean()
+                if index > 0
+                else 0.0
+            )
+            gap_right = (
+                projection[
+                    max(0, boundaries[index + 1] - 1) : min(
+                        len(projection), boundaries[index + 1] + 2
+                    )
+                ].mean()
+                if index < len(row.labels) - 1
+                else 0.0
+            )
             ink_mean = float(projection.mean()) + 1e-9
             confidence = max(
                 0.0,
                 min(1.0, 1.0 - float((gap_left + gap_right) / 2 / ink_mean)),
             )
 
-            detections.append({
-                "row": row.id,
-                "index": index,
-                "label": label,
-                "unicode": [f"U+{ord(ch):04X}" for ch in label],
-                "bbox": [x0, y0, x1, y1],
-                "crop": filename,
-                "confidence": round(confidence, 4),
-                "label_source": "layout-sequence",
-            })
+            detections.append(
+                {
+                    "row": row.id,
+                    "index": index,
+                    "label": label,
+                    "unicode": [f"U+{ord(ch):04X}" for ch in label],
+                    "bbox": [x0, y0, x1, y1],
+                    "crop": filename,
+                    "confidence": round(confidence, 4),
+                    "label_source": "layout-sequence",
+                }
+            )
             draw.rectangle(bbox, outline=(255, 0, 0), width=1)
             draw.text((x0, max(0, y0 - 12)), label, fill=(255, 0, 0))
 

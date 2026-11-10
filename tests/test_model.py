@@ -4,7 +4,6 @@ from scriptstrokes.io import load_model
 from scriptstrokes.model import compile_glyph, compile_text
 from scriptstrokes.qc import validate_model
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "data" / "models" / "demo-looped.yaml"
 

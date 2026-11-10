@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from PIL import Image, ImageDraw
 
 from scriptstrokes.models import LayoutRow, PageLayout
@@ -10,7 +8,7 @@ def test_layout_aware_page_extraction(tmp_path):
     image = Image.new("RGB", (600, 160), "white")
     draw = ImageDraw.Draw(image)
     positions = [40, 180, 320, 460]
-    for x, label in zip(positions, ["A", "B", "a", "b"]):
+    for x, label in zip(positions, ["A", "B", "a", "b"], strict=False):
         draw.text((x, 50), label, fill="black", stroke_width=2)
 
     source = tmp_path / "page.png"

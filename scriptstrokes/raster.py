@@ -30,11 +30,7 @@ def threshold_image(image: Image.Image) -> np.ndarray:
         sum_background += level * histogram[level]
         mean_background = sum_background / weight_background
         mean_foreground = (sum_total - sum_background) / weight_foreground
-        variance = (
-            weight_background
-            * weight_foreground
-            * (mean_background - mean_foreground) ** 2
-        )
+        variance = weight_background * weight_foreground * (mean_background - mean_foreground) ** 2
         if variance > best_variance:
             best_variance = variance
             threshold = level
@@ -55,7 +51,7 @@ def crop_to_ink(mask: np.ndarray, pad: int = 2) -> np.ndarray:
 
 def normalize_mask(mask: np.ndarray, size: int = 256, margin: int = 16) -> np.ndarray:
     mask = crop_to_ink(mask)
-    image = Image.fromarray((mask.astype(np.uint8) * 255))
+    image = Image.fromarray(mask.astype(np.uint8) * 255)
     inner = size - margin * 2
     scale = min(inner / image.width, inner / image.height)
     width = max(1, round(image.width * scale))

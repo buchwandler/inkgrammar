@@ -7,7 +7,6 @@ from .geometry import analyze_path
 from .model import compile_glyph
 from .models import WritingModel
 
-
 Severity = Literal["error", "warning"]
 
 
@@ -139,18 +138,19 @@ def validate_model(model: WritingModel) -> QCReport:
                 )
             )
 
-        if glyph.provenance.status in {"source-backed", "reviewed", "verified"}:
-            if not glyph.provenance.source_ids:
-                issues.append(
-                    Issue(
-                        "error",
-                        "glyph.missing-source",
-                        f"{glyph.provenance.status} glyph requires a source",
-                        model.id,
-                        character,
-                    )
+        if (
+            glyph.provenance.status in {"source-backed", "reviewed", "verified"}
+            and not glyph.provenance.source_ids
+        ):
+            issues.append(
+                Issue(
+                    "error",
+                    "glyph.missing-source",
+                    f"{glyph.provenance.status} glyph requires a source",
+                    model.id,
+                    character,
                 )
-
+            )
         for form_name in glyph.forms:
             try:
                 compiled = compile_glyph(model, character, form_name)

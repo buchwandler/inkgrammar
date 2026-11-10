@@ -4,7 +4,6 @@ from pathlib import Path
 
 from scriptstrokes.release import build_release
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "data" / "models" / "demo-looped.yaml"
 
