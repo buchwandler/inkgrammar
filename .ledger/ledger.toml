@@ -1,0 +1,24 @@
+schema_version = 3
+
+[project]
+uuid = "6626a550-1e3e-45f4-b571-5de402bec49c"
+name = "scriptstrokes"
+
+[ledgers.taskledger.mounts.data]
+storage = "external"
+root = "../ledger"
+
+[ledgers.taskledger.mounts.runtime]
+storage = "user-data"
+
+[ledgers.taskledger.mounts.logs]
+storage = "user-data"
+
+[ledgers.taskledger.mounts.indexes]
+storage = "cache"
+
+[ledgers.releaseledger.mounts.data]
+storage = "project"
+
+[ledgers.releaseledger.mounts.indexes]
+storage = "cache"

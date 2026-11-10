@@ -27,7 +27,7 @@ jobs:
         run: ruff check .
 
       - name: Test
-        run: pytest
+        run: python -m pytest
 
       - name: Validate demo model
         run: scriptstrokes model validate data/models/demo-looped.yaml --strict

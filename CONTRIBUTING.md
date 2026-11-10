@@ -5,7 +5,7 @@ Before submitting model or code changes:
 ```bash
 python -m pip install -e ".[dev]"
 ruff check .
-pytest
+python -m pytest
 scriptstrokes model validate data/models/demo-looped.yaml --strict
 ```
 

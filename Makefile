@@ -7,7 +7,7 @@ lint:
 	ruff check .
 
 test:
-	pytest
+	python -m pytest
 
 validate:
 	scriptstrokes model validate data/models/demo-looped.yaml --strict

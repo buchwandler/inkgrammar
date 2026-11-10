@@ -222,3 +222,4 @@ build/
 dist/
 work/
 scriptstrokes/_version.py
+context_scriptstrokes*.*
