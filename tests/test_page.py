@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 
-from scriptstrokes.models import LayoutRow, PageLayout
-from scriptstrokes.page import extract_labeled_page
+from inkgrammar.models import LayoutRow, PageLayout
+from inkgrammar.page import extract_labeled_page
 
 
 def test_layout_aware_page_extraction(tmp_path):

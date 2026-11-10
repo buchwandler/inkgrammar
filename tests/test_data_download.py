@@ -9,9 +9,9 @@ import zipfile
 import pytest
 from typer.testing import CliRunner
 
-from scriptstrokes import data
-from scriptstrokes.cli import app
-from scriptstrokes.release import build_release
+from inkgrammar import data
+from inkgrammar.cli import app
+from inkgrammar.release import build_release
 
 
 @pytest.fixture
@@ -24,8 +24,8 @@ def server(tmp_path, monkeypatch):
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     base = f"http://127.0.0.1:{httpd.server_port}"
-    monkeypatch.setenv("SCRIPTSTROKES_DATA_BASE_URL", base)
-    monkeypatch.setenv("SCRIPTSTROKES_DATA_DIR", str(tmp_path / "cache"))
+    monkeypatch.setenv("INKGRAMMAR_DATA_BASE_URL", base)
+    monkeypatch.setenv("INKGRAMMAR_DATA_DIR", str(tmp_path / "cache"))
     (public / "latest.json").write_text(
         json.dumps(
             {
@@ -69,7 +69,7 @@ def test_install_and_load_offline(server, monkeypatch):
 
 
 def test_latest_metadata_and_version_override(server, monkeypatch):
-    monkeypatch.setenv("SCRIPTSTROKES_DATA_VERSION", "0.1.0")
+    monkeypatch.setenv("INKGRAMMAR_DATA_VERSION", "0.1.0")
     assert data.resolve_release()[0] == "0.1.0"
     assert data.install_release("latest").name == "0.1.0"
 
@@ -98,7 +98,7 @@ def test_archive_corruption_rejected_before_extraction(server):
 def test_internal_corruption_rejected_atomically(server):
     with zipfile.ZipFile(server) as source:
         payloads = {name: source.read(name) for name in source.namelist()}
-    payloads["scriptstrokes-data-0.1.0/models/demo-looped.json"] += b" "
+    payloads["inkgrammar-data-0.1.0/models/demo-looped.json"] += b" "
     rewrite_archive(server, payloads)
     with pytest.raises(ValueError, match="internal checksum"):
         data.install_release("0.1.0")
@@ -113,7 +113,7 @@ def test_internal_corruption_rejected_atomically(server):
         "C:/absolute",
         "root/../../escape",
         "root\\escape",
-        "scriptstrokes-data-0.1.0/../escape",
+        "inkgrammar-data-0.1.0/../escape",
         "unexpected-root/file",
     ],
 )
@@ -126,7 +126,7 @@ def test_unsafe_paths_rejected(server, name):
 
 def test_symlink_member_rejected(server):
     with zipfile.ZipFile(server, "w") as archive:
-        member = zipfile.ZipInfo("scriptstrokes-data-0.1.0/link")
+        member = zipfile.ZipInfo("inkgrammar-data-0.1.0/link")
         member.create_system = 3
         member.external_attr = (stat.S_IFLNK | 0o777) << 16
         archive.writestr(member, "../../escape")
@@ -146,7 +146,7 @@ def test_installed_corruption_rejected(server):
 
 def test_incompatible_release_rejected(server):
     build_release(
-        ["data/models/demo-looped.yaml"], server.parent, "0.1.0", requires_scriptstrokes=">=999"
+        ["data/models/demo-looped.yaml"], server.parent, "0.1.0", requires_inkgrammar=">=999"
     )
     with pytest.raises(ValueError, match="incompatible"):
         data.install_release("0.1.0")
@@ -155,7 +155,7 @@ def test_incompatible_release_rejected(server):
 
 @pytest.mark.parametrize("version", ["../bad", "/absolute", "v0.1.0", "0/1", ""])
 def test_bad_version_rejected(version, monkeypatch, tmp_path):
-    monkeypatch.setenv("SCRIPTSTROKES_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INKGRAMMAR_DATA_DIR", str(tmp_path))
     with pytest.raises(ValueError):
         data.verify_release(version)
 
@@ -203,7 +203,7 @@ def test_bad_external_sidecar(server, problem):
 def test_unchecksummed_payload_rejected(server):
     with zipfile.ZipFile(server) as source:
         payloads = {name: source.read(name) for name in source.namelist()}
-    payloads["scriptstrokes-data-0.1.0/extra.txt"] = b"unlisted"
+    payloads["inkgrammar-data-0.1.0/extra.txt"] = b"unlisted"
     rewrite_archive(server, payloads)
     with pytest.raises(ValueError, match="exactly all"):
         data.install_release("0.1.0")
@@ -211,9 +211,9 @@ def test_unchecksummed_payload_rejected(server):
 
 def test_duplicate_member_rejected(server):
     with zipfile.ZipFile(server, "w") as archive:
-        archive.writestr("scriptstrokes-data-0.1.0/file", "first")
+        archive.writestr("inkgrammar-data-0.1.0/file", "first")
         with pytest.warns(UserWarning, match="Duplicate"):
-            archive.writestr("scriptstrokes-data-0.1.0/file", "second")
+            archive.writestr("inkgrammar-data-0.1.0/file", "second")
     server.with_suffix(".zip.sha256").write_text(
         f"{hashlib.sha256(server.read_bytes()).hexdigest()}  {server.name}\n"
     )

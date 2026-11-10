@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from scriptstrokes.io import load_layout
-from scriptstrokes.observations import ObservationManifest
+from inkgrammar.io import load_layout
+from inkgrammar.observations import ObservationManifest
 
 
 def test_sas_label_sequences():

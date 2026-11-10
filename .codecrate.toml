@@ -1,11 +1,11 @@
 [codecrate]
-output = "context_scriptstrokes.md"
+output = "context_inkgrammar.md"
 keep_docstrings = true
 dedupe = true
 metadata = false
 respect_gitignore = true
 exclude = ["*/.venv/*", "context_pykokoro.*"]
-gitignore_allow = ["scriptstrokes/_version.py"]
+gitignore_allow = ["inkgrammar/_version.py"]
 include = [
   "**/*.py",
   "**/*.toml",

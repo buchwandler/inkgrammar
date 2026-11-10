@@ -2,7 +2,7 @@ import json
 import zipfile
 from pathlib import Path
 
-from scriptstrokes.release import build_release
+from inkgrammar.release import build_release
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "data" / "models" / "demo-looped.yaml"
@@ -19,4 +19,4 @@ def test_release(tmp_path):
     assert catalog["models"][0]["id"] == "demo-looped"
 
     with zipfile.ZipFile(archive) as handle:
-        assert "scriptstrokes-data-test/manifest.json" in handle.namelist()
+        assert "inkgrammar-data-test/manifest.json" in handle.namelist()

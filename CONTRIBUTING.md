@@ -6,7 +6,7 @@ Before submitting model or code changes:
 python -m pip install -e ".[dev]"
 ruff check .
 python -m pytest
-scriptstrokes model validate data/models/demo-looped.yaml --strict
+inkgrammar model validate data/models/demo-looped.yaml --strict
 ```
 
 ## Evidence statuses

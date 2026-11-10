@@ -1,17 +1,17 @@
 import numpy as np
 import pytest
 
-from scriptstrokes.fitting.family_fit import primitive_path
-from scriptstrokes.fitting.models import (
+from inkgrammar.fitting.family_fit import primitive_path
+from inkgrammar.fitting.models import (
     CubicSegment,
     PrimitiveFrame,
     PrimitiveTemplate,
     TopologyTransform,
 )
-from scriptstrokes.fitting.objective import soft_mask_loss
-from scriptstrokes.fitting.optimizer import OptimizerConfig, optimize_parameters
-from scriptstrokes.fitting.parameterization import ParameterSpace
-from scriptstrokes.fitting.render import render_paths
+from inkgrammar.fitting.objective import soft_mask_loss
+from inkgrammar.fitting.optimizer import OptimizerConfig, optimize_parameters
+from inkgrammar.fitting.parameterization import ParameterSpace
+from inkgrammar.fitting.render import render_paths
 
 
 @pytest.mark.parametrize(

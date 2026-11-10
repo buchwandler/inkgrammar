@@ -43,7 +43,7 @@ class RegressionResult(StrictModel):
 
 
 class RegressionManifest(StrictModel):
-    format: Literal["scriptstrokes-regressions"] = "scriptstrokes-regressions"
+    format: Literal["inkgrammar-regressions"] = "inkgrammar-regressions"
     format_version: Literal[1] = 1
     model_id: str
     fixtures: list[RegressionFixture]

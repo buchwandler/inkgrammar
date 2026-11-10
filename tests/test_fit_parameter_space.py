@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from scriptstrokes.fitting.models import PrimitiveTemplate
-from scriptstrokes.fitting.parameterization import ParameterSpace, ParameterSpec
+from inkgrammar.fitting.models import PrimitiveTemplate
+from inkgrammar.fitting.parameterization import ParameterSpace, ParameterSpec
 
 
 def primitive():

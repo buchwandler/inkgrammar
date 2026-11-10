@@ -17,7 +17,7 @@ Connection endpoints are typed with classes such as:
 The class vocabulary is model-specific. Historical documentation may justify a small fixed set.
 
 The supplied source examples distinguish, among other things, connections leaving from the
-baseline, connections leaving from the middle line, and attached connections. ScriptStrokes
+baseline, connections leaving from the middle line, and attached connections. InkGrammar
 therefore models connection behavior explicitly rather than assuming one universal join.
 
 ## Connection modes
@@ -47,13 +47,13 @@ geometry or trajectory of a generated connector.
 Once a model can render a pair, compare it against an observed pair crop:
 
 ```bash
-scriptstrokes model compare data/models/my-model.yaml "ma" refs/ma.png
+inkgrammar model compare data/models/my-model.yaml "ma" refs/ma.png
 ```
 
 For the MVP, pair fitting can tune spacing and bridge tension:
 
 ```bash
-scriptstrokes model fit-join data/models/my-model.yaml "ma" refs/ma.png \
+inkgrammar model fit-join data/models/my-model.yaml "ma" refs/ma.png \
   --output work/ma-override.yaml
 ```
 

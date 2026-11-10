@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from scriptstrokes.fitting.models import (
+from inkgrammar.fitting.models import (
     DuctusModel,
     FitCorpus,
     FitSample,

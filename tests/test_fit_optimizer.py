@@ -1,15 +1,15 @@
 import numpy as np
 import pytest
 
-from scriptstrokes.fitting.checkpoint import FitCheckpoint
-from scriptstrokes.fitting.models import PrimitiveTemplate
-from scriptstrokes.fitting.optimizer import (
+from inkgrammar.fitting.checkpoint import FitCheckpoint
+from inkgrammar.fitting.models import PrimitiveTemplate
+from inkgrammar.fitting.optimizer import (
     OptimizerConfig,
     checkpoint_from_result,
     optimize_parameters,
     resume_optimization,
 )
-from scriptstrokes.fitting.parameterization import ParameterSpace
+from inkgrammar.fitting.parameterization import ParameterSpace
 
 
 def primitive():
@@ -32,7 +32,7 @@ def checkpoint(parameters, backend="scipy-powell"):
     return FitCheckpoint(
         project_id="synthetic",
         stage="primitive:synthetic-cubic",
-        created_by={"scriptstrokes_version": "0.1.0"},
+        created_by={"inkgrammar_version": "0.1.0"},
         inputs={
             "project_sha256": digest,
             "corpus_sha256": "b" * 64,

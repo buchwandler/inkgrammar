@@ -11,7 +11,7 @@ from ..models import StrictModel
 
 
 class CheckpointCreator(StrictModel):
-    scriptstrokes_version: str
+    inkgrammar_version: str
     git_commit: str | None = None
 
 
@@ -42,7 +42,7 @@ class CheckpointIteration(StrictModel):
 
 
 class FitCheckpoint(StrictModel):
-    format: Literal["scriptstrokes-fit-checkpoint"] = "scriptstrokes-fit-checkpoint"
+    format: Literal["inkgrammar-fit-checkpoint"] = "inkgrammar-fit-checkpoint"
     format_version: Literal[1] = 1
     project_id: str
     stage: str

@@ -10,10 +10,10 @@ import numpy as np
 import yaml
 from PIL import Image, ImageDraw
 
-from scriptstrokes.component_fit import fit_component_candidates
-from scriptstrokes.geometry import transform_path
-from scriptstrokes.models import Transform, WritingModel
-from scriptstrokes.raster import compare_anchored_masks, render_text_frame, threshold_image
+from inkgrammar.component_fit import fit_component_candidates
+from inkgrammar.geometry import transform_path
+from inkgrammar.models import Transform, WritingModel
+from inkgrammar.raster import compare_anchored_masks, render_text_frame, threshold_image
 from tools.measure_sas_seed import connected_ink
 
 ROOT = Path("work/sas-1968")

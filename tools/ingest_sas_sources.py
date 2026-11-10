@@ -12,8 +12,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from scriptstrokes.models import SourceRecord
-from scriptstrokes.observations import Observation, ObservationManifest, SourceImage
+from inkgrammar.models import SourceRecord
+from inkgrammar.observations import Observation, ObservationManifest, SourceImage
 
 SOURCE_IDS = [
     "sas-1968-alphabet",

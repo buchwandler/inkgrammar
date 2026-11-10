@@ -19,20 +19,20 @@ from packaging.version import Version
 
 from .models import WritingModel
 
-GITHUB = "https://github.com/buchwandler/scriptstrokes/releases/download"
-LATEST = "https://api.github.com/repos/buchwandler/scriptstrokes/releases/latest"
+GITHUB = "https://github.com/buchwandler/inkgrammar/releases/download"
+LATEST = "https://api.github.com/repos/buchwandler/inkgrammar/releases/latest"
 
 
 def data_cache_dir() -> Path:
-    if override := os.environ.get("SCRIPTSTROKES_DATA_DIR"):
+    if override := os.environ.get("INKGRAMMAR_DATA_DIR"):
         return Path(override).expanduser()
     if os.name == "nt":
-        return Path(os.environ["LOCALAPPDATA"]) / "scriptstrokes"
+        return Path(os.environ["LOCALAPPDATA"]) / "inkgrammar"
     import sys
 
     if sys.platform == "darwin":
-        return Path.home() / "Library" / "Caches" / "scriptstrokes"
-    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "scriptstrokes"
+        return Path.home() / "Library" / "Caches" / "inkgrammar"
+    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "inkgrammar"
 
 
 def _version(value: str) -> str:
@@ -43,25 +43,25 @@ def _version(value: str) -> str:
 
 
 def _fetch(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": "scriptstrokes-data"})
+    request = urllib.request.Request(url, headers={"User-Agent": "inkgrammar-data"})
     with urllib.request.urlopen(request, timeout=60) as response:
         return response.read()
 
 
 def resolve_release(release: str | None = None) -> tuple[str, str]:
-    release = release or os.environ.get("SCRIPTSTROKES_DATA_VERSION", "latest")
-    base = os.environ.get("SCRIPTSTROKES_DATA_BASE_URL", GITHUB).rstrip("/")
+    release = release or os.environ.get("INKGRAMMAR_DATA_VERSION", "latest")
+    base = os.environ.get("INKGRAMMAR_DATA_BASE_URL", GITHUB).rstrip("/")
     if release == "latest":
         metadata_url = LATEST if base == GITHUB else f"{base}/latest.json"
         metadata = json.loads(_fetch(metadata_url))
         release = _version(metadata["tag_name"].removeprefix("v"))
-        filename = f"scriptstrokes-data-{release}.zip"
+        filename = f"inkgrammar-data-{release}.zip"
         assets = [asset for asset in metadata["assets"] if asset["name"] == filename]
         if len(assets) != 1:
             raise ValueError("latest release metadata must identify exactly one data archive")
         return release, assets[0]["browser_download_url"]
     release = _version(release)
-    return release, f"{base}/v{release}/scriptstrokes-data-{release}.zip"
+    return release, f"{base}/v{release}/inkgrammar-data-{release}.zip"
 
 
 def _checksum_rows(payload: str) -> dict[str, str]:
@@ -96,7 +96,7 @@ def download_release(release: str | None = None) -> Path:
 
 
 def _download(resolved: str, url: str) -> Path:
-    filename = f"scriptstrokes-data-{resolved}.zip"
+    filename = f"inkgrammar-data-{resolved}.zip"
     checksums = _checksum_rows(_fetch(url + ".sha256").decode("utf-8"))
     if set(checksums) != {filename}:
         raise ValueError("archive checksum sidecar does not name the resolved archive")
@@ -105,7 +105,7 @@ def _download(resolved: str, url: str) -> Path:
     with tempfile.NamedTemporaryFile(dir=downloads, delete=False) as handle:
         temporary = Path(handle.name)
         try:
-            request = urllib.request.Request(url, headers={"User-Agent": "scriptstrokes-data"})
+            request = urllib.request.Request(url, headers={"User-Agent": "inkgrammar-data"})
             digest = hashlib.sha256()
             with urllib.request.urlopen(request, timeout=60) as response:
                 while block := response.read(1024 * 1024):
@@ -148,21 +148,21 @@ def _verify_directory(root: Path, release: str) -> None:
             raise ValueError(f"internal checksum mismatch: {name}")
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if (
-        manifest.get("format") != "scriptstrokes-release"
+        manifest.get("format") != "inkgrammar-release"
         or manifest.get("format_version") != 3
         or manifest.get("release_version") != release
         or manifest.get("catalog") != "catalog.json"
         or manifest.get("checksums") != "checksums.sha256"
     ):
         raise ValueError("unsupported or inconsistent release manifest")
-    requirement = manifest.get("requires_scriptstrokes")
-    if not requirement or Version(package_version("scriptstrokes")) not in SpecifierSet(
+    requirement = manifest.get("requires_inkgrammar")
+    if not requirement or Version(package_version("inkgrammar")) not in SpecifierSet(
         requirement
     ):
-        raise ValueError("data release is incompatible with installed scriptstrokes")
+        raise ValueError("data release is incompatible with installed inkgrammar")
     catalog = json.loads((root / "catalog.json").read_text(encoding="utf-8"))
     if (
-        catalog.get("format") != "scriptstrokes-catalog"
+        catalog.get("format") != "inkgrammar-catalog"
         or catalog.get("release_version") != release
     ):
         raise ValueError("inconsistent catalog")
@@ -188,7 +188,7 @@ def install_release(release: str | None = None) -> Path:
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=target.parent) as temporary:
         temporary = Path(temporary)
-        expected_root = f"scriptstrokes-data-{resolved}"
+        expected_root = f"inkgrammar-data-{resolved}"
         seen = set()
         with zipfile.ZipFile(archive_path) as archive:
             for member in archive.infolist():

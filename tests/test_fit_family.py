@@ -9,16 +9,21 @@ from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from typer.testing import CliRunner
 
-from scriptstrokes.cli import app
-from scriptstrokes.fitting.family_fit import optimize_primitive_family, primitive_path
-from scriptstrokes.fitting.models import (
+from inkgrammar.cli import app
+from inkgrammar.fitting.checkpoint import load_checkpoint
+from inkgrammar.fitting.family_fit import (
+    optimize_primitive_family,
+    primitive_path,
+    refresh_primitive_artifact_hashes,
+)
+from inkgrammar.fitting.models import (
     CubicSegment,
     PrimitiveFrame,
     PrimitiveTemplate,
     TopologyTransform,
 )
-from scriptstrokes.fitting.render import render_paths
-from scriptstrokes.fitting.workspace import load_fit_project, materialize_fit_project
+from inkgrammar.fitting.render import render_paths
+from inkgrammar.fitting.workspace import load_fit_project, materialize_fit_project
 
 PRIMITIVE_ID = "sas-open-oval-01"
 
@@ -166,7 +171,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
         }
 
     source_manifest = {
-        "format": "scriptstrokes-observations",
+        "format": "inkgrammar-observations",
         "format_version": 1,
         "model_id": "toy",
         "sources": [
@@ -184,17 +189,17 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     }
     _write_json(
         project_dir / "source-lock.json",
-        {"format": "scriptstrokes-source-lock", "format_version": 1, "sources": source_records},
+        {"format": "inkgrammar-source-lock", "format_version": 1, "sources": source_records},
     )
     _write_json(observation_dir / "manifest.json", source_manifest)
     _write_yaml(
         project_dir / "corpus.yaml",
-        {"format": "scriptstrokes-fit-corpus", "format_version": 1, "samples": samples},
+        {"format": "inkgrammar-fit-corpus", "format_version": 1, "samples": samples},
     )
     _write_yaml(
         project_dir / "families.yaml",
         {
-            "format": "scriptstrokes-fit-families",
+            "format": "inkgrammar-fit-families",
             "format_version": 1,
             "families": [
                 {
@@ -212,7 +217,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     _write_yaml(
         project_dir / "topology.yaml",
         {
-            "format": "scriptstrokes-fit-topology",
+            "format": "inkgrammar-fit-topology",
             "format_version": 1,
             "glyphs": topology_glyphs,
         },
@@ -220,7 +225,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     _write_json(
         project_dir / "anchors.json",
         {
-            "format": "scriptstrokes-fit-anchors",
+            "format": "inkgrammar-fit-anchors",
             "format_version": 1,
             "coordinate_frame": "crop-local pixels",
             "samples": anchors,
@@ -229,7 +234,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     _write_yaml(
         project_dir / "fit-config.yaml",
         {
-            "format": "scriptstrokes-fit-config",
+            "format": "inkgrammar-fit-config",
             "format_version": 1,
             "objective": {"version": 1, "residual_sigma": 0.05},
             "optimizer": {"max_iterations": 100, "tolerance": 1e-6},
@@ -259,7 +264,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
         },
     )
     project = {
-        "format": "scriptstrokes-fit-project",
+        "format": "inkgrammar-fit-project",
         "format_version": 1,
         "id": "toy",
         "runtime_model_id": "toy",
@@ -277,6 +282,31 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     project_path = project_dir / "project.yaml"
     _write_yaml(project_path, project)
     return repository, project_path, source_dir
+
+
+def test_refresh_primitive_artifact_hashes_preserves_fit_results(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    optimize_primitive_family(bundle, PRIMITIVE_ID)
+
+    checkpoint_path = bundle.project_dir / "checkpoints" / f"{PRIMITIVE_ID}.json"
+    report_path = bundle.project_dir / "reports" / f"{PRIMITIVE_ID}.json"
+    before_checkpoint = load_checkpoint(checkpoint_path)
+    before_report = json.loads(report_path.read_text(encoding="utf-8"))
+    project_path.write_text(project_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+
+    refreshed = refresh_primitive_artifact_hashes(bundle, PRIMITIVE_ID)
+
+    after_checkpoint = load_checkpoint(checkpoint_path)
+    after_report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert refreshed.project_sha256 != before_checkpoint.inputs.project_sha256
+    assert after_checkpoint.inputs == refreshed
+    assert after_checkpoint.parameters == before_checkpoint.parameters
+    assert after_checkpoint.history == before_checkpoint.history
+    assert after_report.pop("input_hashes") == refreshed.model_dump(mode="json")
+    before_report.pop("input_hashes")
+    assert after_report == before_report
 
 
 def test_hold_out_changes_cannot_change_primitive_parameters(tmp_path):

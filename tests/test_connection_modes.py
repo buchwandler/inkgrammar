@@ -1,9 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
-from scriptstrokes.model import compile_text
-from scriptstrokes.models import ConnectionRule, WritingModel
-from scriptstrokes.qc import validate_model
+from inkgrammar.model import compile_text
+from inkgrammar.models import ConnectionRule, WritingModel
+from inkgrammar.qc import validate_model
 
 
 def model_for(mode="continuous-bridge", height=0):
@@ -79,7 +79,7 @@ def test_direct_requires_matching_endpoints():
 
 def test_pair_override_applies_without_attached_bridge():
     model = model_for("attached")
-    from scriptstrokes.models import PairOverride
+    from inkgrammar.models import PairOverride
 
     model.pair_overrides["aa"] = PairOverride(gap_adjust=12)
     compiled = compile_text(model, "aa")
@@ -110,7 +110,7 @@ def test_explicit_mode_takes_precedence():
 
 
 def test_invalid_pair_and_duplicate_rules():
-    from scriptstrokes.models import PairOverride
+    from inkgrammar.models import PairOverride
 
     model = model_for()
     model.pair_overrides["ax"] = PairOverride()

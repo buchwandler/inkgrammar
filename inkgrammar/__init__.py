@@ -1,4 +1,4 @@
-"""ScriptStrokes public Python API."""
+"""InkGrammar public Python API."""
 
 from .io import load_model
 from .model import compile_glyph, compile_text

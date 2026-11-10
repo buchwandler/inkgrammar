@@ -29,14 +29,14 @@ def build_release(
     output_root: str | Path,
     version: str,
     *,
-    requires_scriptstrokes: str | None = None,
+    requires_inkgrammar: str | None = None,
     git_commit: str | None = None,
 ) -> tuple[Path, Path]:
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.!+_-]*", version):
         raise ValueError("invalid release version")
-    installed = Version(package_version("scriptstrokes"))
-    if requires_scriptstrokes is None:
-        requires_scriptstrokes = f">={installed.public},<{installed.major}.{installed.minor + 1}"
+    installed = Version(package_version("inkgrammar"))
+    if requires_inkgrammar is None:
+        requires_inkgrammar = f">={installed.public},<{installed.major}.{installed.minor + 1}"
     models = [
         WritingModel.model_validate_json(Path(path).read_text())
         if str(path).endswith(".json")
@@ -55,8 +55,8 @@ def build_release(
             raise ValueError(f"{model.id}: release blocked by {report.errors} QC error(s)")
 
     output_root = Path(output_root)
-    release_root = output_root / f"scriptstrokes-data-{version}"
-    archive_path = output_root / f"scriptstrokes-data-{version}.zip"
+    release_root = output_root / f"inkgrammar-data-{version}"
+    archive_path = output_root / f"inkgrammar-data-{version}.zip"
     if release_root.exists():
         shutil.rmtree(release_root)
     release_root.mkdir(parents=True, exist_ok=True)
@@ -86,7 +86,7 @@ def build_release(
     _write_json(
         release_root / "catalog.json",
         {
-            "format": "scriptstrokes-catalog",
+            "format": "inkgrammar-catalog",
             "format_version": 2,
             "release_version": version,
             "models": catalog,
@@ -95,12 +95,12 @@ def build_release(
     _write_json(
         release_root / "manifest.json",
         {
-            "format": "scriptstrokes-release",
+            "format": "inkgrammar-release",
             "format_version": 3,
             "release_version": version,
             "catalog": "catalog.json",
             "checksums": "checksums.sha256",
-            "requires_scriptstrokes": requires_scriptstrokes,
+            "requires_inkgrammar": requires_inkgrammar,
             "created_from": {
                 "git_commit": git_commit,
                 "model_sources": [Path(path).as_posix() for path in model_paths],

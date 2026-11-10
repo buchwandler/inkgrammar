@@ -17,7 +17,7 @@ For alphabet plates, the reliable workflow is:
 Example:
 
 ```bash
-scriptstrokes page extract scan.png \
+inkgrammar page extract scan.png \
   --layout examples/layouts/sas-1968-alphabet.yaml \
   --output work/sas1968-alphabet
 ```

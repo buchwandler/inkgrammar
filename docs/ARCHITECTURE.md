@@ -1,13 +1,13 @@
 # Writing-model architecture
 
-ScriptStrokes v2 deliberately separates four layers.
+InkGrammar v2 deliberately separates four layers.
 
 ## 1. Observation layer
 
 Scans, photographs, crops, and transcriptions are evidence.
 
 An alphabet page can tell us the observed final shape of `A`, `a`, `1`, etc. When the page has a
-known row order, ScriptStrokes can segment the page and assign labels from that declared order.
+known row order, InkGrammar can segment the page and assign labels from that declared order.
 
 This does **not** mean the image itself establishes pen order.
 

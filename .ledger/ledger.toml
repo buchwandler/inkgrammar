@@ -2,7 +2,7 @@ schema_version = 3
 
 [project]
 uuid = "6626a550-1e3e-45f4-b571-5de402bec49c"
-name = "scriptstrokes"
+name = "inkgrammar"
 
 [ledgers.taskledger.mounts.data]
 storage = "external"

@@ -3,7 +3,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from scriptstrokes.fitting.checkpoint import (
+from inkgrammar.fitting.checkpoint import (
     FitCheckpoint,
     load_checkpoint,
     save_checkpoint,
@@ -15,7 +15,7 @@ def checkpoint():
     return FitCheckpoint(
         project_id="sas-1968",
         stage="primitive:sas-open-oval-01",
-        created_by={"scriptstrokes_version": "0.1.0", "git_commit": "abc123"},
+        created_by={"inkgrammar_version": "0.1.0", "git_commit": "abc123"},
         inputs={
             "project_sha256": digest,
             "corpus_sha256": "b" * 64,
@@ -40,7 +40,7 @@ def test_checkpoint_round_trips_as_portable_json_and_is_deterministic(tmp_path):
     save_checkpoint(checkpoint(), second)
 
     assert first.read_bytes() == second.read_bytes()
-    assert json.loads(first.read_text())["format"] == "scriptstrokes-fit-checkpoint"
+    assert json.loads(first.read_text())["format"] == "inkgrammar-fit-checkpoint"
     assert load_checkpoint(first) == checkpoint()
 
 

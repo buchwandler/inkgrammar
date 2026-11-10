@@ -1,9 +1,9 @@
 {
   "created_by": {
     "git_commit": null,
-    "scriptstrokes_version": "0.1.0.dev6+g0eeb5f723.d19800101"
+    "inkgrammar_version": "0.1.0.dev6+g0eeb5f723.d19800101"
   },
-  "format": "scriptstrokes-fit-checkpoint",
+  "format": "inkgrammar-fit-checkpoint",
   "format_version": 1,
   "history": [
     {
@@ -2558,16 +2558,16 @@
     "sas1968-alphabet-U+0068": 0.6751050061667763
   },
   "inputs": {
-    "corpus_sha256": "db177cab8d29cd5c6cfbfe18c00b909f38141831c0f308fb8b0a6941cc92d187",
-    "project_sha256": "18a3cd8a4d7a29f59b5cff523d477194ab5988f5279681af23050775ef3c4fb2",
-    "source_lock_sha256": "2a7f1d5af0674f594d597f752ae998cf8d82362af4de2ff7547ac73aec140d4e",
+    "corpus_sha256": "bbf2be60c17fc8ad6d89f118296e259335c303634247f3995afa1b3d3247158f",
+    "project_sha256": "b6fbdb5437aac2af99c388a45fb14dc8bfafd727d87d2c978f25aa22e1cc9688",
+    "source_lock_sha256": "4547faa9d99879d7d8721a23881e45c5fffd3fc72e7528e39096e9a558ded111",
     "support_sha256": {
-      "anchors": "a4300d3f8f0fa372a1035d22f2057d432f28809ca988ba8e901133e81e4c4778",
-      "families": "49975d0690494a450333cf0b0a98a9423af56c6c906d7d91b9a34823c88d3f10",
-      "fit_config": "81b44d7141ad5c869f606ea07c42326e0c61f6d7c65d1839985751ca22cd4225",
-      "observation_manifest": "1fd3617ba0068db43355b5ef6a4e9306e1879084d6a0652fd87b1e32baca9267",
+      "anchors": "f2c004d9a2718f3de7af1616f6f9161a6cdf2688b678cc4abfa0894cc2b296ef",
+      "families": "bac5582f44bdb3fd70df0fa9b480d4de92e98c7affa9a6791ff10654a735d63e",
+      "fit_config": "acf1a378b7d5a1ff8eee07dad47031283148d34520a4e080e9284d6037187ae8",
+      "observation_manifest": "ddf77ca78af5e33c6f29b7518aa59ab7bd67878cceaa947b35f07429c5a60e38",
       "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
-      "topology": "f10390a41a0f1bcde130db3ab933cf791d2d21855180f05debb56276e3d92b53",
+      "topology": "bda0a2fe38775bb6508b81d6f276bb52bbb9c897dc42021ce0f4e9cd54fabe6c",
       "training_materialization": "1648c68c420c557d435d8bb74baf5e342ec7c23769132aa741dfd36b2ecc6d02"
     }
   },

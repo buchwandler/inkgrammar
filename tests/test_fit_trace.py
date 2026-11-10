@@ -1,6 +1,6 @@
-from scriptstrokes.fitting.trace import compile_glyph_trace
-from scriptstrokes.geometry import analyze_path
-from scriptstrokes.models import WritingModel
+from inkgrammar.fitting.trace import compile_glyph_trace
+from inkgrammar.geometry import analyze_path
+from inkgrammar.models import WritingModel
 
 
 def model_with_attached_parts():

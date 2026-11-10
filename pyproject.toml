@@ -3,8 +3,8 @@ requires = ["setuptools>=69", "wheel", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "scriptstrokes"
-description = "Open writing models, pen trajectories, scan extraction, and quality control for handwriting systems."
+name = "inkgrammar"
+description = "Open writing grammars, pen trajectories, scan extraction, and quality control for handwriting systems."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -13,6 +13,7 @@ dynamic = ["version"]
 keywords = [
   "handwriting",
   "cursive",
+  "writing-grammar",
   "strokes",
   "pen-trajectory",
   "writing-model",
@@ -45,10 +46,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/buchwandler/scriptstrokes"
-Repository = "https://github.com/buchwandler/scriptstrokes"
-Issues = "https://github.com/buchwandler/scriptstrokes/issues"
-Changelog = "https://github.com/buchwandler/scriptstrokes/releases"
+Homepage = "https://github.com/buchwandler/inkgrammar"
+Repository = "https://github.com/buchwandler/inkgrammar"
+Issues = "https://github.com/buchwandler/inkgrammar/issues"
+Changelog = "https://github.com/buchwandler/inkgrammar/releases"
 
 [project.optional-dependencies]
 dev = [
@@ -61,14 +62,14 @@ fit = [
 ]
 
 [project.scripts]
-scriptstrokes = "scriptstrokes.cli:app"
+inkgrammar = "inkgrammar.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["scriptstrokes*"]
+include = ["inkgrammar*"]
 
 [tool.setuptools_scm]
-write_to = "scriptstrokes/_version.py"
+write_to = "inkgrammar/_version.py"
 fallback_version = "0.1.0.dev0"
 
 [tool.pytest.ini_options]

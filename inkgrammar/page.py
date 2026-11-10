@@ -147,7 +147,7 @@ def extract_labeled_page(
             draw.text((x0, max(0, y0 - 12)), label, fill=(255, 0, 0))
 
     manifest = {
-        "format": "scriptstrokes-page-detections",
+        "format": "inkgrammar-page-detections",
         "format_version": 1,
         "source_image": image_path.name,
         "layout": layout.id,

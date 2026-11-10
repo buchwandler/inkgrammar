@@ -1,6 +1,6 @@
 import numpy as np
 
-from scriptstrokes.fitting.render import render_paths
+from inkgrammar.fitting.render import render_paths
 
 
 def test_fitting_renderer_returns_supersampled_coverage_and_component_layers():

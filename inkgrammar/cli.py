@@ -15,7 +15,7 @@ from .qc import validate_model
 from .raster import compare_text_to_image, render_text_mask
 from .release import build_release
 
-app = typer.Typer(no_args_is_help=True, help="ScriptStrokes writing-model tools.")
+app = typer.Typer(no_args_is_help=True, help="InkGrammar writing-model tools.")
 page_app = typer.Typer(no_args_is_help=True, help="Scan-page extraction tools.")
 model_app = typer.Typer(no_args_is_help=True, help="Writing-model tools.")
 fit_app = typer.Typer(no_args_is_help=True, help="Hierarchical handwriting fitting tools.")
@@ -165,7 +165,7 @@ def build_release_command(
     models: list[Path] = typer.Argument(..., exists=True),  # noqa: B008
     version: str = typer.Option(..., "--version"),  # noqa: B008
     output: Path = typer.Option(Path("dist"), "--output"),  # noqa: B008
-    requires_scriptstrokes: str | None = typer.Option(None, "--requires-scriptstrokes"),  # noqa: B008
+    requires_inkgrammar: str | None = typer.Option(None, "--requires-inkgrammar"),  # noqa: B008
     git_commit: str | None = typer.Option(None, "--git-commit", envvar="GITHUB_SHA"),  # noqa: B008
 ) -> None:
     """Build a consumer-only JSON/schema/QC release ZIP."""
@@ -173,7 +173,7 @@ def build_release_command(
         models,
         output,
         version,
-        requires_scriptstrokes=requires_scriptstrokes,
+        requires_inkgrammar=requires_inkgrammar,
         git_commit=git_commit,
     )
     typer.echo(f"Built {release_root}")

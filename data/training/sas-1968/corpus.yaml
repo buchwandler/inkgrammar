@@ -1,4 +1,4 @@
-format: scriptstrokes-fit-corpus
+format: inkgrammar-fit-corpus
 format_version: 1
 samples:
   - id: sas1968-alphabet-U+0069

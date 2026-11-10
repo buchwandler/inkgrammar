@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-from scriptstrokes.fitting.models import (
+from inkgrammar.fitting.models import (
     FitCorpus,
     FitFamiliesFile,
     FitProject,
@@ -11,9 +11,9 @@ from scriptstrokes.fitting.models import (
     ScriptGrammar,
     SourceLockFile,
 )
-from scriptstrokes.fitting.objective import ObjectiveConfig
-from scriptstrokes.fitting.optimizer import OptimizerConfig
-from scriptstrokes.observations import ObservationManifest
+from inkgrammar.fitting.objective import ObjectiveConfig
+from inkgrammar.fitting.optimizer import OptimizerConfig
+from inkgrammar.observations import ObservationManifest
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT_DIR = ROOT / "data" / "training" / "sas-1968"

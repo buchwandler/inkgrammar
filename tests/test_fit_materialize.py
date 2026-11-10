@@ -7,8 +7,8 @@ import yaml
 from PIL import Image, ImageDraw
 from typer.testing import CliRunner
 
-from scriptstrokes.cli import app
-from scriptstrokes.fitting.workspace import load_fit_project, materialize_fit_project
+from inkgrammar.cli import app
+from inkgrammar.fitting.workspace import load_fit_project, materialize_fit_project
 
 
 def _write_fixture(tmp_path):
@@ -28,7 +28,7 @@ def _write_fixture(tmp_path):
     image.save(source_path, format="PNG", optimize=False, compress_level=9)
     digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
     source_lock = {
-        "format": "scriptstrokes-source-lock",
+        "format": "inkgrammar-source-lock",
         "format_version": 1,
         "sources": [
             {
@@ -42,7 +42,7 @@ def _write_fixture(tmp_path):
         ],
     }
     observation_manifest = {
-        "format": "scriptstrokes-observations",
+        "format": "inkgrammar-observations",
         "format_version": 1,
         "model_id": "toy",
         "sources": [
@@ -70,7 +70,7 @@ def _write_fixture(tmp_path):
         ],
     }
     corpus = {
-        "format": "scriptstrokes-fit-corpus",
+        "format": "inkgrammar-fit-corpus",
         "format_version": 1,
         "samples": [
             {
@@ -83,7 +83,7 @@ def _write_fixture(tmp_path):
         ],
     }
     families = {
-        "format": "scriptstrokes-fit-families",
+        "format": "inkgrammar-fit-families",
         "format_version": 1,
         "families": [
             {
@@ -97,7 +97,7 @@ def _write_fixture(tmp_path):
         ],
     }
     topology = {
-        "format": "scriptstrokes-fit-topology",
+        "format": "inkgrammar-fit-topology",
         "format_version": 1,
         "glyphs": {
             "a": {
@@ -120,7 +120,7 @@ def _write_fixture(tmp_path):
         },
     }
     anchors = {
-        "format": "scriptstrokes-fit-anchors",
+        "format": "inkgrammar-fit-anchors",
         "format_version": 1,
         "coordinate_frame": "observation crop pixels",
         "samples": {
@@ -134,7 +134,7 @@ def _write_fixture(tmp_path):
         },
     }
     fit_config = {
-        "format": "scriptstrokes-fit-config",
+        "format": "inkgrammar-fit-config",
         "format_version": 1,
         "objective": {"version": 1, "weights": {}, "residual_sigma": 0.05},
         "optimizer": {},
@@ -167,7 +167,7 @@ def _write_fixture(tmp_path):
         },
     }
     project = {
-        "format": "scriptstrokes-fit-project",
+        "format": "inkgrammar-fit-project",
         "format_version": 1,
         "id": "toy",
         "runtime_model_id": "toy",

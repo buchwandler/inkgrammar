@@ -29,9 +29,9 @@ jobs:
         run: |
           ruff check .
           pytest
-          scriptstrokes model validate data/models/sas-1968.yaml --strict
-          scriptstrokes model coverage data/models/sas-1968.yaml --fail-incomplete
-          python -c 'from scriptstrokes.io import load_model; m = load_model("data/models/sas-1968.yaml"); assert m.license != "REPLACE-AFTER-RIGHTS-REVIEW", "SAS model-data rights review is required before publication"'
+          inkgrammar model validate data/models/sas-1968.yaml --strict
+          inkgrammar model coverage data/models/sas-1968.yaml --fail-incomplete
+          python -c 'from inkgrammar.io import load_model; m = load_model("data/models/sas-1968.yaml"); assert m.license != "REPLACE-AFTER-RIGHTS-REVIEW", "SAS model-data rights review is required before publication"'
 
       - name: Build Python distributions
         run: python -m build
@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          scriptstrokes build-release data/models/sas-1968.yaml \
+          inkgrammar build-release data/models/sas-1968.yaml \
             --version "$VERSION" --output dist-data
 
       - name: Publish GitHub release assets

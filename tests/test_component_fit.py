@@ -1,9 +1,9 @@
 import pytest
 from PIL import Image
 
-from scriptstrokes.component_fit import fit_component_candidates
-from scriptstrokes.io import load_model
-from scriptstrokes.raster import render_text_mask
+from inkgrammar.component_fit import fit_component_candidates
+from inkgrammar.io import load_model
+from inkgrammar.raster import render_text_mask
 
 
 def references_for(model, tmp_path):

@@ -52,7 +52,7 @@ class FitRunConfig(StrictModel):
 
     @model_validator(mode="after")
     def validate_format(self) -> FitRunConfig:
-        if self.format != "scriptstrokes-fit-config" or self.format_version != 1:
+        if self.format != "inkgrammar-fit-config" or self.format_version != 1:
             raise ValueError("unsupported fitting configuration format")
         return self
 
@@ -427,7 +427,7 @@ def materialize_fit_project(
             )
         ]
         manifest = {
-            "format": "scriptstrokes-fit-materialization",
+            "format": "inkgrammar-fit-materialization",
             "format_version": 1,
             "project_id": bundle.project.id,
             "sources": [

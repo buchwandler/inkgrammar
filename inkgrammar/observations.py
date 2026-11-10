@@ -40,7 +40,7 @@ class Observation(StrictModel):
 
 
 class ObservationManifest(StrictModel):
-    format: Literal["scriptstrokes-observations"] = "scriptstrokes-observations"
+    format: Literal["inkgrammar-observations"] = "inkgrammar-observations"
     format_version: Literal[1] = 1
     model_id: str
     sources: list[SourceImage]

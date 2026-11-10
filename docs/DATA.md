@@ -6,19 +6,19 @@ The historical scans and crops are not needed for loading a released model.
 ## Commands
 
 ```sh
-scriptstrokes data install 0.3.0
-scriptstrokes data list
-scriptstrokes data path 0.3.0
-scriptstrokes data verify 0.3.0
-scriptstrokes data model sas-1968 --release 0.3.0
-scriptstrokes data remove 0.3.0
+inkgrammar data install 0.3.0
+inkgrammar data list
+inkgrammar data path 0.3.0
+inkgrammar data verify 0.3.0
+inkgrammar data model sas-1968 --release 0.3.0
+inkgrammar data remove 0.3.0
 ```
 
 These are intended release usage examples, not a claim that version 0.3.0 or
 the SAS model has been published. SAS fitting remains in progress.
 
 ```python
-from scriptstrokes.data import install_release, load_released_model
+from inkgrammar.data import install_release, load_released_model
 
 install_release("0.3.0")
 model = load_released_model("sas-1968", release="0.3.0")
@@ -32,24 +32,24 @@ when loading a released model.
 
 ## Cache and mirrors
 
-`SCRIPTSTROKES_DATA_DIR` overrides the cache directory. Defaults are the XDG
-cache directory on Linux, `~/Library/Caches/scriptstrokes` on macOS and
-`%LOCALAPPDATA%/scriptstrokes` on Windows. Layout:
+`INKGRAMMAR_DATA_DIR` overrides the cache directory. Defaults are the XDG
+cache directory on Linux, `~/Library/Caches/inkgrammar` on macOS and
+`%LOCALAPPDATA%/inkgrammar` on Windows. Layout:
 
 ```text
-<cache>/downloads/scriptstrokes-data-<version>.zip
+<cache>/downloads/inkgrammar-data-<version>.zip
 <cache>/releases/<version>/manifest.json
 <cache>/releases/<version>/catalog.json
 <cache>/releases/<version>/models/<model-id>.json
 ```
 
-`SCRIPTSTROKES_DATA_VERSION` supplies the default version for the Python
-installation/download API. `SCRIPTSTROKES_DATA_BASE_URL` overrides the download
+`INKGRAMMAR_DATA_VERSION` supplies the default version for the Python
+installation/download API. `INKGRAMMAR_DATA_BASE_URL` overrides the download
 base. Explicit versions use:
 
 ```text
-<base>/v<version>/scriptstrokes-data-<version>.zip
-<base>/v<version>/scriptstrokes-data-<version>.zip.sha256
+<base>/v<version>/inkgrammar-data-<version>.zip
+<base>/v<version>/inkgrammar-data-<version>.zip.sha256
 ```
 
 For `latest`, the default client reads GitHub's latest release metadata. A
@@ -77,7 +77,7 @@ silently overwritten. Removal leaves the cached download intact.
 `.zip.sha256` sidecar. Bundles contain model/catalog data, structural QC,
 schemas, model/source rights notices and any available observation/regression
 manifests. It never copies referenced scans or crops. The
-`requires_scriptstrokes` compatibility range defaults to the builder's public
+`requires_inkgrammar` compatibility range defaults to the builder's public
 package version through the next minor boundary. Python callers can set an
 explicit compatibility range and `git_commit` through `build_release`.
 

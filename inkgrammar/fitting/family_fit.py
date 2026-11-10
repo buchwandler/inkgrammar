@@ -366,6 +366,48 @@ def _input_hashes(bundle: FitProjectBundle, training: list[FitSample]) -> Checkp
     )
 
 
+def refresh_primitive_artifact_hashes(
+    bundle: FitProjectBundle, primitive_id: str
+) -> CheckpointInputs:
+    _safe_fit_id(primitive_id)
+    family = next(
+        (family for family in bundle.families.families if family.primitive == primitive_id),
+        None,
+    )
+    if family is None:
+        raise ValueError(f"unknown fitting family for primitive: {primitive_id}")
+    training_ids = set(family.fit)
+    training = [sample for sample in bundle.corpus.samples if sample.id in training_ids]
+    if not training:
+        raise ValueError(f"primitive family has no fit samples: {primitive_id}")
+
+    inputs = _input_hashes(bundle, training)
+    stage = f"primitive:{primitive_id}"
+    checkpoint_path = (
+        _project_output_directory(bundle.project_dir, "checkpoints") / f"{primitive_id}.json"
+    )
+    report_path = (
+        _project_output_directory(bundle.project_dir, "reports") / f"{primitive_id}.json"
+    )
+    if checkpoint_path.is_symlink() or report_path.is_symlink():
+        raise ValueError("fitting output files must not be symlinks")
+
+    checkpoint = load_checkpoint(checkpoint_path)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if checkpoint.project_id != bundle.project.id or checkpoint.stage != stage:
+        raise ValueError("checkpoint does not match fitting project and primitive")
+    if report.get("project_id") != bundle.project.id or report.get("stage") != stage:
+        raise ValueError("fit report does not match fitting project and primitive")
+
+    save_checkpoint(checkpoint.model_copy(update={"inputs": inputs}), checkpoint_path)
+    report["input_hashes"] = inputs.model_dump(mode="json")
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return inputs
+
+
 def _optimizer_backend(method: str) -> str:
     return "scipy-powell" if method == "powell" else "scipy-differential-evolution+powell"
 
@@ -523,7 +565,7 @@ def optimize_primitive_family(
         checkpoint = FitCheckpoint(
             project_id=bundle.project.id,
             stage=stage,
-            created_by=CheckpointCreator(scriptstrokes_version=__version__),
+            created_by=CheckpointCreator(inkgrammar_version=__version__),
             inputs=inputs,
             optimizer=CheckpointOptimizer(
                 backend=_optimizer_backend(bundle.fit_config.optimizer.method),
@@ -620,7 +662,7 @@ def optimize_primitive_family(
     save_checkpoint(checkpoint, checkpoint_path)
 
     report = {
-        "format": "scriptstrokes-fit-report",
+        "format": "inkgrammar-fit-report",
         "format_version": 1,
         "project_id": bundle.project.id,
         "stage": stage,
@@ -701,7 +743,7 @@ def load_fit_reports(bundle: FitProjectBundle) -> list[dict[str, Any]]:
         if path.is_symlink():
             continue
         payload = json.loads(path.read_text(encoding="utf-8"))
-        if payload.get("format") != "scriptstrokes-fit-report":
+        if payload.get("format") != "inkgrammar-fit-report":
             continue
         primitive_id = payload.get("primitive_id")
         if not isinstance(primitive_id, str):

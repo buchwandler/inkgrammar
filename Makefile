@@ -10,13 +10,13 @@ test:
 	python -m pytest
 
 validate:
-	scriptstrokes model validate data/models/demo-looped.yaml --strict
+	inkgrammar model validate data/models/demo-looped.yaml --strict
 
 render:
-	scriptstrokes model render data/models/demo-looped.yaml "minimum" --output work/minimum.png
+	inkgrammar model render data/models/demo-looped.yaml "minimum" --output work/minimum.png
 
 release:
-	scriptstrokes build-release data/models/demo-looped.yaml --version 0.2.0 --output dist
+	inkgrammar build-release data/models/demo-looped.yaml --version 0.2.0 --output dist
 
 clean:
-	rm -rf build dist work .pytest_cache .ruff_cache *.egg-info scriptstrokes/_version.py
+	rm -rf build dist work .pytest_cache .ruff_cache *.egg-info inkgrammar/_version.py

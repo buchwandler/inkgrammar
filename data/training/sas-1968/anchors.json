@@ -1,5 +1,5 @@
 {
-  "format": "scriptstrokes-fit-anchors",
+  "format": "inkgrammar-fit-anchors",
   "format_version": 1,
   "coordinate_frame": "observation crop pixels, before model registration",
   "samples": {

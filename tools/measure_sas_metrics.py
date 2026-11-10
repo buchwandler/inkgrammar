@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from scriptstrokes.raster import threshold_image
+from inkgrammar.raster import threshold_image
 from tools.measure_sas_seed import connected_ink
 
 ROOT = Path("work/sas-1968")

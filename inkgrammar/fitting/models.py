@@ -162,7 +162,7 @@ class FitSample(StrictModel):
 
 
 class FitCorpus(StrictModel):
-    format: Literal["scriptstrokes-fit-corpus"] = "scriptstrokes-fit-corpus"
+    format: Literal["inkgrammar-fit-corpus"] = "inkgrammar-fit-corpus"
     format_version: Literal[1] = 1
     samples: list[FitSample] = Field(min_length=1)
 
@@ -180,7 +180,7 @@ class FitCompileConfig(StrictModel):
 
 
 class FitProject(StrictModel):
-    format: Literal["scriptstrokes-fit-project"] = "scriptstrokes-fit-project"
+    format: Literal["inkgrammar-fit-project"] = "inkgrammar-fit-project"
     format_version: Literal[1] = 1
     id: str
     runtime_model_id: str
@@ -239,7 +239,7 @@ class SourceLockSource(StrictModel):
 
 
 class SourceLockFile(StrictModel):
-    format: Literal["scriptstrokes-source-lock"] = "scriptstrokes-source-lock"
+    format: Literal["inkgrammar-source-lock"] = "inkgrammar-source-lock"
     format_version: Literal[1] = 1
     sources: list[SourceLockSource] = Field(min_length=1)
 
@@ -280,7 +280,7 @@ class FamilyDefinition(StrictModel):
 
 
 class FitFamiliesFile(StrictModel):
-    format: Literal["scriptstrokes-fit-families"] = "scriptstrokes-fit-families"
+    format: Literal["inkgrammar-fit-families"] = "inkgrammar-fit-families"
     format_version: Literal[1] = 1
     families: list[FamilyDefinition] = Field(min_length=1)
 
@@ -321,7 +321,7 @@ class TopologyGlyph(StrictModel):
 
 
 class FitTopologyFile(StrictModel):
-    format: Literal["scriptstrokes-fit-topology"] = "scriptstrokes-fit-topology"
+    format: Literal["inkgrammar-fit-topology"] = "inkgrammar-fit-topology"
     format_version: Literal[1] = 1
     glyphs: dict[str, TopologyGlyph] = Field(default_factory=dict)
 
@@ -355,7 +355,7 @@ class FitAnchorRecord(StrictModel):
 
 
 class FitAnchorsFile(StrictModel):
-    format: Literal["scriptstrokes-fit-anchors"] = "scriptstrokes-fit-anchors"
+    format: Literal["inkgrammar-fit-anchors"] = "inkgrammar-fit-anchors"
     format_version: Literal[1] = 1
     coordinate_frame: str
     samples: dict[str, FitAnchorRecord] = Field(default_factory=dict)

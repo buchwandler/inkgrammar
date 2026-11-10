@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
-from scriptstrokes.fitting.models import PrimitiveInstance
-from scriptstrokes.fitting.objective import (
+from inkgrammar.fitting.models import PrimitiveInstance
+from inkgrammar.fitting.objective import (
     LocalRegion,
     ObjectiveConfig,
     evaluate_objective,

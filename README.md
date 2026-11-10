@@ -1,29 +1,31 @@
-# ScriptStrokes
+# InkGrammar
 
-**Open writing models for handwriting and cursive scripts.**
+**Open writing grammars for handwriting and cursive scripts.**
 
-ScriptStrokes is not tied to Schreibatlas. It is intended for any project that needs machine-
-readable information about how a handwriting system is constructed, written, connected, and
-validated against historical or instructional examples.
+InkGrammar represents a handwriting system as reusable stroke primitives,
+glyph recipes, contextual forms, and connection rules, with reproducible
+fitting and validation against observed examples.
 
-## What changed in this MVP
+## Core concepts
 
-This version is organized around a **writing model**, not merely a directory of glyph paths.
+InkGrammar models how a handwriting system is constructed instead of treating letters as
+unrelated drawings.
 
-It includes:
+1. **Reusable writing primitives** shared across glyphs.
+2. **Glyph and connection grammar** for contextual forms and joins.
+3. **Reproducible fitting** against observed examples.
+4. **Portable runtime data releases** with checksums and compatibility metadata.
 
-- no `src/` directory: the package lives directly at `scriptstrokes/`;
-- dynamic versions derived from Git tags with `setuptools-scm`;
-- reusable stroke components;
-- isolated/initial/medial/final glyph forms;
-- typed connection classes and connection rules;
-- pair-specific connection overrides;
-- scan-page segmentation and layout-aware character detection;
-- generated review images and detection manifests;
-- raster regression between generated writing and observed samples;
-- a first `fit-join` command that learns pair spacing/tension from a labelled reference crop;
-- provenance separation between observed shape and claimed pen movement;
-- deterministic JSON data releases for non-Python consumers.
+## Current capabilities
+
+The project includes:
+
+- parameterized stroke primitives and isolated/initial/medial/final glyph forms;
+- typed connection classes, rules, and pair-specific overrides;
+- scan-page segmentation with layout-aware detection and review images;
+- raster regression and connection fitting against labelled samples;
+- separate provenance for observed shapes and claimed pen movement;
+- deterministic JSON releases for non-Python consumers.
 
 ## Install
 
@@ -45,7 +47,7 @@ A source tree without Git metadata uses the declared fallback development versio
 ## Extract a supplied alphabet page
 
 ```bash
-scriptstrokes page extract alphabet.png \
+inkgrammar page extract alphabet.png \
   --layout examples/layouts/sas-1968-alphabet.yaml \
   --output work/alphabet
 ```
@@ -58,20 +60,20 @@ the known alphabet-row sequence to say which crop is `A`, which is `a`, etc.
 ## Validate a writing model
 
 ```bash
-scriptstrokes model validate data/models/demo-looped.yaml --strict
+inkgrammar model validate data/models/demo-looped.yaml --strict
 ```
 
 ## Render connected writing
 
 ```bash
-scriptstrokes model render data/models/demo-looped.yaml "minimum" \
+inkgrammar model render data/models/demo-looped.yaml "minimum" \
   --output work/minimum.png
 ```
 
 ## Compare generated output with an observed crop
 
 ```bash
-scriptstrokes model compare data/models/demo-looped.yaml "mi" refs/mi.png
+inkgrammar model compare data/models/demo-looped.yaml "mi" refs/mi.png
 ```
 
 Metrics currently include normalized mask IoU, precision, and recall.
@@ -79,7 +81,7 @@ Metrics currently include normalized mask IoU, precision, and recall.
 ## Fit a connection from actual output
 
 ```bash
-scriptstrokes model fit-join data/models/demo-looped.yaml "mi" refs/mi.png \
+inkgrammar model fit-join data/models/demo-looped.yaml "mi" refs/mi.png \
   --output work/mi-override.yaml
 ```
 
@@ -89,7 +91,7 @@ be added without changing the observation/model separation.
 ## Build the data release
 
 ```bash
-scriptstrokes build-release data/models/demo-looped.yaml \
+inkgrammar build-release data/models/demo-looped.yaml \
   --version 0.2.0 \
   --output dist
 ```

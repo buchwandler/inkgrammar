@@ -30,7 +30,7 @@ jobs:
         run: python -m pytest
 
       - name: Validate demo model
-        run: scriptstrokes model validate data/models/demo-looped.yaml --strict
+        run: inkgrammar model validate data/models/demo-looped.yaml --strict
 
       - name: Build data release fixture
-        run: scriptstrokes build-release data/models/demo-looped.yaml --version ci --output dist
+        run: inkgrammar build-release data/models/demo-looped.yaml --version ci --output dist

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from scriptstrokes.raster import compare_anchored_masks, threshold_image
+from inkgrammar.raster import compare_anchored_masks, threshold_image
 
 
 def test_binary_threshold_retains_black_ink():
@@ -68,8 +68,8 @@ def test_invalid_anchor_scale():
 
 
 def test_render_frame_preserves_negative_bearings_and_vertical_overshoot():
-    from scriptstrokes.io import load_model
-    from scriptstrokes.raster import render_text_frame
+    from inkgrammar.io import load_model
+    from inkgrammar.raster import render_text_frame
 
     model = load_model("data/models/demo-looped.yaml")
     model.components["underturn"].d = "M -100 1000 L 100 -400"
@@ -85,8 +85,8 @@ def test_render_frame_preserves_negative_bearings_and_vertical_overshoot():
 
 
 def test_render_frame_reports_writing_origin():
-    from scriptstrokes.io import load_model
-    from scriptstrokes.raster import render_text_frame
+    from inkgrammar.io import load_model
+    from inkgrammar.raster import render_text_frame
 
     model = load_model("data/models/demo-looped.yaml")
     frame = render_text_frame(model, "i", scale=0.2)

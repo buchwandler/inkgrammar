@@ -14,13 +14,13 @@ Install fitting support and validate committed metadata without private sources:
 
 ```sh
 python -m pip install -e '.[fit]'
-scriptstrokes fit validate-project data/training/sas-1968/project.yaml
+inkgrammar fit validate-project data/training/sas-1968/project.yaml
 ```
 
 Keep the five locked source images in a separate private directory, then materialize only after hash and dimension checks pass:
 
 ```sh
-scriptstrokes fit materialize \
+inkgrammar fit materialize \
   data/training/sas-1968/project.yaml \
   --source-dir /private/sas-1968/sources
 ```
@@ -30,9 +30,9 @@ Generated crops, masks, distance fields, and the review sheet are written under 
 Fit the shared open-oval primitive from the `c` and `a` training members, then inspect its report:
 
 ```sh
-scriptstrokes fit optimize-primitive \
+inkgrammar fit optimize-primitive \
   data/training/sas-1968/project.yaml sas-open-oval-01
-scriptstrokes fit report data/training/sas-1968/project.yaml --format markdown
+inkgrammar fit report data/training/sas-1968/project.yaml --format markdown
 ```
 
 The optimizer selects parameters using only family `fit` members. Hold-outs are evaluated afterward for diagnostics. Checkpoints and reports contain source-free parameters and metrics, not historical imagery.
@@ -40,10 +40,10 @@ The optimizer selects parameters using only family `fit` members. Hold-outs are 
 Fit the compositional families and inspect their member-level reports:
 
 ```sh
-scriptstrokes fit optimize-primitive data/training/sas-1968/project.yaml sas-underturn-01
-scriptstrokes fit optimize-primitive data/training/sas-1968/project.yaml sas-hump-01
-scriptstrokes fit optimize-primitive data/training/sas-1968/project.yaml sas-ascender-loop-01
-scriptstrokes fit report data/training/sas-1968/project.yaml --format markdown
+inkgrammar fit optimize-primitive data/training/sas-1968/project.yaml sas-underturn-01
+inkgrammar fit optimize-primitive data/training/sas-1968/project.yaml sas-hump-01
+inkgrammar fit optimize-primitive data/training/sas-1968/project.yaml sas-ascender-loop-01
+inkgrammar fit report data/training/sas-1968/project.yaml --format markdown
 ```
 
 Underturn fits `i` and `u` and diagnoses the two-part `w` hold-out. Hump fits `n` and `m` and evaluates only `h`'s local hump region. Ascender-loop fits `l` and `b`, then reports local regions for `h` and `k`. Source-derived region overlays are generated only under ignored `work/sas-1968/overlays/`; review them before promoting provisional transforms or connectors.

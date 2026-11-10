@@ -4,10 +4,10 @@ import pytest
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
-from scriptstrokes.cli import app
-from scriptstrokes.coverage import coverage_markdown, model_coverage
-from scriptstrokes.io import load_model
-from scriptstrokes.regression import RegressionManifest
+from inkgrammar.cli import app
+from inkgrammar.coverage import coverage_markdown, model_coverage
+from inkgrammar.io import load_model
+from inkgrammar.regression import RegressionManifest
 
 
 def test_coverage_does_not_confuse_schema_validity_with_sas_completeness():
@@ -84,7 +84,7 @@ def test_coverage_cli_formats():
     ],
 )
 def test_additional_release_qc(problem, code):
-    from scriptstrokes.qc import validate_model
+    from inkgrammar.qc import validate_model
 
     model = load_model("data/models/demo-looped.yaml")
     if problem == "missing-form":
@@ -99,7 +99,7 @@ def test_additional_release_qc(problem, code):
 
 
 def test_explicit_unused_component_is_allowed():
-    from scriptstrokes.qc import validate_model
+    from inkgrammar.qc import validate_model
 
     model = load_model("data/models/demo-looped.yaml")
     component = next(iter(model.components.values())).model_copy()

@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from scriptstrokes.raster import threshold_image
+from inkgrammar.raster import threshold_image
 
 
 def connected_ink(mask):

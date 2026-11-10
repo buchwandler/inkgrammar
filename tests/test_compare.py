@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from scriptstrokes.fit import fit_join
-from scriptstrokes.io import load_model
-from scriptstrokes.raster import compare_text_to_image, render_text_mask
+from inkgrammar.fit import fit_join
+from inkgrammar.io import load_model
+from inkgrammar.raster import compare_text_to_image, render_text_mask
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "data" / "models" / "demo-looped.yaml"
