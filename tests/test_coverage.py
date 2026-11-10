@@ -22,9 +22,17 @@ def test_coverage_does_not_confuse_schema_validity_with_sas_completeness():
 
 
 def test_regression_manifest_integrity():
-    manifest = RegressionManifest(model_id="test", fixtures=[{
-        "id": "a", "group": "isolated-lowercase", "text": "a", "split": "public-snapshot",
-    }])
+    manifest = RegressionManifest(
+        model_id="test",
+        fixtures=[
+            {
+                "id": "a",
+                "group": "isolated-lowercase",
+                "text": "a",
+                "split": "public-snapshot",
+            }
+        ],
+    )
     payload = manifest.model_dump()
     payload["results"] = [{"fixture_id": "unknown", "status": "pass"}]
     with pytest.raises(ValidationError, match="unknown fixture"):
@@ -37,9 +45,17 @@ def test_regression_manifest_integrity():
 
 def test_regression_missing_and_failed_results_are_not_complete():
     model = load_model("data/models/demo-looped.yaml")
-    regressions = RegressionManifest(model_id=model.id, fixtures=[{
-        "id": "sample", "group": "isolated-lowercase", "text": "i", "split": "public-snapshot",
-    }])
+    regressions = RegressionManifest(
+        model_id=model.id,
+        fixtures=[
+            {
+                "id": "sample",
+                "group": "isolated-lowercase",
+                "text": "i",
+                "split": "public-snapshot",
+            }
+        ],
+    )
     report = model_coverage(model, regressions=regressions)
     assert not report["complete"]
     assert report["regression_not_run_count"] == 1
@@ -51,20 +67,25 @@ def test_coverage_cli_formats():
     result = runner.invoke(app, ["model", "coverage", "data/models/demo-looped.yaml"])
     assert result.exit_code == 0
     assert json.loads(result.output)["model_id"] == "demo-looped"
-    result = runner.invoke(app, ["model", "coverage", "data/models/demo-looped.yaml",
-                                 "--format", "markdown"])
+    result = runner.invoke(
+        app, ["model", "coverage", "data/models/demo-looped.yaml", "--format", "markdown"]
+    )
     assert result.exit_code == 0
     assert "# Coverage: demo-looped" in result.output
 
 
-@pytest.mark.parametrize("problem,code", [
-    ("missing-form", "glyph.required-form"),
-    ("unused-component", "component.unused"),
-    ("missing-rule", "connection.missing-exit-rule"),
-    ("missing-glyph", "sas.glyph-coverage"),
-])
+@pytest.mark.parametrize(
+    "problem,code",
+    [
+        ("missing-form", "glyph.required-form"),
+        ("unused-component", "component.unused"),
+        ("missing-rule", "connection.missing-exit-rule"),
+        ("missing-glyph", "sas.glyph-coverage"),
+    ],
+)
 def test_additional_release_qc(problem, code):
     from scriptstrokes.qc import validate_model
+
     model = load_model("data/models/demo-looped.yaml")
     if problem == "missing-form":
         model.glyphs["i"].required_forms = ["medial"]
@@ -79,6 +100,7 @@ def test_additional_release_qc(problem, code):
 
 def test_explicit_unused_component_is_allowed():
     from scriptstrokes.qc import validate_model
+
     model = load_model("data/models/demo-looped.yaml")
     component = next(iter(model.components.values())).model_copy()
     component.unused_reason = "Reserved for documented family member not yet fitted."

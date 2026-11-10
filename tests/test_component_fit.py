@@ -20,8 +20,13 @@ def test_joint_fit_does_not_use_holdout_to_select_or_mutate_input(tmp_path):
     original = model.model_dump()
     references = references_for(model, tmp_path)
     candidates = ["M 0 0 L 1 1", model.components["underturn"].d]
-    kwargs = dict(training=["i"], holdout=["u"], scale_x_values=(1.0,),
-                  scale_y_values=(1.0,), shear_values=(0.0,))
+    kwargs = dict(
+        training=["i"],
+        holdout=["u"],
+        scale_x_values=(1.0,),
+        scale_y_values=(1.0,),
+        shear_values=(0.0,),
+    )
     result = fit_component_candidates(model, "underturn", candidates, references, **kwargs)
     assert result.candidate_index == 1
     assert result.training_scores["i"] == 1
@@ -38,8 +43,20 @@ def test_joint_fit_requires_disjoint_complete_membership(tmp_path):
     model = load_model("data/models/demo-looped.yaml")
     references = references_for(model, tmp_path)
     with pytest.raises(ValueError, match="disjoint"):
-        fit_component_candidates(model, "underturn", [model.components["underturn"].d],
-                                 references, training=["i"], holdout=["i", "u"])
+        fit_component_candidates(
+            model,
+            "underturn",
+            [model.components["underturn"].d],
+            references,
+            training=["i"],
+            holdout=["i", "u"],
+        )
     with pytest.raises(ValueError, match="each reference"):
-        fit_component_candidates(model, "underturn", [model.components["underturn"].d],
-                                 references, training=["i"], holdout=[])
+        fit_component_candidates(
+            model,
+            "underturn",
+            [model.components["underturn"].d],
+            references,
+            training=["i"],
+            holdout=[],
+        )

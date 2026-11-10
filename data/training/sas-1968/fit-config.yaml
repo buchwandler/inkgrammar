@@ -1,0 +1,31 @@
+format: scriptstrokes-fit-config
+format_version: 1
+objective:
+  version: 1
+  weights:
+    soft_mask: 1.0
+    distance: 0.75
+    anchor: 0.4
+    bbox: 0.1
+    endpoint: 0.5
+    tangent: 0.2
+    instance_regularization: 0.15
+    curvature_regularization: 0.05
+    complexity: 0.02
+    local_region: 0.5
+  residual_sigma: 0.05
+optimizer:
+  method: powell
+  seed: 1968
+  max_iterations: 200
+  tolerance: 0.00001
+  de_max_iterations: 20
+  de_population_size: 8
+  de_dimension_limit: 12
+render:
+  stroke_width_px: 3.0
+  supersampling: 4
+split_policy:
+  fit: "used by numerical optimization"
+  validation: "may select settings or stopping decisions"
+  hold-out: "report only, never used for selection during the same run"

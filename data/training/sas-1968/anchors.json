@@ -1,0 +1,142 @@
+{
+  "format": "scriptstrokes-fit-anchors",
+  "format_version": 1,
+  "coordinate_frame": "observation crop pixels, before model registration",
+  "samples": {
+    "sas1968-alphabet-U+0069": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [522, 638, 561, 695],
+      "origin_x": 4,
+      "baseline_y": 52,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0075": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [622, 756, 675, 797],
+      "origin_x": 0,
+      "baseline_y": 36,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0077": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [288, 858, 345, 899],
+      "origin_x": 2,
+      "baseline_y": 37,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0041": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [41, 274, 106, 340],
+      "origin_x": 3,
+      "baseline_y": 61,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+004D": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [118, 378, 220, 442],
+      "origin_x": 7,
+      "baseline_y": 57,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+004E": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [220, 380, 304, 442],
+      "origin_x": 2,
+      "baseline_y": 55,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0063": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [169, 656, 226, 697],
+      "origin_x": 9,
+      "baseline_y": 35,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0061": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [57, 655, 114, 704],
+      "origin_x": 4,
+      "baseline_y": 35,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0043": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [174, 277, 227, 348],
+      "origin_x": 3,
+      "baseline_y": 60,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+006C": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [52, 732, 104, 799],
+      "origin_x": 6,
+      "baseline_y": 60,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0062": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [119, 632, 169, 698],
+      "origin_x": 5,
+      "baseline_y": 59,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+006B": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [614, 634, 675, 696],
+      "origin_x": 6,
+      "baseline_y": 56,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+006E": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [181, 756, 220, 798],
+      "origin_x": 4,
+      "baseline_y": 36,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+006D": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [104, 757, 162, 816],
+      "origin_x": 6,
+      "baseline_y": 35,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    },
+    "sas1968-alphabet-U+0068": {
+      "source_id": "sas-1968-alphabet",
+      "source_bbox": [454, 631, 510, 695],
+      "origin_x": 6,
+      "baseline_y": 59,
+      "review_status": "reviewed",
+      "reviewed_by": "agent:coding-assistant",
+      "review_method": "visual review of source crop"
+    }
+  }
+}

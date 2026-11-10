@@ -1,0 +1,217 @@
+{
+  "evaluations": 283,
+  "format": "scriptstrokes-fit-report",
+  "format_version": 1,
+  "generalization_gap": 0.10284676366992263,
+  "hold_out": {
+    "mean_objective": 0.6751050061667763,
+    "policy": "diagnostic-only; never used for parameter selection",
+    "samples": [
+      {
+        "instances": [
+          {
+            "instance_id": "h-hump",
+            "primitive_id": "sas-hump-01",
+            "residuals": {},
+            "transform": {
+              "dx": 18.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 26.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.6751050061667763,
+        "sample_id": "sas1968-alphabet-U+0068",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.4984475047037843,
+          "complexity": 2.0,
+          "curvature_regularization": 0.0011050762222896311,
+          "distance": 0.044925510062949925,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.6750939554045534,
+          "soft_mask": 0.7810339361617022,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "worst_member_objective": 0.6751050061667763
+  },
+  "initial_parameters": {
+    "segments.0.c1.x": 0.258065,
+    "segments.0.c1.y": 0.375,
+    "segments.1.c1.x": 1.0
+  },
+  "input_hashes": {
+    "corpus_sha256": "db177cab8d29cd5c6cfbfe18c00b909f38141831c0f308fb8b0a6941cc92d187",
+    "project_sha256": "18a3cd8a4d7a29f59b5cff523d477194ab5988f5279681af23050775ef3c4fb2",
+    "source_lock_sha256": "2a7f1d5af0674f594d597f752ae998cf8d82362af4de2ff7547ac73aec140d4e",
+    "support_sha256": {
+      "anchors": "a4300d3f8f0fa372a1035d22f2057d432f28809ca988ba8e901133e81e4c4778",
+      "families": "49975d0690494a450333cf0b0a98a9423af56c6c906d7d91b9a34823c88d3f10",
+      "fit_config": "81b44d7141ad5c869f606ea07c42326e0c61f6d7c65d1839985751ca22cd4225",
+      "observation_manifest": "1fd3617ba0068db43355b5ef6a4e9306e1879084d6a0652fd87b1e32baca9267",
+      "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
+      "topology": "f10390a41a0f1bcde130db3ab933cf791d2d21855180f05debb56276e3d92b53",
+      "training_materialization": "1648c68c420c557d435d8bb74baf5e342ec7c23769132aa741dfd36b2ecc6d02"
+    }
+  },
+  "objective_version": 1,
+  "optimizer": {
+    "de_dimension_limit": 12,
+    "de_max_iterations": 20,
+    "de_population_size": 8,
+    "max_iterations": 200,
+    "method": "powell",
+    "seed": 1968,
+    "tolerance": 1e-5
+  },
+  "parameter_bounds": {
+    "segments.0.c1.x": [0.15, 0.35],
+    "segments.0.c1.y": [0.25, 0.5],
+    "segments.1.c1.x": [0.9, 1.1]
+  },
+  "parameters": {
+    "segments.0.c1.x": 0.3441985006866293,
+    "segments.0.c1.y": 0.2671348374392227,
+    "segments.1.c1.x": 1.0896418973120456
+  },
+  "primitive": {
+    "bounds": {
+      "segments.0.c1.x": [0.15, 0.35],
+      "segments.0.c1.y": [0.25, 0.5],
+      "segments.1.c1.x": [0.9, 1.1]
+    },
+    "frame": {
+      "nominal_end": [0.645161, 0.0],
+      "start": [0.0, 0.0]
+    },
+    "free_parameters": [
+      "segments.0.c1.x",
+      "segments.0.c1.y",
+      "segments.1.c1.x"
+    ],
+    "id": "sas-hump-01",
+    "kind": "cubic-chain",
+    "locked_parameters": ["frame.start", "segments.1.end"],
+    "provenance": {
+      "construction": "source-backed",
+      "trajectory": "inferred"
+    },
+    "segments": [
+      {
+        "c1": [0.3441985006866293, 0.2671348374392227],
+        "c2": [0.516129, 0.90625],
+        "end": [0.741935, 0.9375]
+      },
+      {
+        "c1": [1.0896418973120456, 1.0],
+        "c2": [0.806452, 0.375],
+        "end": [0.645161, 0.0]
+      }
+    ]
+  },
+  "primitive_id": "sas-hump-01",
+  "project_id": "sas-1968",
+  "stage": "primitive:sas-hump-01",
+  "training": {
+    "final_objective": 0.5722582424968536,
+    "initial_objective": 0.638876626099268,
+    "mean_objective": 0.5722582424968536,
+    "samples": [
+      {
+        "final_objective": 0.5115725272320967,
+        "initial_objective": 0.5672148061903055,
+        "instances": [
+          {
+            "instance_id": "n-hump",
+            "primitive_id": "sas-hump-01",
+            "residuals": {},
+            "transform": {
+              "dx": -4.0,
+              "dy": 0.0,
+              "scale_x": 39.0,
+              "scale_y": 31.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.5115725272320967,
+        "sample_id": "sas1968-alphabet-U+006E",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.014977264173387655,
+          "complexity": 2.0,
+          "curvature_regularization": 0.0010848960904798392,
+          "distance": 0.01662261409545993,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.5115616782711919,
+          "soft_mask": 0.5378682837793732,
+          "tangent": 0.0
+        }
+      },
+      {
+        "final_objective": 0.6329439577616105,
+        "initial_objective": 0.7105384460082306,
+        "instances": [
+          {
+            "instance_id": "m-hump-a",
+            "primitive_id": "sas-hump-01",
+            "residuals": {},
+            "transform": {
+              "dx": -6.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 30.0,
+              "shear_x": 0.0
+            }
+          },
+          {
+            "instance_id": "m-hump-b",
+            "primitive_id": "sas-hump-01",
+            "residuals": {},
+            "transform": {
+              "dx": 18.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 30.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.6329439577616105,
+        "sample_id": "sas1968-alphabet-U+006D",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.14310741745063574,
+          "complexity": 2.0,
+          "curvature_regularization": 0.0011523153298033796,
+          "distance": 0.014539058505802296,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.6329324346083125,
+          "soft_mask": 0.6210334261114302,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "selection_split": "fit",
+    "worst_member_objective": 0.6329439577616105
+  },
+  "validation": {
+    "mean_objective": null,
+    "policy": "evaluated after fitting; not used for parameter optimization",
+    "samples": [],
+    "worst_member_objective": null
+  },
+  "visual_review": {
+    "region_overlay_count": 4,
+    "scope": "private work directory",
+    "sheet": "overlays/sas-hump-01/review-sheet.png",
+    "status": "promotion_pending"
+  }
+}

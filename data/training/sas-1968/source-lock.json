@@ -1,0 +1,46 @@
+{
+  "format": "scriptstrokes-source-lock",
+  "format_version": 1,
+  "sources": [
+    {
+      "id": "sas-1968-alphabet",
+      "expected_filename": "sas-1968-01-alphabet-plate.png",
+      "sha256": "ad34c4fa0d20357bab77c638d9620bd03402590f8c8f8ef3be35b457cc332a1e",
+      "width_px": 754,
+      "height_px": 1180,
+      "redistribution": "private-until-reviewed"
+    },
+    {
+      "id": "sas-1968-components",
+      "expected_filename": "sas-1968-02-component-families.png",
+      "sha256": "e510e5d339a23b0336492e93dcaf50da5325b545bbc9bf45ac1180e29c91062f",
+      "width_px": 568,
+      "height_px": 469,
+      "redistribution": "private-until-reviewed"
+    },
+    {
+      "id": "sas-1968-stroke-order",
+      "expected_filename": "sas-1968-03-stroke-order-and-special-forms.png",
+      "sha256": "4d903f441956cab467c38dc5fb514964b2d343101926dd490d5516eee1b9a841",
+      "width_px": 541,
+      "height_px": 285,
+      "redistribution": "private-until-reviewed"
+    },
+    {
+      "id": "sas-1968-connections-numbered",
+      "expected_filename": "sas-1968-04-numbered-connection-examples.png",
+      "sha256": "2361702b8272cf4c01e5d97e9655f29e51f80103cbee47513cf9d4ea9672a8ee",
+      "width_px": 273,
+      "height_px": 223,
+      "redistribution": "private-until-reviewed"
+    },
+    {
+      "id": "sas-1968-connection-categories",
+      "expected_filename": "sas-1968-05-connection-categories.png",
+      "sha256": "0b804c177500849fd2363d320b7149798fded59eecdaa4706921ef496ac4be3e",
+      "width_px": 538,
+      "height_px": 544,
+      "redistribution": "private-until-reviewed"
+    }
+  ]
+}

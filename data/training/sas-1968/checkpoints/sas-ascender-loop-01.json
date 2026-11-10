@@ -1,0 +1,1969 @@
+{
+  "created_by": {
+    "git_commit": null,
+    "scriptstrokes_version": "0.1.0.dev6+g0eeb5f723.d19800101"
+  },
+  "format": "scriptstrokes-fit-checkpoint",
+  "format_version": 1,
+  "history": [
+    {
+      "iteration": 0,
+      "objective": 0.5312702162689209,
+      "parameters": {
+        "segments.0.c1.y": 0.193548,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 1,
+      "objective": 0.5305541996419045,
+      "parameters": {
+        "segments.0.c1.y": 0.17639320225002103,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 2,
+      "objective": 0.5418755016153418,
+      "parameters": {
+        "segments.0.c1.y": 0.22360679774997894,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 3,
+      "objective": 0.5304391033350826,
+      "parameters": {
+        "segments.0.c1.y": 0.14721359549995794,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 4,
+      "objective": 0.5281637727286855,
+      "parameters": {
+        "segments.0.c1.y": 0.16116457563180428,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 5,
+      "objective": 0.5286122394253325,
+      "parameters": {
+        "segments.0.c1.y": 0.16162359684533883,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 6,
+      "objective": 0.5305903467094698,
+      "parameters": {
+        "segments.0.c1.y": 0.15521978118575258,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 7,
+      "objective": 0.5291562304783163,
+      "parameters": {
+        "segments.0.c1.y": 0.15889386620954413,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 8,
+      "objective": 0.5278229882547996,
+      "parameters": {
+        "segments.0.c1.y": 0.1604510801273335,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 9,
+      "objective": 0.5278229887258512,
+      "parameters": {
+        "segments.0.c1.y": 0.16024710713448034,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 10,
+      "objective": 0.5278229884901104,
+      "parameters": {
+        "segments.0.c1.y": 0.16034909584893153,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 11,
+      "objective": 0.5278229876280239,
+      "parameters": {
+        "segments.0.c1.y": 0.16072361115922107,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 12,
+      "objective": 0.5278229872421389,
+      "parameters": {
+        "segments.0.c1.y": 0.16089204459991668,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 13,
+      "objective": 0.5281637731127349,
+      "parameters": {
+        "segments.0.c1.y": 0.16099614219110867,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 14,
+      "objective": 0.5278229873893998,
+      "parameters": {
+        "segments.0.c1.y": 0.16082770875041305,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 15,
+      "objective": 0.5278229871512112,
+      "parameters": {
+        "segments.0.c1.y": 0.16093180634160503,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 16,
+      "objective": 0.5281637732035627,
+      "parameters": {
+        "segments.0.c1.y": 0.16095638044942032,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 17,
+      "objective": 0.5278229871859369,
+      "parameters": {
+        "segments.0.c1.y": 0.160916618707732,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 18,
+      "objective": 0.5278229871297548,
+      "parameters": {
+        "segments.0.c1.y": 0.16094119281554728,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 19,
+      "objective": 0.5278229871164943,
+      "parameters": {
+        "segments.0.c1.y": 0.1609469939754781,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 20,
+      "objective": 0.5278229871083019,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.902439
+      }
+    },
+    {
+      "iteration": 21,
+      "objective": 0.5177107824693811,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.876393202250021
+      }
+    },
+    {
+      "iteration": 22,
+      "objective": 0.5357807928572462,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.923606797749979
+      }
+    },
+    {
+      "iteration": 23,
+      "objective": 0.511257692875637,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.847213595499958
+      }
+    },
+    {
+      "iteration": 24,
+      "objective": 0.5071071517012886,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8095240742817474
+      }
+    },
+    {
+      "iteration": 25,
+      "objective": 0.5088269359261988,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8239201903673935
+      }
+    },
+    {
+      "iteration": 26,
+      "objective": 0.5080788501776481,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8150229013204752
+      }
+    },
+    {
+      "iteration": 27,
+      "objective": 0.5082601223838323,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8058862016174987
+      }
+    },
+    {
+      "iteration": 28,
+      "objective": 0.5071071027647046,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8106381571002454
+      }
+    },
+    {
+      "iteration": 29,
+      "objective": 0.5071071271855692,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8100816605210296
+      }
+    },
+    {
+      "iteration": 30,
+      "objective": 0.5073306414775478,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8123129803603986
+      }
+    },
+    {
+      "iteration": 31,
+      "objective": 0.5072022244755163,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.811277882660475
+      }
+    },
+    {
+      "iteration": 32,
+      "objective": 0.5071070920568291,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8108825105207811
+      }
+    },
+    {
+      "iteration": 33,
+      "objective": 0.5071070854436828,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8110335292399394
+      }
+    },
+    {
+      "iteration": 34,
+      "objective": 0.5071070813583017,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8111268639413167
+      }
+    },
+    {
+      "iteration": 35,
+      "objective": 0.507202228558615,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8111845479590977
+      }
+    },
+    {
+      "iteration": 36,
+      "objective": 0.5071070829186082,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8110912132577204
+      }
+    },
+    {
+      "iteration": 37,
+      "objective": 0.5071070803940589,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8111488972755014
+      }
+    },
+    {
+      "iteration": 38,
+      "objective": 0.5072022295226789,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8111625146249131
+      }
+    },
+    {
+      "iteration": 39,
+      "objective": 0.507107080762337,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.8111404812907284
+      }
+    },
+    {
+      "iteration": 40,
+      "objective": 0.5072022298910445,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.81115409864014
+      }
+    },
+    {
+      "iteration": 41,
+      "objective": 0.507107080539997,
+      "parameters": {
+        "segments.0.c1.y": 0.1609505792894895,
+        "segments.0.c2.x": 0.811145562588117
+      }
+    },
+    {
+      "iteration": 42,
+      "objective": 0.5104103514977312,
+      "parameters": {
+        "segments.0.c1.y": 0.15696958590574284,
+        "segments.0.c2.x": 0.8
+      }
+    },
+    {
+      "iteration": 43,
+      "objective": 0.5385048623587414,
+      "parameters": {
+        "segments.0.c1.y": 0.20110649306965334,
+        "segments.0.c2.x": 0.923606797749979
+      }
+    },
+    {
+      "iteration": 44,
+      "objective": 0.5215893400735018,
+      "parameters": {
+        "segments.0.c1.y": 0.18424769469133825,
+        "segments.0.c2.x": 0.876393202250021
+      }
+    },
+    {
+      "iteration": 45,
+      "objective": 0.5138825821364194,
+      "parameters": {
+        "segments.0.c1.y": 0.17382838428405792,
+        "segments.0.c2.x": 0.847213595499958
+      }
+    },
+    {
+      "iteration": 46,
+      "objective": 0.5102425623886934,
+      "parameters": {
+        "segments.0.c1.y": 0.16738889631302317,
+        "segments.0.c2.x": 0.8291796067500632
+      }
+    },
+    {
+      "iteration": 47,
+      "objective": 0.5088566282317379,
+      "parameters": {
+        "segments.0.c1.y": 0.16340907387677758,
+        "segments.0.c2.x": 0.8180339887498949
+      }
+    },
+    {
+      "iteration": 48,
+      "objective": 0.5071070805397349,
+      "parameters": {
+        "segments.0.c1.y": 0.1609494083419884,
+        "segments.0.c2.x": 0.8111456180001683
+      }
+    },
+    {
+      "iteration": 49,
+      "objective": 0.5066616116618884,
+      "parameters": {
+        "segments.0.c1.y": 0.159429251440532,
+        "segments.0.c2.x": 0.8068883707497266
+      }
+    },
+    {
+      "iteration": 50,
+      "objective": 0.5079712085018414,
+      "parameters": {
+        "segments.0.c1.y": 0.15879513659694242,
+        "segments.0.c2.x": 0.8051125121710828
+      }
+    },
+    {
+      "iteration": 51,
+      "objective": 0.5083663934203906,
+      "parameters": {
+        "segments.0.c1.y": 0.16005548415350146,
+        "segments.0.c2.x": 0.8086421551734737
+      }
+    },
+    {
+      "iteration": 52,
+      "objective": 0.507555239402984,
+      "parameters": {
+        "segments.0.c1.y": 0.1591870411230516,
+        "segments.0.c2.x": 0.8062100531318978
+      }
+    },
+    {
+      "iteration": 53,
+      "objective": 0.5076726359469788,
+      "parameters": {
+        "segments.0.c1.y": 0.15966845105201927,
+        "segments.0.c2.x": 0.8075582567906578
+      }
+    },
+    {
+      "iteration": 54,
+      "objective": 0.5063442238126976,
+      "parameters": {
+        "segments.0.c1.y": 0.15933673533168038,
+        "segments.0.c2.x": 0.8066292764748839
+      }
+    },
+    {
+      "iteration": 55,
+      "objective": 0.5077470157372457,
+      "parameters": {
+        "segments.0.c1.y": 0.1592795572319032,
+        "segments.0.c2.x": 0.8064691474067406
+      }
+    },
+    {
+      "iteration": 56,
+      "objective": 0.5066616188760897,
+      "parameters": {
+        "segments.0.c1.y": 0.15937207334075482,
+        "segments.0.c2.x": 0.8067282416815833
+      }
+    },
+    {
+      "iteration": 57,
+      "objective": 0.5063442265699222,
+      "parameters": {
+        "segments.0.c1.y": 0.15931489524097764,
+        "segments.0.c2.x": 0.80656811261344
+      }
+    },
+    {
+      "iteration": 58,
+      "objective": 0.5063442251910018,
+      "parameters": {
+        "segments.0.c1.y": 0.15932581739039087,
+        "segments.0.c2.x": 0.8065987004366534
+      }
+    },
+    {
+      "iteration": 59,
+      "objective": 0.506344222108805,
+      "parameters": {
+        "segments.0.c1.y": 0.15935023325005207,
+        "segments.0.c2.x": 0.8066670778201394
+      }
+    },
+    {
+      "iteration": 60,
+      "objective": 0.506661620579677,
+      "parameters": {
+        "segments.0.c1.y": 0.15935857542238313,
+        "segments.0.c2.x": 0.8066904403363278
+      }
+    },
+    {
+      "iteration": 61,
+      "objective": 0.5063442227595824,
+      "parameters": {
+        "segments.0.c1.y": 0.15934507750401147,
+        "segments.0.c2.x": 0.8066526389910723
+      }
+    },
+    {
+      "iteration": 62,
+      "objective": 0.5063442217065914,
+      "parameters": {
+        "segments.0.c1.y": 0.15935341967634253,
+        "segments.0.c2.x": 0.8066760015072606
+      }
+    },
+    {
+      "iteration": 63,
+      "objective": 0.5063442214581102,
+      "parameters": {
+        "segments.0.c1.y": 0.1593553889960927,
+        "segments.0.c2.x": 0.8066815166492065
+      }
+    },
+    {
+      "iteration": 64,
+      "objective": 0.5066616208282037,
+      "parameters": {
+        "segments.0.c1.y": 0.159356606102633,
+        "segments.0.c2.x": 0.8066849251943818
+      }
+    },
+    {
+      "iteration": 65,
+      "objective": 0.5063442215529751,
+      "parameters": {
+        "segments.0.c1.y": 0.15935463678288284,
+        "segments.0.c2.x": 0.806679410052436
+      }
+    },
+    {
+      "iteration": 66,
+      "objective": 0.5063442213994115,
+      "parameters": {
+        "segments.0.c1.y": 0.15935585388942314,
+        "segments.0.c2.x": 0.8066828185976114
+      }
+    },
+    {
+      "iteration": 67,
+      "objective": 0.5063442213631385,
+      "parameters": {
+        "segments.0.c1.y": 0.15935614120930253,
+        "segments.0.c2.x": 0.8066836232459771
+      }
+    },
+    {
+      "iteration": 68,
+      "objective": 0.5063442213407137,
+      "parameters": {
+        "segments.0.c1.y": 0.1593563187827536,
+        "segments.0.c2.x": 0.8066841205460161
+      }
+    },
+    {
+      "iteration": 69,
+      "objective": 0.5063442213268138,
+      "parameters": {
+        "segments.0.c1.y": 0.1593564285291819,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 70,
+      "objective": 0.5127155489302554,
+      "parameters": {
+        "segments.0.c1.y": 0.17639320225002103,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 71,
+      "objective": 0.5400688424000437,
+      "parameters": {
+        "segments.0.c1.y": 0.22360679774997894,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 72,
+      "objective": 0.5043505012550505,
+      "parameters": {
+        "segments.0.c1.y": 0.14721359549995794,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 73,
+      "objective": 0.5010425599082388,
+      "parameters": {
+        "segments.0.c1.y": 0.12439025413591492,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 74,
+      "objective": 0.5025192399527468,
+      "parameters": {
+        "segments.0.c1.y": 0.11507400605024312,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 75,
+      "objective": 0.5025921319742305,
+      "parameters": {
+        "segments.0.c1.y": 0.12812632556652617,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 76,
+      "objective": 0.5015003128894979,
+      "parameters": {
+        "segments.0.c1.y": 0.12153658967719522,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 77,
+      "objective": 0.5022931411509419,
+      "parameters": {
+        "segments.0.c1.y": 0.12581730643801098,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 78,
+      "objective": 0.5012335273075122,
+      "parameters": {
+        "segments.0.c1.y": 0.12329458485313424,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 79,
+      "objective": 0.5021182027495985,
+      "parameters": {
+        "segments.0.c1.y": 0.12493533961159183,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 80,
+      "objective": 0.5010425613834754,
+      "parameters": {
+        "segments.0.c1.y": 0.1239717457103219,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 81,
+      "objective": 0.501042560644698,
+      "parameters": {
+        "segments.0.c1.y": 0.12418100677087571,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 82,
+      "objective": 0.5016214130070468,
+      "parameters": {
+        "segments.0.c1.y": 0.12459845826084959,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 83,
+      "objective": 0.5010425601892738,
+      "parameters": {
+        "segments.0.c1.y": 0.1243103287545263,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 84,
+      "objective": 0.5010425596289317,
+      "parameters": {
+        "segments.0.c1.y": 0.12446978103504203,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 85,
+      "objective": 0.5016214132858249,
+      "parameters": {
+        "segments.0.c1.y": 0.12451893136172248,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 86,
+      "objective": 0.5010425597355822,
+      "parameters": {
+        "segments.0.c1.y": 0.12443940446259535,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 87,
+      "objective": 0.5010425595630442,
+      "parameters": {
+        "segments.0.c1.y": 0.12448855478927581,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 88,
+      "objective": 0.5010425595223326,
+      "parameters": {
+        "segments.0.c1.y": 0.12450015760748871,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 89,
+      "objective": 0.5016214133265244,
+      "parameters": {
+        "segments.0.c1.y": 0.12450732854350957,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 90,
+      "objective": 0.5010425595378842,
+      "parameters": {
+        "segments.0.c1.y": 0.12449572572529667,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 91,
+      "objective": 0.5016214133399886,
+      "parameters": {
+        "segments.0.c1.y": 0.12450349145782409,
+        "segments.0.c2.x": 0.8066844278943428
+      }
+    },
+    {
+      "iteration": 92,
+      "objective": 0.5371807277212074,
+      "parameters": {
+        "segments.0.c1.y": 0.16625022214796017,
+        "segments.0.c2.x": 0.923606797749979
+      }
+    },
+    {
+      "iteration": 93,
+      "objective": 0.5192216484622325,
+      "parameters": {
+        "segments.0.c1.y": 0.1493914237696451,
+        "segments.0.c2.x": 0.876393202250021
+      }
+    },
+    {
+      "iteration": 94,
+      "objective": 0.5104854221070994,
+      "parameters": {
+        "segments.0.c1.y": 0.13897211336236476,
+        "segments.0.c2.x": 0.847213595499958
+      }
+    },
+    {
+      "iteration": 95,
+      "objective": 0.5075913703092345,
+      "parameters": {
+        "segments.0.c1.y": 0.13253262539132998,
+        "segments.0.c2.x": 0.8291796067500632
+      }
+    },
+    {
+      "iteration": 96,
+      "objective": 0.5028729416105642,
+      "parameters": {
+        "segments.0.c1.y": 0.12601470519385913,
+        "segments.0.c2.x": 0.8109259660813294
+      }
+    },
+    {
+      "iteration": 97,
+      "objective": 0.5040010621175613,
+      "parameters": {
+        "segments.0.c1.y": 0.12850432917333357,
+        "segments.0.c2.x": 0.8178982363983582
+      }
+    },
+    {
+      "iteration": 98,
+      "objective": 0.502176387761088,
+      "parameters": {
+        "segments.0.c1.y": 0.123889092428834,
+        "segments.0.c2.x": 0.8049731206278521
+      }
+    },
+    {
+      "iteration": 99,
+      "objective": 0.503152445601039,
+      "parameters": {
+        "segments.0.c1.y": 0.12470100425815296,
+        "segments.0.c2.x": 0.8072469052613052
+      }
+    },
+    {
+      "iteration": 100,
+      "objective": 0.5026816332220192,
+      "parameters": {
+        "segments.0.c1.y": 0.12321080580138183,
+        "segments.0.c2.x": 0.8030735575781658
+      }
+    },
+    {
+      "iteration": 101,
+      "objective": 0.5020394381694796,
+      "parameters": {
+        "segments.0.c1.y": 0.124523574126842,
+        "segments.0.c2.x": 0.8067500065938417
+      }
+    },
+    {
+      "iteration": 102,
+      "objective": 0.5010425628350973,
+      "parameters": {
+        "segments.0.c1.y": 0.12447413364774462,
+        "segments.0.c2.x": 0.8066115469759586
+      }
+    },
+    {
+      "iteration": 103,
+      "objective": 0.5021763468365179,
+      "parameters": {
+        "segments.0.c1.y": 0.12420943152137151,
+        "segments.0.c2.x": 0.8058702403393817
+      }
+    },
+    {
+      "iteration": 104,
+      "objective": 0.501633238605333,
+      "parameters": {
+        "segments.0.c1.y": 0.12437302643236446,
+        "segments.0.c2.x": 0.8063283930368721
+      }
+    },
+    {
+      "iteration": 105,
+      "objective": 0.5010425671188085,
+      "parameters": {
+        "segments.0.c1.y": 0.12444049031573015,
+        "segments.0.c2.x": 0.8065173277657067
+      }
+    },
+    {
+      "iteration": 106,
+      "objective": 0.5010425649766961,
+      "parameters": {
+        "segments.0.c1.y": 0.12445731271693651,
+        "segments.0.c2.x": 0.806564439429781
+      }
+    },
+    {
+      "iteration": 107,
+      "objective": 0.5010425604311182,
+      "parameters": {
+        "segments.0.c1.y": 0.12449301823033973,
+        "segments.0.c2.x": 0.8066644338439206
+      }
+    },
+    {
+      "iteration": 108,
+      "objective": 0.5020394405728983,
+      "parameters": {
+        "segments.0.c1.y": 0.12450468954424687,
+        "segments.0.c2.x": 0.8066971197258797
+      }
+    },
+    {
+      "iteration": 109,
+      "objective": 0.5010425613493236,
+      "parameters": {
+        "segments.0.c1.y": 0.12448580496165175,
+        "segments.0.c2.x": 0.8066442328579176
+      }
+    },
+    {
+      "iteration": 110,
+      "objective": 0.501042559863693,
+      "parameters": {
+        "segments.0.c1.y": 0.12449747627555889,
+        "segments.0.c2.x": 0.8066769187398767
+      }
+    },
+    {
+      "iteration": 111,
+      "objective": 0.5014605873109357,
+      "parameters": {
+        "segments.0.c1.y": 0.12450023149902771,
+        "segments.0.c2.x": 0.8066846348299236
+      }
+    },
+    {
+      "iteration": 112,
+      "objective": 0.501042560080433,
+      "parameters": {
+        "segments.0.c1.y": 0.12449577345380855,
+        "segments.0.c2.x": 0.8066721499339675
+      }
+    },
+    {
+      "iteration": 113,
+      "objective": 0.5010425597297009,
+      "parameters": {
+        "segments.0.c1.y": 0.12449852867727738,
+        "segments.0.c2.x": 0.8066798660240143
+      }
+    },
+    {
+      "iteration": 114,
+      "objective": 0.5010425596469587,
+      "parameters": {
+        "segments.0.c1.y": 0.12449917909730923,
+        "segments.0.c2.x": 0.806681687545786
+      }
+    },
+    {
+      "iteration": 115,
+      "objective": 0.5010425595957617,
+      "parameters": {
+        "segments.0.c1.y": 0.12449958107899586,
+        "segments.0.c2.x": 0.806682813308152
+      }
+    },
+    {
+      "iteration": 116,
+      "objective": 0.5010425595641662,
+      "parameters": {
+        "segments.0.c1.y": 0.12449982951734107,
+        "segments.0.c2.x": 0.8066835090675575
+      }
+    },
+    {
+      "iteration": 117,
+      "objective": 0.5010425595445622,
+      "parameters": {
+        "segments.0.c1.y": 0.12449998306068251,
+        "segments.0.c2.x": 0.806683939070518
+      }
+    },
+    {
+      "iteration": 118,
+      "objective": 0.5010425595325148,
+      "parameters": {
+        "segments.0.c1.y": 0.12450007795568627,
+        "segments.0.c2.x": 0.806684204826963
+      }
+    },
+    {
+      "iteration": 119,
+      "objective": 0.5010425595250713,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013660402395,
+        "segments.0.c2.x": 0.8066843690734786
+      }
+    },
+    {
+      "iteration": 120,
+      "objective": 0.5010425595204155,
+      "parameters": {
+        "segments.0.c1.y": 0.12450017285069002,
+        "segments.0.c2.x": 0.8066844705834079
+      }
+    },
+    {
+      "iteration": 121,
+      "objective": 0.5014605873155362,
+      "parameters": {
+        "segments.0.c1.y": 0.12450019525236164,
+        "segments.0.c2.x": 0.8066845333199943
+      }
+    },
+    {
+      "iteration": 122,
+      "objective": 0.501042559522223,
+      "parameters": {
+        "segments.0.c1.y": 0.12450015900569557,
+        "segments.0.c2.x": 0.8066844318100651
+      }
+    },
+    {
+      "iteration": 123,
+      "objective": 0.5014605873172858,
+      "parameters": {
+        "segments.0.c1.y": 0.12450018140736718,
+        "segments.0.c2.x": 0.8066844945466516
+      }
+    },
+    {
+      "iteration": 124,
+      "objective": 0.501042559521127,
+      "parameters": {
+        "segments.0.c1.y": 0.12450016753685393,
+        "segments.0.c2.x": 0.8066844557018427
+      }
+    },
+    {
+      "iteration": 125,
+      "objective": 0.5051725992562384,
+      "parameters": {
+        "segments.0.c1.y": 0.1,
+        "segments.0.c2.x": 0.803683702243028
+      }
+    },
+    {
+      "iteration": 126,
+      "objective": 0.5397610268676986,
+      "parameters": {
+        "segments.0.c1.y": 0.22360679774997894,
+        "segments.0.c2.x": 0.8188229981004213
+      }
+    },
+    {
+      "iteration": 127,
+      "objective": 0.5148492549805371,
+      "parameters": {
+        "segments.0.c1.y": 0.17639320225002103,
+        "segments.0.c2.x": 0.8130403016486375
+      }
+    },
+    {
+      "iteration": 128,
+      "objective": 0.5061511310164718,
+      "parameters": {
+        "segments.0.c1.y": 0.14721359549995794,
+        "segments.0.c2.x": 0.8094663986948117
+      }
+    },
+    {
+      "iteration": 129,
+      "objective": 0.5029755251773731,
+      "parameters": {
+        "segments.0.c1.y": 0.11220218039873503,
+        "segments.0.c2.x": 0.8051782189081664
+      }
+    },
+    {
+      "iteration": 130,
+      "objective": 0.5026308855554031,
+      "parameters": {
+        "segments.0.c1.y": 0.11567072244749588,
+        "segments.0.c2.x": 0.8056030441218752
+      }
+    },
+    {
+      "iteration": 131,
+      "objective": 0.5018293908595217,
+      "parameters": {
+        "segments.0.c1.y": 0.12218145194505603,
+        "segments.0.c2.x": 0.8064004748611652
+      }
+    },
+    {
+      "iteration": 132,
+      "objective": 0.504733670636771,
+      "parameters": {
+        "segments.0.c1.y": 0.13174287997176196,
+        "segments.0.c2.x": 0.8075715535586998
+      }
+    },
+    {
+      "iteration": 133,
+      "objective": 0.5026997629493404,
+      "parameters": {
+        "segments.0.c1.y": 0.12583359247027184,
+        "segments.0.c2.x": 0.8068477871201224
+      }
+    },
+    {
+      "iteration": 134,
+      "objective": 0.5025899125038019,
+      "parameters": {
+        "segments.0.c1.y": 0.12065687079834281,
+        "segments.0.c2.x": 0.806213744960716
+      }
+    },
+    {
+      "iteration": 135,
+      "objective": 0.5012142168829172,
+      "parameters": {
+        "segments.0.c1.y": 0.12357644549399759,
+        "segments.0.c2.x": 0.8065713329405023
+      }
+    },
+    {
+      "iteration": 136,
+      "objective": 0.5010425600698827,
+      "parameters": {
+        "segments.0.c1.y": 0.1244385989213303,
+        "segments.0.c2.x": 0.8066769290407853
+      }
+    },
+    {
+      "iteration": 137,
+      "objective": 0.5025365560779778,
+      "parameters": {
+        "segments.0.c1.y": 0.1249364846578732,
+        "segments.0.c2.x": 0.8067379098250617
+      }
+    },
+    {
+      "iteration": 138,
+      "objective": 0.5010425630117665,
+      "parameters": {
+        "segments.0.c1.y": 0.12410928561560641,
+        "segments.0.c2.x": 0.8066365949195566
+      }
+    },
+    {
+      "iteration": 139,
+      "objective": 0.5010425615399916,
+      "parameters": {
+        "segments.0.c1.y": 0.12427395422282386,
+        "segments.0.c2.x": 0.8066567634443341
+      }
+    },
+    {
+      "iteration": 140,
+      "objective": 0.5020394400008545,
+      "parameters": {
+        "segments.0.c1.y": 0.12462877435017591,
+        "segments.0.c2.x": 0.8067002216277183
+      }
+    },
+    {
+      "iteration": 141,
+      "objective": 0.5020394410490038,
+      "parameters": {
+        "segments.0.c1.y": 0.12451123947132424,
+        "segments.0.c2.x": 0.8066858260173078
+      }
+    },
+    {
+      "iteration": 142,
+      "objective": 0.5010425606312446,
+      "parameters": {
+        "segments.0.c1.y": 0.12437571024256833,
+        "segments.0.c2.x": 0.8066692264683443
+      }
+    },
+    {
+      "iteration": 143,
+      "objective": 0.5010425598223041,
+      "parameters": {
+        "segments.0.c1.y": 0.1244663451424665,
+        "segments.0.c2.x": 0.8066803273834197
+      }
+    },
+    {
+      "iteration": 144,
+      "objective": 0.5010425596692522,
+      "parameters": {
+        "segments.0.c1.y": 0.12448349325018804,
+        "segments.0.c2.x": 0.8066824276746732
+      }
+    },
+    {
+      "iteration": 145,
+      "objective": 0.5010425595746626,
+      "parameters": {
+        "segments.0.c1.y": 0.1244940913636027,
+        "segments.0.c2.x": 0.8066837257260542
+      }
+    },
+    {
+      "iteration": 146,
+      "objective": 0.501460587314182,
+      "parameters": {
+        "segments.0.c1.y": 0.12450064135790959,
+        "segments.0.c2.x": 0.8066845279659267
+      }
+    },
+    {
+      "iteration": 147,
+      "objective": 0.5010425596108568,
+      "parameters": {
+        "segments.0.c1.y": 0.12449004324449493,
+        "segments.0.c2.x": 0.8066832299145458
+      }
+    },
+    {
+      "iteration": 148,
+      "objective": 0.5010425595524121,
+      "parameters": {
+        "segments.0.c1.y": 0.12449659323880181,
+        "segments.0.c2.x": 0.8066840321544184
+      }
+    },
+    {
+      "iteration": 149,
+      "objective": 0.5010425595385726,
+      "parameters": {
+        "segments.0.c1.y": 0.12449813948271048,
+        "segments.0.c2.x": 0.8066842215375626
+      }
+    },
+    {
+      "iteration": 150,
+      "objective": 0.5010425595300549,
+      "parameters": {
+        "segments.0.c1.y": 0.12449909511400092,
+        "segments.0.c2.x": 0.8066843385827825
+      }
+    },
+    {
+      "iteration": 151,
+      "objective": 0.5010425595247884,
+      "parameters": {
+        "segments.0.c1.y": 0.12449968572661914,
+        "segments.0.c2.x": 0.8066844109207068
+      }
+    },
+    {
+      "iteration": 152,
+      "objective": 0.5010425595215375,
+      "parameters": {
+        "segments.0.c1.y": 0.12450005074529137,
+        "segments.0.c2.x": 0.8066844556280026
+      }
+    },
+    {
+      "iteration": 153,
+      "objective": 0.5014605873174843,
+      "parameters": {
+        "segments.0.c1.y": 0.12450027633923734,
+        "segments.0.c2.x": 0.806684483258631
+      }
+    },
+    {
+      "iteration": 154,
+      "objective": 0.5010425595227717,
+      "parameters": {
+        "segments.0.c1.y": 0.12449991132056511,
+        "segments.0.c2.x": 0.8066844385513351
+      }
+    },
+    {
+      "iteration": 155,
+      "objective": 0.5371807277214133,
+      "parameters": {
+        "segments.0.c1.y": 0.16625010538276402,
+        "segments.0.c2.x": 0.923606797749979
+      }
+    },
+    {
+      "iteration": 156,
+      "objective": 0.5192216484625581,
+      "parameters": {
+        "segments.0.c1.y": 0.14939130700444894,
+        "segments.0.c2.x": 0.876393202250021
+      }
+    },
+    {
+      "iteration": 157,
+      "objective": 0.510485422107458,
+      "parameters": {
+        "segments.0.c1.y": 0.1389719965971686,
+        "segments.0.c2.x": 0.847213595499958
+      }
+    },
+    {
+      "iteration": 158,
+      "objective": 0.5075913703096125,
+      "parameters": {
+        "segments.0.c1.y": 0.13253250862613386,
+        "segments.0.c2.x": 0.8291796067500632
+      }
+    },
+    {
+      "iteration": 159,
+      "objective": 0.5028729416109659,
+      "parameters": {
+        "segments.0.c1.y": 0.1260145884287247,
+        "segments.0.c2.x": 0.8109259660815021
+      }
+    },
+    {
+      "iteration": 160,
+      "objective": 0.5040010621179533,
+      "parameters": {
+        "segments.0.c1.y": 0.12850421240817558,
+        "segments.0.c2.x": 0.8178982363984652
+      }
+    },
+    {
+      "iteration": 161,
+      "objective": 0.5021763877615012,
+      "parameters": {
+        "segments.0.c1.y": 0.12388897566375259,
+        "segments.0.c2.x": 0.8049731206281733
+      }
+    },
+    {
+      "iteration": 162,
+      "objective": 0.503152445601446,
+      "parameters": {
+        "segments.0.c1.y": 0.12470088749305129,
+        "segments.0.c2.x": 0.8072469052615696
+      }
+    },
+    {
+      "iteration": 163,
+      "objective": 0.5026816332224325,
+      "parameters": {
+        "segments.0.c1.y": 0.1232106890362566,
+        "segments.0.c2.x": 0.8030735575783644
+      }
+    },
+    {
+      "iteration": 164,
+      "objective": 0.50203943816989,
+      "parameters": {
+        "segments.0.c1.y": 0.12452345736171383,
+        "segments.0.c2.x": 0.806750006594032
+      }
+    },
+    {
+      "iteration": 165,
+      "objective": 0.5010425628355115,
+      "parameters": {
+        "segments.0.c1.y": 0.12447401688269892,
+        "segments.0.c2.x": 0.8066115469763799
+      }
+    },
+    {
+      "iteration": 166,
+      "objective": 0.5021763468369297,
+      "parameters": {
+        "segments.0.c1.y": 0.12420931475626211,
+        "segments.0.c2.x": 0.8058702403396245
+      }
+    },
+    {
+      "iteration": 167,
+      "objective": 0.5016332386057478,
+      "parameters": {
+        "segments.0.c1.y": 0.12437290966729443,
+        "segments.0.c2.x": 0.8063283930372253
+      }
+    },
+    {
+      "iteration": 168,
+      "objective": 0.5010425671192229,
+      "parameters": {
+        "segments.0.c1.y": 0.1244403735506408,
+        "segments.0.c2.x": 0.8065173277660057
+      }
+    },
+    {
+      "iteration": 169,
+      "objective": 0.5010425649771041,
+      "parameters": {
+        "segments.0.c1.y": 0.12445719595186902,
+        "segments.0.c2.x": 0.8065644394301412
+      }
+    },
+    {
+      "iteration": 170,
+      "objective": 0.501042560431526,
+      "parameters": {
+        "segments.0.c1.y": 0.12449290146526254,
+        "segments.0.c2.x": 0.8066644338442537
+      }
+    },
+    {
+      "iteration": 171,
+      "objective": 0.5020394405733061,
+      "parameters": {
+        "segments.0.c1.y": 0.12450457277915021,
+        "segments.0.c2.x": 0.8066971197261582
+      }
+    },
+    {
+      "iteration": 172,
+      "objective": 0.5010425613497342,
+      "parameters": {
+        "segments.0.c1.y": 0.12448568819658659,
+        "segments.0.c2.x": 0.8066442328582845
+      }
+    },
+    {
+      "iteration": 173,
+      "objective": 0.5010425598641035,
+      "parameters": {
+        "segments.0.c1.y": 0.12449735951047426,
+        "segments.0.c2.x": 0.806676918740189
+      }
+    },
+    {
+      "iteration": 174,
+      "objective": 0.5014605873113462,
+      "parameters": {
+        "segments.0.c1.y": 0.12450011473393849,
+        "segments.0.c2.x": 0.806684634830223
+      }
+    },
+    {
+      "iteration": 175,
+      "objective": 0.5010425600808408,
+      "parameters": {
+        "segments.0.c1.y": 0.12449565668872677,
+        "segments.0.c2.x": 0.8066721499342877
+      }
+    },
+    {
+      "iteration": 176,
+      "objective": 0.5010425597301088,
+      "parameters": {
+        "segments.0.c1.y": 0.12449841191219099,
+        "segments.0.c2.x": 0.8066798660243217
+      }
+    },
+    {
+      "iteration": 177,
+      "objective": 0.5010425596473702,
+      "parameters": {
+        "segments.0.c1.y": 0.12449906233222176,
+        "segments.0.c2.x": 0.8066816875460903
+      }
+    },
+    {
+      "iteration": 178,
+      "objective": 0.5010425595961732,
+      "parameters": {
+        "segments.0.c1.y": 0.12449946431390774,
+        "segments.0.c2.x": 0.8066828133084545
+      }
+    },
+    {
+      "iteration": 179,
+      "objective": 0.5010425595645768,
+      "parameters": {
+        "segments.0.c1.y": 0.12449971275225252,
+        "segments.0.c2.x": 0.8066835090678588
+      }
+    },
+    {
+      "iteration": 180,
+      "objective": 0.5010425595449763,
+      "parameters": {
+        "segments.0.c1.y": 0.1244998662955937,
+        "segments.0.c2.x": 0.8066839390708186
+      }
+    },
+    {
+      "iteration": 181,
+      "objective": 0.5010425595329252,
+      "parameters": {
+        "segments.0.c1.y": 0.12449996119059731,
+        "segments.0.c2.x": 0.8066842048272631
+      }
+    },
+    {
+      "iteration": 182,
+      "objective": 0.5010425595254792,
+      "parameters": {
+        "segments.0.c1.y": 0.1245000198389349,
+        "segments.0.c2.x": 0.8066843690737785
+      }
+    },
+    {
+      "iteration": 183,
+      "objective": 0.5010425595208261,
+      "parameters": {
+        "segments.0.c1.y": 0.1245000560856009,
+        "segments.0.c2.x": 0.8066844705837075
+      }
+    },
+    {
+      "iteration": 184,
+      "objective": 0.5014605873159441,
+      "parameters": {
+        "segments.0.c1.y": 0.12450007848727247,
+        "segments.0.c2.x": 0.8066845333202939
+      }
+    },
+    {
+      "iteration": 185,
+      "objective": 0.5010425595226309,
+      "parameters": {
+        "segments.0.c1.y": 0.12450004224060647,
+        "segments.0.c2.x": 0.8066844318103649
+      }
+    },
+    {
+      "iteration": 186,
+      "objective": 0.5014605873176963,
+      "parameters": {
+        "segments.0.c1.y": 0.12450006464227804,
+        "segments.0.c2.x": 0.8066844945469512
+      }
+    },
+    {
+      "iteration": 187,
+      "objective": 0.5010425595215375,
+      "parameters": {
+        "segments.0.c1.y": 0.12450005077176496,
+        "segments.0.c2.x": 0.8066844557021428
+      }
+    },
+    {
+      "iteration": 188,
+      "objective": 0.5397610268670278,
+      "parameters": {
+        "segments.0.c1.y": 0.223606797749979,
+        "segments.0.c2.x": 0.8188230124020479
+      }
+    },
+    {
+      "iteration": 189,
+      "objective": 0.51484925497996,
+      "parameters": {
+        "segments.0.c1.y": 0.17639320225002106,
+        "segments.0.c2.x": 0.8130403159502642
+      }
+    },
+    {
+      "iteration": 190,
+      "objective": 0.5061511310158383,
+      "parameters": {
+        "segments.0.c1.y": 0.14721359549995797,
+        "segments.0.c2.x": 0.8094664129964384
+      }
+    },
+    {
+      "iteration": 191,
+      "objective": 0.5029755251767304,
+      "parameters": {
+        "segments.0.c1.y": 0.11220218039756691,
+        "segments.0.c2.x": 0.80517823320965
+      }
+    },
+    {
+      "iteration": 192,
+      "objective": 0.5026308855548163,
+      "parameters": {
+        "segments.0.c1.y": 0.11567072244740181,
+        "segments.0.c2.x": 0.8056030584234903
+      }
+    },
+    {
+      "iteration": 193,
+      "objective": 0.5018293908588806,
+      "parameters": {
+        "segments.0.c1.y": 0.12218145194271342,
+        "segments.0.c2.x": 0.8064004891625048
+      }
+    },
+    {
+      "iteration": 194,
+      "objective": 0.5047336706360799,
+      "parameters": {
+        "segments.0.c1.y": 0.13174287997031414,
+        "segments.0.c2.x": 0.807571567860149
+      }
+    },
+    {
+      "iteration": 195,
+      "objective": 0.5026997629486482,
+      "parameters": {
+        "segments.0.c1.y": 0.12583359246827103,
+        "segments.0.c2.x": 0.8068478014215039
+      }
+    },
+    {
+      "iteration": 196,
+      "objective": 0.5025899125031088,
+      "parameters": {
+        "segments.0.c1.y": 0.12065687079744497,
+        "segments.0.c2.x": 0.8062137592622326
+      }
+    },
+    {
+      "iteration": 197,
+      "objective": 0.5012142168823315,
+      "parameters": {
+        "segments.0.c1.y": 0.12357644549178552,
+        "segments.0.c2.x": 0.806571347241858
+      }
+    },
+    {
+      "iteration": 198,
+      "objective": 0.5010425600692454,
+      "parameters": {
+        "segments.0.c1.y": 0.12443859891919892,
+        "segments.0.c2.x": 0.8066769433421508
+      }
+    },
+    {
+      "iteration": 199,
+      "objective": 0.5025365560773406,
+      "parameters": {
+        "segments.0.c1.y": 0.12493648465644919,
+        "segments.0.c2.x": 0.8067379241265139
+      }
+    },
+    {
+      "iteration": 200,
+      "objective": 0.5010425630111257,
+      "parameters": {
+        "segments.0.c1.y": 0.12410928561344423,
+        "segments.0.c2.x": 0.8066366092209184
+      }
+    },
+    {
+      "iteration": 201,
+      "objective": 0.5010425615393507,
+      "parameters": {
+        "segments.0.c1.y": 0.12427395422066263,
+        "segments.0.c2.x": 0.806656777745696
+      }
+    },
+    {
+      "iteration": 202,
+      "objective": 0.5020394400002137,
+      "parameters": {
+        "segments.0.c1.y": 0.12462877434831472,
+        "segments.0.c2.x": 0.8067002359291169
+      }
+    },
+    {
+      "iteration": 203,
+      "objective": 0.5020394410484181,
+      "parameters": {
+        "segments.0.c1.y": 0.12451123946929607,
+        "segments.0.c2.x": 0.806685840318686
+      }
+    },
+    {
+      "iteration": 204,
+      "objective": 0.501042560630659,
+      "parameters": {
+        "segments.0.c1.y": 0.12437571024042554,
+        "segments.0.c2.x": 0.8066692407697085
+      }
+    },
+    {
+      "iteration": 205,
+      "objective": 0.5010425598216117,
+      "parameters": {
+        "segments.0.c1.y": 0.12446634514037454,
+        "segments.0.c2.x": 0.8066803416847901
+      }
+    },
+    {
+      "iteration": 206,
+      "objective": 0.501042559668615,
+      "parameters": {
+        "segments.0.c1.y": 0.12448349324812044,
+        "segments.0.c2.x": 0.8066824419760467
+      }
+    },
+    {
+      "iteration": 207,
+      "objective": 0.5010425595740771,
+      "parameters": {
+        "segments.0.c1.y": 0.12449409136155017,
+        "segments.0.c2.x": 0.8066837400274294
+      }
+    },
+    {
+      "iteration": 208,
+      "objective": 0.5014605873135963,
+      "parameters": {
+        "segments.0.c1.y": 0.12450064135586635,
+        "segments.0.c2.x": 0.8066845422673031
+      }
+    },
+    {
+      "iteration": 209,
+      "objective": 0.5010425596101644,
+      "parameters": {
+        "segments.0.c1.y": 0.12449004324243663,
+        "segments.0.c2.x": 0.8066832442159203
+      }
+    },
+    {
+      "iteration": 210,
+      "objective": 0.5010425595517196,
+      "parameters": {
+        "segments.0.c1.y": 0.12449659323675283,
+        "segments.0.c2.x": 0.8066840464557941
+      }
+    },
+    {
+      "iteration": 211,
+      "objective": 0.5010425595379318,
+      "parameters": {
+        "segments.0.c1.y": 0.12449813948066368,
+        "segments.0.c2.x": 0.8066842358389384
+      }
+    },
+    {
+      "iteration": 212,
+      "objective": 0.5010425595294178,
+      "parameters": {
+        "segments.0.c1.y": 0.12449909511195549,
+        "segments.0.c2.x": 0.8066843528841586
+      }
+    },
+    {
+      "iteration": 213,
+      "objective": 0.5010425595241474,
+      "parameters": {
+        "segments.0.c1.y": 0.12449968572457454,
+        "segments.0.c2.x": 0.806684425222083
+      }
+    },
+    {
+      "iteration": 214,
+      "objective": 0.5010425595208967,
+      "parameters": {
+        "segments.0.c1.y": 0.1245000507432473,
+        "segments.0.c2.x": 0.8066844699293788
+      }
+    },
+    {
+      "iteration": 215,
+      "objective": 0.5014605873168471,
+      "parameters": {
+        "segments.0.c1.y": 0.1245002763371936,
+        "segments.0.c2.x": 0.8066844975600073
+      }
+    },
+    {
+      "iteration": 216,
+      "objective": 0.5010425595221344,
+      "parameters": {
+        "segments.0.c1.y": 0.12449991131852084,
+        "segments.0.c2.x": 0.8066844528527114
+      }
+    },
+    {
+      "iteration": 217,
+      "objective": 0.501042559520115,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013691246713,
+        "segments.0.c2.x": 0.8066844804833397
+      }
+    },
+    {
+      "iteration": 218,
+      "objective": 0.5014605873176289,
+      "parameters": {
+        "segments.0.c1.y": 0.12450019016797377,
+        "segments.0.c2.x": 0.8066844870060463
+      }
+    },
+    {
+      "iteration": 219,
+      "objective": 0.5010425595204453,
+      "parameters": {
+        "segments.0.c1.y": 0.12450010399875394,
+        "segments.0.c2.x": 0.8066844764520854
+      }
+    },
+    {
+      "iteration": 220,
+      "objective": 0.5014605873179048,
+      "parameters": {
+        "segments.0.c1.y": 0.12450015725426057,
+        "segments.0.c2.x": 0.806684482974792
+      }
+    },
+    {
+      "iteration": 221,
+      "objective": 0.5010425595202145,
+      "parameters": {
+        "segments.0.c1.y": 0.12450012434054739,
+        "segments.0.c2.x": 0.8066844789435376
+      }
+    },
+    {
+      "iteration": 222,
+      "objective": 0.5014605873180007,
+      "parameters": {
+        "segments.0.c1.y": 0.12450014468234083,
+        "segments.0.c2.x": 0.8066844814349898
+      }
+    },
+    {
+      "iteration": 223,
+      "objective": 0.5010425595201856,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013211042109,
+        "segments.0.c2.x": 0.8066844798951877
+      }
+    },
+    {
+      "iteration": 224,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013988029479,
+        "segments.0.c2.x": 0.8066844808468377
+      }
+    },
+    {
+      "iteration": 225,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013955005754,
+        "segments.0.c2.x": 0.8066844808063904
+      }
+    },
+    {
+      "iteration": 226,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013971517616,
+        "segments.0.c2.x": 0.8066844808266141
+      }
+    },
+    {
+      "iteration": 227,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013977824587,
+        "segments.0.c2.x": 0.8066844808343389
+      }
+    },
+    {
+      "iteration": 228,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013981722509,
+        "segments.0.c2.x": 0.806684480839113
+      }
+    },
+    {
+      "iteration": 229,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013984131557,
+        "segments.0.c2.x": 0.8066844808420636
+      }
+    },
+    {
+      "iteration": 230,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013985620431,
+        "segments.0.c2.x": 0.8066844808438871
+      }
+    },
+    {
+      "iteration": 231,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013986540606,
+        "segments.0.c2.x": 0.8066844808450142
+      }
+    },
+    {
+      "iteration": 232,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987109305,
+        "segments.0.c2.x": 0.8066844808457108
+      }
+    },
+    {
+      "iteration": 233,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.1245001398746078,
+        "segments.0.c2.x": 0.8066844808461412
+      }
+    },
+    {
+      "iteration": 234,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987678005,
+        "segments.0.c2.x": 0.8066844808464072
+      }
+    },
+    {
+      "iteration": 235,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987812256,
+        "segments.0.c2.x": 0.8066844808465717
+      }
+    },
+    {
+      "iteration": 236,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987895228,
+        "segments.0.c2.x": 0.8066844808466733
+      }
+    },
+    {
+      "iteration": 237,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987946508,
+        "segments.0.c2.x": 0.8066844808467362
+      }
+    },
+    {
+      "iteration": 238,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987987334,
+        "segments.0.c2.x": 0.8066844808467861
+      }
+    },
+    {
+      "iteration": 239,
+      "objective": 0.501042559520105,
+      "parameters": {
+        "segments.0.c1.y": 0.12450013987987334,
+        "segments.0.c2.x": 0.8066844808467861
+      }
+    }
+  ],
+  "holdout_metrics": {
+    "sas1968-alphabet-U+0068": 0.7913029389561472,
+    "sas1968-alphabet-U+006B": 0.7559770853017418
+  },
+  "inputs": {
+    "corpus_sha256": "db177cab8d29cd5c6cfbfe18c00b909f38141831c0f308fb8b0a6941cc92d187",
+    "project_sha256": "18a3cd8a4d7a29f59b5cff523d477194ab5988f5279681af23050775ef3c4fb2",
+    "source_lock_sha256": "2a7f1d5af0674f594d597f752ae998cf8d82362af4de2ff7547ac73aec140d4e",
+    "support_sha256": {
+      "anchors": "a4300d3f8f0fa372a1035d22f2057d432f28809ca988ba8e901133e81e4c4778",
+      "families": "49975d0690494a450333cf0b0a98a9423af56c6c906d7d91b9a34823c88d3f10",
+      "fit_config": "81b44d7141ad5c869f606ea07c42326e0c61f6d7c65d1839985751ca22cd4225",
+      "observation_manifest": "1fd3617ba0068db43355b5ef6a4e9306e1879084d6a0652fd87b1e32baca9267",
+      "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
+      "topology": "f10390a41a0f1bcde130db3ab933cf791d2d21855180f05debb56276e3d92b53",
+      "training_materialization": "78e698e0261b98d0bab8c3d8d76737e5901ff61c8562d7d740cb917b4627b260"
+    }
+  },
+  "optimizer": {
+    "backend": "scipy-powell",
+    "objective_version": 1,
+    "seed": 1968
+  },
+  "parameters": {
+    "segments.0.c1.y": 0.12450013987987334,
+    "segments.0.c2.x": 0.8066844808467861
+  },
+  "project_id": "sas-1968",
+  "stage": "primitive:sas-ascender-loop-01",
+  "training_metrics": {
+    "initial_objective": 0.5312702162689209,
+    "mean_objective": 0.501042559520105,
+    "objective": 0.501042559520105,
+    "sas1968-alphabet-U+0062.final": 0.5649989422848372,
+    "sas1968-alphabet-U+0062.initial": 0.5697371466459391,
+    "sas1968-alphabet-U+006C.final": 0.4370861767553729,
+    "sas1968-alphabet-U+006C.initial": 0.49280328589190275,
+    "worst_member_objective": 0.5649989422848372
+  }
+}

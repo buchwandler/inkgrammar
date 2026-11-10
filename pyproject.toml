@@ -54,6 +54,10 @@ Changelog = "https://github.com/buchwandler/scriptstrokes/releases"
 dev = [
   "pytest>=8",
   "ruff>=0.8",
+  "scipy>=1.11",
+]
+fit = [
+  "scipy>=1.11",
 ]
 
 [project.scripts]

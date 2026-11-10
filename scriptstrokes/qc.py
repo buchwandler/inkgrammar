@@ -60,27 +60,49 @@ def validate_model(model: WritingModel) -> QCReport:
         issues.append(Issue("error", "source.duplicate-id", "source IDs must be unique", model.id))
     if model.id == "sas-1968":
         from .coverage import SAS_SYMBOLS
+
         missing = set(SAS_SYMBOLS) - set(model.glyphs)
         extra = set(model.glyphs) - set(SAS_SYMBOLS)
         if missing or extra:
-            issues.append(Issue("error", "sas.glyph-coverage",
-                                f"missing: {sorted(missing)}; unexpected: {sorted(extra)}",
-                                model.id))
-    used_components = {part.component for glyph in model.glyphs.values()
-                       for form in glyph.forms.values() for stroke in form.strokes
-                       if isinstance(stroke, PathStrokeRecipe) for part in stroke.parts
-                       if isinstance(part, ComponentPart)}
+            issues.append(
+                Issue(
+                    "error",
+                    "sas.glyph-coverage",
+                    f"missing: {sorted(missing)}; unexpected: {sorted(extra)}",
+                    model.id,
+                )
+            )
+    used_components = {
+        part.component
+        for glyph in model.glyphs.values()
+        for form in glyph.forms.values()
+        for stroke in form.strokes
+        if isinstance(stroke, PathStrokeRecipe)
+        for part in stroke.parts
+        if isinstance(part, ComponentPart)
+    }
     for name, component in model.components.items():
         if name not in used_components and not component.unused_reason:
-            issues.append(Issue("warning", "component.unused",
-                                f"{name}: unused component needs an explicit unused_reason",
-                                model.id))
+            issues.append(
+                Issue(
+                    "warning",
+                    "component.unused",
+                    f"{name}: unused component needs an explicit unused_reason",
+                    model.id,
+                )
+            )
     for character, glyph in model.glyphs.items():
         for name in glyph.required_forms:
             if name not in glyph.forms:
-                issues.append(Issue("error", "glyph.required-form",
-                                    f"required contextual form {name!r} is missing",
-                                    model.id, character))
+                issues.append(
+                    Issue(
+                        "error",
+                        "glyph.required-form",
+                        f"required contextual form {name!r} is missing",
+                        model.id,
+                        character,
+                    )
+                )
     if not (
         model.metrics.descender
         < model.metrics.baseline
@@ -128,10 +150,18 @@ def validate_model(model: WritingModel) -> QCReport:
                     model.id,
                 )
             )
-        if (component.provenance.status in {"source-backed", "reviewed", "verified"}
-                and not component.provenance.source_ids):
-            issues.append(Issue("error", "component.missing-source",
-                                f"{name}: evidence-backed component requires a source", model.id))
+        if (
+            component.provenance.status in {"source-backed", "reviewed", "verified"}
+            and not component.provenance.source_ids
+        ):
+            issues.append(
+                Issue(
+                    "error",
+                    "component.missing-source",
+                    f"{name}: evidence-backed component requires a source",
+                    model.id,
+                )
+            )
 
     for character, glyph in model.glyphs.items():
         if glyph.character != character:
@@ -222,42 +252,83 @@ def validate_model(model: WritingModel) -> QCReport:
             )
         )
 
-    entry_classes = {form.connections.entry.class_ for glyph in model.glyphs.values()
-                     for form in glyph.forms.values() if form.connections.entry}
-    exit_classes = {form.connections.exit.class_ for glyph in model.glyphs.values()
-                    for form in glyph.forms.values() if form.connections.exit}
+    entry_classes = {
+        form.connections.entry.class_
+        for glyph in model.glyphs.values()
+        for form in glyph.forms.values()
+        if form.connections.entry
+    }
+    exit_classes = {
+        form.connections.exit.class_
+        for glyph in model.glyphs.values()
+        for form in glyph.forms.values()
+        if form.connections.exit
+    }
     for class_ in sorted(exit_classes - {rule.from_class for rule in model.connection_rules}):
-        issues.append(Issue("error", "connection.missing-exit-rule",
-                            f"no outgoing rule for class {class_!r}", model.id))
+        issues.append(
+            Issue(
+                "error",
+                "connection.missing-exit-rule",
+                f"no outgoing rule for class {class_!r}",
+                model.id,
+            )
+        )
     for class_ in sorted(entry_classes - {rule.to_class for rule in model.connection_rules}):
-        issues.append(Issue("error", "connection.missing-entry-rule",
-                            f"no incoming rule for class {class_!r}", model.id))
+        issues.append(
+            Issue(
+                "error",
+                "connection.missing-entry-rule",
+                f"no incoming rule for class {class_!r}",
+                model.id,
+            )
+        )
 
     for pair in model.pair_overrides:
         if len(pair) != 2 or any(character not in model.glyphs for character in pair):
-            issues.append(Issue("error", "connection.invalid-pair",
-                                f"override {pair!r} must reference two modeled characters",
-                                model.id))
+            issues.append(
+                Issue(
+                    "error",
+                    "connection.invalid-pair",
+                    f"override {pair!r} must reference two modeled characters",
+                    model.id,
+                )
+            )
 
     for character, glyph in model.glyphs.items():
         for form_name, form in glyph.forms.items():
             ids = [stroke.id for stroke in form.strokes]
             if len(set(ids)) != len(ids):
-                issues.append(Issue("error", "glyph.duplicate-stroke",
-                                    f"{form_name}: duplicate stroke id", model.id, character))
+                issues.append(
+                    Issue(
+                        "error",
+                        "glyph.duplicate-stroke",
+                        f"{form_name}: duplicate stroke id",
+                        model.id,
+                        character,
+                    )
+                )
             for endpoint in (form.connections.entry, form.connections.exit):
                 if endpoint:
                     stroke = next((s for s in form.strokes if s.id == endpoint.stroke), None)
                     if isinstance(stroke, TapStrokeRecipe):
-                        issues.append(Issue("error", "glyph.connection-tap",
-                                            f"{form_name}: connection references a tap",
-                                            model.id, character))
+                        issues.append(
+                            Issue(
+                                "error",
+                                "glyph.connection-tap",
+                                f"{form_name}: connection references a tap",
+                                model.id,
+                                character,
+                            )
+                        )
 
     # Direct rules must meet for every actual contextual pair to which they apply.
     from .model import compile_text
 
-    direct_rules = {(rule.from_class, rule.to_class) for rule in model.connection_rules
-                    if rule.effective_mode == "direct"}
+    direct_rules = {
+        (rule.from_class, rule.to_class)
+        for rule in model.connection_rules
+        if rule.effective_mode == "direct"
+    }
     if direct_rules:
         for left in model.glyphs:
             for right in model.glyphs:
@@ -265,8 +336,14 @@ def validate_model(model: WritingModel) -> QCReport:
                     compile_text(model, left + right)
                     compile_text(model, left + right + left + right)
                 except Exception as exc:
-                    issues.append(Issue("error", "connection.direct-endpoints",
-                                        f"{left + right!r}: {exc}", model.id))
+                    issues.append(
+                        Issue(
+                            "error",
+                            "connection.direct-endpoints",
+                            f"{left + right!r}: {exc}",
+                            model.id,
+                        )
+                    )
 
     return QCReport(
         issues=tuple(issues),

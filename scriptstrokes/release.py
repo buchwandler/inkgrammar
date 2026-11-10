@@ -36,9 +36,7 @@ def build_release(
         raise ValueError("invalid release version")
     installed = Version(package_version("scriptstrokes"))
     if requires_scriptstrokes is None:
-        requires_scriptstrokes = (
-            f">={installed.public},<{installed.major}.{installed.minor + 1}"
-        )
+        requires_scriptstrokes = f">={installed.public},<{installed.major}.{installed.minor + 1}"
     models = [
         WritingModel.model_validate_json(Path(path).read_text())
         if str(path).endswith(".json")
@@ -118,10 +116,13 @@ def build_release(
         PageLayout.model_json_schema(),
     )
 
-    _write_json(release_root / "schemas" / "observation.schema.json",
-                ObservationManifest.model_json_schema())
-    _write_json(release_root / "schemas" / "regression.schema.json",
-                RegressionManifest.model_json_schema())
+    _write_json(
+        release_root / "schemas" / "observation.schema.json",
+        ObservationManifest.model_json_schema(),
+    )
+    _write_json(
+        release_root / "schemas" / "regression.schema.json", RegressionManifest.model_json_schema()
+    )
     for model_path, model in zip(model_paths, loaded, strict=True):
         data_root = Path(model_path).parent.parent
         for directory, target, schema in (
@@ -133,13 +134,15 @@ def build_release(
                 evidence = schema.model_validate_json(path.read_text(encoding="utf-8"))
                 if evidence.model_id != model.id:
                     raise ValueError("evidence manifest model ID mismatch")
-                _write_json(release_root / target / f"{model.id}.json",
-                            evidence.model_dump(mode="json"))
+                _write_json(
+                    release_root / target / f"{model.id}.json", evidence.model_dump(mode="json")
+                )
         license_path = release_root / "licenses" / f"{model.id}.txt"
         license_path.parent.mkdir(parents=True, exist_ok=True)
         license_path.write_text(
             f"Model {model.id}: {model.license}\n"
-            + "\n".join(f"{source.id}: {source.rights}" for source in model.sources) + "\n",
+            + "\n".join(f"{source.id}: {source.rights}" for source in model.sources)
+            + "\n",
             encoding="utf-8",
         )
 

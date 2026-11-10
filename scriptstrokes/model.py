@@ -72,31 +72,33 @@ def _part_path(model: WritingModel, part: ComponentPart | RawPathPart) -> str:
     return transform_path(d, part.transform)
 
 
-def _compile_path_recipe(model: WritingModel, recipe: PathStrokeRecipe) -> str:
-    result = ""
+def _compiled_part_paths(model: WritingModel, recipe: PathStrokeRecipe) -> tuple[str, ...]:
+    paths: list[str] = []
     current_end = None
 
     for index, part in enumerate(recipe.parts):
         part_d = _part_path(model, part)
         info = analyze_path(part_d)
         if index == 0:
-            result = part_d
-            current_end = info.end
-            continue
-
-        if part.attach:
+            compiled_d = part_d
+        elif part.attach:
             assert current_end is not None
             dx = current_end[0] - info.start[0]
             dy = current_end[1] - info.start[1]
-            attached = translate_path(part_d, dx, dy)
-            result += " " + path_without_initial_move(attached)
-            current_end = analyze_path(attached).end
+            compiled_d = translate_path(part_d, dx, dy)
         else:
             raise ValueError(
                 "a single pen-down stroke cannot contain a detached component; "
                 "use another stroke recipe"
             )
-    return result
+        paths.append(compiled_d)
+        current_end = analyze_path(compiled_d).end
+    return tuple(paths)
+
+
+def _compile_path_recipe(model: WritingModel, recipe: PathStrokeRecipe) -> str:
+    paths = _compiled_part_paths(model, recipe)
+    return paths[0] + "".join(" " + path_without_initial_move(path) for path in paths[1:])
 
 
 def compile_glyph(

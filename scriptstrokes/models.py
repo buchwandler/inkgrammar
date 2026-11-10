@@ -25,6 +25,7 @@ FormName = Literal["isolated", "initial", "medial", "final", "default"]
 
 ConnectionMode = Literal["continuous-bridge", "direct", "attached", "none"]
 
+
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 

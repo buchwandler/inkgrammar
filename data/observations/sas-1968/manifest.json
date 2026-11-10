@@ -49,16 +49,9 @@
       "id": "sas1968-alphabet-U+0041",
       "kind": "glyph-isolated",
       "label": "A",
-      "unicode": [
-        "U+0041"
-      ],
+      "unicode": ["U+0041"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        41,
-        274,
-        106,
-        340
-      ],
+      "source_bbox": [41, 274, 106, 340],
       "crop_locator": "local-only:alphabet/uppercase-1-00-U+0041.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -69,16 +62,9 @@
       "id": "sas1968-alphabet-U+0042",
       "kind": "glyph-isolated",
       "label": "B",
-      "unicode": [
-        "U+0042"
-      ],
+      "unicode": ["U+0042"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        106,
-        275,
-        164,
-        342
-      ],
+      "source_bbox": [106, 275, 164, 342],
       "crop_locator": "local-only:alphabet/uppercase-1-01-U+0042.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -89,16 +75,9 @@
       "id": "sas1968-alphabet-U+0043",
       "kind": "glyph-isolated",
       "label": "C",
-      "unicode": [
-        "U+0043"
-      ],
+      "unicode": ["U+0043"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        174,
-        277,
-        227,
-        348
-      ],
+      "source_bbox": [174, 277, 227, 348],
       "crop_locator": "local-only:alphabet/uppercase-1-02-U+0043.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -109,16 +88,9 @@
       "id": "sas1968-alphabet-U+0044",
       "kind": "glyph-isolated",
       "label": "D",
-      "unicode": [
-        "U+0044"
-      ],
+      "unicode": ["U+0044"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        227,
-        277,
-        285,
-        343
-      ],
+      "source_bbox": [227, 277, 285, 343],
       "crop_locator": "local-only:alphabet/uppercase-1-03-U+0044.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -129,16 +101,9 @@
       "id": "sas1968-alphabet-U+0045",
       "kind": "glyph-isolated",
       "label": "E",
-      "unicode": [
-        "U+0045"
-      ],
+      "unicode": ["U+0045"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        290,
-        279,
-        336,
-        344
-      ],
+      "source_bbox": [290, 279, 336, 344],
       "crop_locator": "local-only:alphabet/uppercase-1-04-U+0045.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -149,16 +114,9 @@
       "id": "sas1968-alphabet-U+0046",
       "kind": "glyph-isolated",
       "label": "F",
-      "unicode": [
-        "U+0046"
-      ],
+      "unicode": ["U+0046"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        341,
-        280,
-        387,
-        344
-      ],
+      "source_bbox": [341, 280, 387, 344],
       "crop_locator": "local-only:alphabet/uppercase-1-05-U+0046.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -169,16 +127,9 @@
       "id": "sas1968-alphabet-U+0047",
       "kind": "glyph-isolated",
       "label": "G",
-      "unicode": [
-        "U+0047"
-      ],
+      "unicode": ["U+0047"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        389,
-        280,
-        441,
-        360
-      ],
+      "source_bbox": [389, 280, 441, 360],
       "crop_locator": "local-only:alphabet/uppercase-1-06-U+0047.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -189,16 +140,9 @@
       "id": "sas1968-alphabet-U+0048",
       "kind": "glyph-isolated",
       "label": "H",
-      "unicode": [
-        "U+0048"
-      ],
+      "unicode": ["U+0048"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        446,
-        282,
-        497,
-        346
-      ],
+      "source_bbox": [446, 282, 497, 346],
       "crop_locator": "local-only:alphabet/uppercase-1-07-U+0048.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -209,16 +153,9 @@
       "id": "sas1968-alphabet-U+0049",
       "kind": "glyph-isolated",
       "label": "I",
-      "unicode": [
-        "U+0049"
-      ],
+      "unicode": ["U+0049"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        497,
-        282,
-        542,
-        347
-      ],
+      "source_bbox": [497, 282, 542, 347],
       "crop_locator": "local-only:alphabet/uppercase-1-08-U+0049.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -229,16 +166,9 @@
       "id": "sas1968-alphabet-U+004A",
       "kind": "glyph-isolated",
       "label": "J",
-      "unicode": [
-        "U+004A"
-      ],
+      "unicode": ["U+004A"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        542,
-        284,
-        587,
-        360
-      ],
+      "source_bbox": [542, 284, 587, 360],
       "crop_locator": "local-only:alphabet/uppercase-1-09-U+004A.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -249,16 +179,9 @@
       "id": "sas1968-alphabet-U+004B",
       "kind": "glyph-isolated",
       "label": "K",
-      "unicode": [
-        "U+004B"
-      ],
+      "unicode": ["U+004B"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        597,
-        285,
-        650,
-        349
-      ],
+      "source_bbox": [597, 285, 650, 349],
       "crop_locator": "local-only:alphabet/uppercase-1-10-U+004B.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -269,16 +192,9 @@
       "id": "sas1968-alphabet-U+004C",
       "kind": "glyph-isolated",
       "label": "L",
-      "unicode": [
-        "U+004C"
-      ],
+      "unicode": ["U+004C"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        650,
-        286,
-        707,
-        349
-      ],
+      "source_bbox": [650, 286, 707, 349],
       "crop_locator": "local-only:alphabet/uppercase-1-11-U+004C.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -289,16 +205,9 @@
       "id": "sas1968-alphabet-U+004D",
       "kind": "glyph-isolated",
       "label": "M",
-      "unicode": [
-        "U+004D"
-      ],
+      "unicode": ["U+004D"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        118,
-        378,
-        220,
-        442
-      ],
+      "source_bbox": [118, 378, 220, 442],
       "crop_locator": "local-only:alphabet/uppercase-2-00-U+004D.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -309,16 +218,9 @@
       "id": "sas1968-alphabet-U+004E",
       "kind": "glyph-isolated",
       "label": "N",
-      "unicode": [
-        "U+004E"
-      ],
+      "unicode": ["U+004E"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        220,
-        380,
-        304,
-        442
-      ],
+      "source_bbox": [220, 380, 304, 442],
       "crop_locator": "local-only:alphabet/uppercase-2-01-U+004E.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -329,16 +231,9 @@
       "id": "sas1968-alphabet-U+004F",
       "kind": "glyph-isolated",
       "label": "O",
-      "unicode": [
-        "U+004F"
-      ],
+      "unicode": ["U+004F"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        304,
-        381,
-        373,
-        446
-      ],
+      "source_bbox": [304, 381, 373, 446],
       "crop_locator": "local-only:alphabet/uppercase-2-02-U+004F.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -349,16 +244,9 @@
       "id": "sas1968-alphabet-U+0050",
       "kind": "glyph-isolated",
       "label": "P",
-      "unicode": [
-        "U+0050"
-      ],
+      "unicode": ["U+0050"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        373,
-        380,
-        430,
-        446
-      ],
+      "source_bbox": [373, 380, 430, 446],
       "crop_locator": "local-only:alphabet/uppercase-2-03-U+0050.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -369,16 +257,9 @@
       "id": "sas1968-alphabet-U+0051",
       "kind": "glyph-isolated",
       "label": "Q",
-      "unicode": [
-        "U+0051"
-      ],
+      "unicode": ["U+0051"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        430,
-        381,
-        481,
-        447
-      ],
+      "source_bbox": [430, 381, 481, 447],
       "crop_locator": "local-only:alphabet/uppercase-2-04-U+0051.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -389,16 +270,9 @@
       "id": "sas1968-alphabet-U+0052",
       "kind": "glyph-isolated",
       "label": "R",
-      "unicode": [
-        "U+0052"
-      ],
+      "unicode": ["U+0052"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        481,
-        383,
-        520,
-        447
-      ],
+      "source_bbox": [481, 383, 520, 447],
       "crop_locator": "local-only:alphabet/uppercase-2-05-U+0052.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -409,16 +283,9 @@
       "id": "sas1968-alphabet-U+0053",
       "kind": "glyph-isolated",
       "label": "S",
-      "unicode": [
-        "U+0053"
-      ],
+      "unicode": ["U+0053"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        528,
-        384,
-        567,
-        449
-      ],
+      "source_bbox": [528, 384, 567, 449],
       "crop_locator": "local-only:alphabet/uppercase-2-06-U+0053.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -429,16 +296,9 @@
       "id": "sas1968-alphabet-U+0054",
       "kind": "glyph-isolated",
       "label": "T",
-      "unicode": [
-        "U+0054"
-      ],
+      "unicode": ["U+0054"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        576,
-        384,
-        630,
-        448
-      ],
+      "source_bbox": [576, 384, 630, 448],
       "crop_locator": "local-only:alphabet/uppercase-2-07-U+0054.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -449,16 +309,9 @@
       "id": "sas1968-alphabet-U+0055",
       "kind": "glyph-isolated",
       "label": "U",
-      "unicode": [
-        "U+0055"
-      ],
+      "unicode": ["U+0055"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        191,
-        481,
-        247,
-        544
-      ],
+      "source_bbox": [191, 481, 247, 544],
       "crop_locator": "local-only:alphabet/uppercase-3-00-U+0055.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -469,16 +322,9 @@
       "id": "sas1968-alphabet-U+0056",
       "kind": "glyph-isolated",
       "label": "V",
-      "unicode": [
-        "U+0056"
-      ],
+      "unicode": ["U+0056"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        250,
-        482,
-        311,
-        545
-      ],
+      "source_bbox": [250, 482, 311, 545],
       "crop_locator": "local-only:alphabet/uppercase-3-01-U+0056.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -489,16 +335,9 @@
       "id": "sas1968-alphabet-U+0057",
       "kind": "glyph-isolated",
       "label": "W",
-      "unicode": [
-        "U+0057"
-      ],
+      "unicode": ["U+0057"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        311,
-        483,
-        373,
-        546
-      ],
+      "source_bbox": [311, 483, 373, 546],
       "crop_locator": "local-only:alphabet/uppercase-3-02-U+0057.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -509,16 +348,9 @@
       "id": "sas1968-alphabet-U+0058",
       "kind": "glyph-isolated",
       "label": "X",
-      "unicode": [
-        "U+0058"
-      ],
+      "unicode": ["U+0058"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        373,
-        483,
-        435,
-        547
-      ],
+      "source_bbox": [373, 483, 435, 547],
       "crop_locator": "local-only:alphabet/uppercase-3-03-U+0058.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -529,16 +361,9 @@
       "id": "sas1968-alphabet-U+0059",
       "kind": "glyph-isolated",
       "label": "Y",
-      "unicode": [
-        "U+0059"
-      ],
+      "unicode": ["U+0059"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        435,
-        485,
-        500,
-        572
-      ],
+      "source_bbox": [435, 485, 500, 572],
       "crop_locator": "local-only:alphabet/uppercase-3-04-U+0059.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -549,16 +374,9 @@
       "id": "sas1968-alphabet-U+005A",
       "kind": "glyph-isolated",
       "label": "Z",
-      "unicode": [
-        "U+005A"
-      ],
+      "unicode": ["U+005A"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        503,
-        485,
-        560,
-        548
-      ],
+      "source_bbox": [503, 485, 560, 548],
       "crop_locator": "local-only:alphabet/uppercase-3-05-U+005A.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -569,16 +387,9 @@
       "id": "sas1968-alphabet-U+0061",
       "kind": "glyph-isolated",
       "label": "a",
-      "unicode": [
-        "U+0061"
-      ],
+      "unicode": ["U+0061"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        57,
-        655,
-        114,
-        704
-      ],
+      "source_bbox": [57, 655, 114, 704],
       "crop_locator": "local-only:alphabet/lowercase-1-00-U+0061.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -589,16 +400,9 @@
       "id": "sas1968-alphabet-U+0062",
       "kind": "glyph-isolated",
       "label": "b",
-      "unicode": [
-        "U+0062"
-      ],
+      "unicode": ["U+0062"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        119,
-        632,
-        169,
-        698
-      ],
+      "source_bbox": [119, 632, 169, 698],
       "crop_locator": "local-only:alphabet/lowercase-1-01-U+0062.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -609,16 +413,9 @@
       "id": "sas1968-alphabet-U+0063",
       "kind": "glyph-isolated",
       "label": "c",
-      "unicode": [
-        "U+0063"
-      ],
+      "unicode": ["U+0063"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        169,
-        656,
-        226,
-        697
-      ],
+      "source_bbox": [169, 656, 226, 697],
       "crop_locator": "local-only:alphabet/lowercase-1-02-U+0063.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -629,16 +426,9 @@
       "id": "sas1968-alphabet-U+0064",
       "kind": "glyph-isolated",
       "label": "d",
-      "unicode": [
-        "U+0064"
-      ],
+      "unicode": ["U+0064"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        231,
-        644,
-        284,
-        696
-      ],
+      "source_bbox": [231, 644, 284, 696],
       "crop_locator": "local-only:alphabet/lowercase-1-03-U+0064.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -649,16 +439,9 @@
       "id": "sas1968-alphabet-U+0065",
       "kind": "glyph-isolated",
       "label": "e",
-      "unicode": [
-        "U+0065"
-      ],
+      "unicode": ["U+0065"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        284,
-        631,
-        334,
-        712
-      ],
+      "source_bbox": [284, 631, 334, 712],
       "crop_locator": "local-only:alphabet/lowercase-1-04-U+0065.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -669,16 +452,9 @@
       "id": "sas1968-alphabet-U+0066",
       "kind": "glyph-isolated",
       "label": "f",
-      "unicode": [
-        "U+0066"
-      ],
+      "unicode": ["U+0066"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        340,
-        631,
-        396,
-        714
-      ],
+      "source_bbox": [340, 631, 396, 714],
       "crop_locator": "local-only:alphabet/lowercase-1-05-U+0066.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -689,16 +465,9 @@
       "id": "sas1968-alphabet-U+0067",
       "kind": "glyph-isolated",
       "label": "g",
-      "unicode": [
-        "U+0067"
-      ],
+      "unicode": ["U+0067"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        396,
-        654,
-        446,
-        714
-      ],
+      "source_bbox": [396, 654, 446, 714],
       "crop_locator": "local-only:alphabet/lowercase-1-06-U+0067.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -709,16 +478,9 @@
       "id": "sas1968-alphabet-U+0068",
       "kind": "glyph-isolated",
       "label": "h",
-      "unicode": [
-        "U+0068"
-      ],
+      "unicode": ["U+0068"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        454,
-        631,
-        510,
-        695
-      ],
+      "source_bbox": [454, 631, 510, 695],
       "crop_locator": "local-only:alphabet/lowercase-1-07-U+0068.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -729,16 +491,9 @@
       "id": "sas1968-alphabet-U+0069",
       "kind": "glyph-isolated",
       "label": "i",
-      "unicode": [
-        "U+0069"
-      ],
+      "unicode": ["U+0069"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        522,
-        638,
-        561,
-        695
-      ],
+      "source_bbox": [522, 638, 561, 695],
       "crop_locator": "local-only:alphabet/lowercase-1-08-U+0069.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -749,16 +504,9 @@
       "id": "sas1968-alphabet-U+006A",
       "kind": "glyph-isolated",
       "label": "j",
-      "unicode": [
-        "U+006A"
-      ],
+      "unicode": ["U+006A"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        561,
-        639,
-        612,
-        714
-      ],
+      "source_bbox": [561, 639, 612, 714],
       "crop_locator": "local-only:alphabet/lowercase-1-09-U+006A.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -769,16 +517,9 @@
       "id": "sas1968-alphabet-U+006B",
       "kind": "glyph-isolated",
       "label": "k",
-      "unicode": [
-        "U+006B"
-      ],
+      "unicode": ["U+006B"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        614,
-        634,
-        675,
-        696
-      ],
+      "source_bbox": [614, 634, 675, 696],
       "crop_locator": "local-only:alphabet/lowercase-1-10-U+006B.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -789,16 +530,9 @@
       "id": "sas1968-alphabet-U+006C",
       "kind": "glyph-isolated",
       "label": "l",
-      "unicode": [
-        "U+006C"
-      ],
+      "unicode": ["U+006C"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        52,
-        732,
-        104,
-        799
-      ],
+      "source_bbox": [52, 732, 104, 799],
       "crop_locator": "local-only:alphabet/lowercase-2-00-U+006C.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -809,16 +543,9 @@
       "id": "sas1968-alphabet-U+006D",
       "kind": "glyph-isolated",
       "label": "m",
-      "unicode": [
-        "U+006D"
-      ],
+      "unicode": ["U+006D"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        104,
-        757,
-        162,
-        816
-      ],
+      "source_bbox": [104, 757, 162, 816],
       "crop_locator": "local-only:alphabet/lowercase-2-01-U+006D.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -829,16 +556,9 @@
       "id": "sas1968-alphabet-U+006E",
       "kind": "glyph-isolated",
       "label": "n",
-      "unicode": [
-        "U+006E"
-      ],
+      "unicode": ["U+006E"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        181,
-        756,
-        220,
-        798
-      ],
+      "source_bbox": [181, 756, 220, 798],
       "crop_locator": "local-only:alphabet/lowercase-2-02-U+006E.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -849,16 +569,9 @@
       "id": "sas1968-alphabet-U+006F",
       "kind": "glyph-isolated",
       "label": "o",
-      "unicode": [
-        "U+006F"
-      ],
+      "unicode": ["U+006F"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        222,
-        756,
-        279,
-        798
-      ],
+      "source_bbox": [222, 756, 279, 798],
       "crop_locator": "local-only:alphabet/lowercase-2-03-U+006F.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -869,16 +582,9 @@
       "id": "sas1968-alphabet-U+0070",
       "kind": "glyph-isolated",
       "label": "p",
-      "unicode": [
-        "U+0070"
-      ],
+      "unicode": ["U+0070"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        279,
-        756,
-        339,
-        823
-      ],
+      "source_bbox": [279, 756, 339, 823],
       "crop_locator": "local-only:alphabet/lowercase-2-04-U+0070.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -889,16 +595,9 @@
       "id": "sas1968-alphabet-U+0071",
       "kind": "glyph-isolated",
       "label": "q",
-      "unicode": [
-        "U+0071"
-      ],
+      "unicode": ["U+0071"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        339,
-        755,
-        398,
-        822
-      ],
+      "source_bbox": [339, 755, 398, 822],
       "crop_locator": "local-only:alphabet/lowercase-2-05-U+0071.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -909,16 +608,9 @@
       "id": "sas1968-alphabet-U+0072",
       "kind": "glyph-isolated",
       "label": "r",
-      "unicode": [
-        "U+0072"
-      ],
+      "unicode": ["U+0072"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        398,
-        754,
-        452,
-        797
-      ],
+      "source_bbox": [398, 754, 452, 797],
       "crop_locator": "local-only:alphabet/lowercase-2-06-U+0072.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -929,16 +621,9 @@
       "id": "sas1968-alphabet-U+0073",
       "kind": "glyph-isolated",
       "label": "s",
-      "unicode": [
-        "U+0073"
-      ],
+      "unicode": ["U+0073"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        452,
-        755,
-        498,
-        797
-      ],
+      "source_bbox": [452, 755, 498, 797],
       "crop_locator": "local-only:alphabet/lowercase-2-07-U+0073.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -949,16 +634,9 @@
       "id": "sas1968-alphabet-U+00DF",
       "kind": "glyph-isolated",
       "label": "ß",
-      "unicode": [
-        "U+00DF"
-      ],
+      "unicode": ["U+00DF"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        507,
-        732,
-        564,
-        822
-      ],
+      "source_bbox": [507, 732, 564, 822],
       "crop_locator": "local-only:alphabet/lowercase-2-08-U+00DF.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -969,16 +647,9 @@
       "id": "sas1968-alphabet-U+0074",
       "kind": "glyph-isolated",
       "label": "t",
-      "unicode": [
-        "U+0074"
-      ],
+      "unicode": ["U+0074"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        567,
-        732,
-        622,
-        796
-      ],
+      "source_bbox": [567, 732, 622, 796],
       "crop_locator": "local-only:alphabet/lowercase-2-09-U+0074.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -989,16 +660,9 @@
       "id": "sas1968-alphabet-U+0075",
       "kind": "glyph-isolated",
       "label": "u",
-      "unicode": [
-        "U+0075"
-      ],
+      "unicode": ["U+0075"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        622,
-        756,
-        675,
-        797
-      ],
+      "source_bbox": [622, 756, 675, 797],
       "crop_locator": "local-only:alphabet/lowercase-2-10-U+0075.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1009,16 +673,9 @@
       "id": "sas1968-alphabet-U+0076",
       "kind": "glyph-isolated",
       "label": "v",
-      "unicode": [
-        "U+0076"
-      ],
+      "unicode": ["U+0076"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        239,
-        848,
-        283,
-        899
-      ],
+      "source_bbox": [239, 848, 283, 899],
       "crop_locator": "local-only:alphabet/lowercase-3-00-U+0076.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1029,16 +686,9 @@
       "id": "sas1968-alphabet-U+0077",
       "kind": "glyph-isolated",
       "label": "w",
-      "unicode": [
-        "U+0077"
-      ],
+      "unicode": ["U+0077"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        288,
-        858,
-        345,
-        899
-      ],
+      "source_bbox": [288, 858, 345, 899],
       "crop_locator": "local-only:alphabet/lowercase-3-01-U+0077.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1049,16 +699,9 @@
       "id": "sas1968-alphabet-U+0078",
       "kind": "glyph-isolated",
       "label": "x",
-      "unicode": [
-        "U+0078"
-      ],
+      "unicode": ["U+0078"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        345,
-        858,
-        400,
-        899
-      ],
+      "source_bbox": [345, 858, 400, 899],
       "crop_locator": "local-only:alphabet/lowercase-3-02-U+0078.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1069,16 +712,9 @@
       "id": "sas1968-alphabet-U+0079",
       "kind": "glyph-isolated",
       "label": "y",
-      "unicode": [
-        "U+0079"
-      ],
+      "unicode": ["U+0079"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        400,
-        858,
-        451,
-        920
-      ],
+      "source_bbox": [400, 858, 451, 920],
       "crop_locator": "local-only:alphabet/lowercase-3-03-U+0079.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1089,16 +725,9 @@
       "id": "sas1968-alphabet-U+007A",
       "kind": "glyph-isolated",
       "label": "z",
-      "unicode": [
-        "U+007A"
-      ],
+      "unicode": ["U+007A"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        455,
-        859,
-        494,
-        899
-      ],
+      "source_bbox": [455, 859, 494, 899],
       "crop_locator": "local-only:alphabet/lowercase-3-04-U+007A.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1109,16 +738,9 @@
       "id": "sas1968-alphabet-U+0031",
       "kind": "glyph-isolated",
       "label": "1",
-      "unicode": [
-        "U+0031"
-      ],
+      "unicode": ["U+0031"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        49,
-        1001,
-        83,
-        1079
-      ],
+      "source_bbox": [49, 1001, 83, 1079],
       "crop_locator": "local-only:alphabet/digits-00-U+0031.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1129,16 +751,9 @@
       "id": "sas1968-alphabet-U+0032",
       "kind": "glyph-isolated",
       "label": "2",
-      "unicode": [
-        "U+0032"
-      ],
+      "unicode": ["U+0032"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        100,
-        985,
-        157,
-        1053
-      ],
+      "source_bbox": [100, 985, 157, 1053],
       "crop_locator": "local-only:alphabet/digits-01-U+0032.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1149,16 +764,9 @@
       "id": "sas1968-alphabet-U+0033",
       "kind": "glyph-isolated",
       "label": "3",
-      "unicode": [
-        "U+0033"
-      ],
+      "unicode": ["U+0033"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        168,
-        1003,
-        206,
-        1069
-      ],
+      "source_bbox": [168, 1003, 206, 1069],
       "crop_locator": "local-only:alphabet/digits-02-U+0033.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1169,16 +777,9 @@
       "id": "sas1968-alphabet-U+0034",
       "kind": "glyph-isolated",
       "label": "4",
-      "unicode": [
-        "U+0034"
-      ],
+      "unicode": ["U+0034"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        220,
-        996,
-        275,
-        1056
-      ],
+      "source_bbox": [220, 996, 275, 1056],
       "crop_locator": "local-only:alphabet/digits-03-U+0034.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1189,16 +790,9 @@
       "id": "sas1968-alphabet-U+0035",
       "kind": "glyph-isolated",
       "label": "5",
-      "unicode": [
-        "U+0035"
-      ],
+      "unicode": ["U+0035"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        302,
-        999,
-        351,
-        1056
-      ],
+      "source_bbox": [302, 999, 351, 1056],
       "crop_locator": "local-only:alphabet/digits-04-U+0035.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1209,16 +803,9 @@
       "id": "sas1968-alphabet-U+0036",
       "kind": "glyph-isolated",
       "label": "6",
-      "unicode": [
-        "U+0036"
-      ],
+      "unicode": ["U+0036"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        361,
-        1005,
-        414,
-        1057
-      ],
+      "source_bbox": [361, 1005, 414, 1057],
       "crop_locator": "local-only:alphabet/digits-05-U+0036.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1229,16 +816,9 @@
       "id": "sas1968-alphabet-U+0037",
       "kind": "glyph-isolated",
       "label": "7",
-      "unicode": [
-        "U+0037"
-      ],
+      "unicode": ["U+0037"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        441,
-        1006,
-        482,
-        1058
-      ],
+      "source_bbox": [441, 1006, 482, 1058],
       "crop_locator": "local-only:alphabet/digits-06-U+0037.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1249,16 +829,9 @@
       "id": "sas1968-alphabet-U+0038",
       "kind": "glyph-isolated",
       "label": "8",
-      "unicode": [
-        "U+0038"
-      ],
+      "unicode": ["U+0038"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        504,
-        990,
-        546,
-        1061
-      ],
+      "source_bbox": [504, 990, 546, 1061],
       "crop_locator": "local-only:alphabet/digits-07-U+0038.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1269,16 +842,9 @@
       "id": "sas1968-alphabet-U+0039",
       "kind": "glyph-isolated",
       "label": "9",
-      "unicode": [
-        "U+0039"
-      ],
+      "unicode": ["U+0039"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        572,
-        1011,
-        615,
-        1061
-      ],
+      "source_bbox": [572, 1011, 615, 1061],
       "crop_locator": "local-only:alphabet/digits-08-U+0039.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",
@@ -1289,16 +855,9 @@
       "id": "sas1968-alphabet-U+0030",
       "kind": "glyph-isolated",
       "label": "0",
-      "unicode": [
-        "U+0030"
-      ],
+      "unicode": ["U+0030"],
       "source_id": "sas-1968-alphabet",
-      "source_bbox": [
-        640,
-        1013,
-        685,
-        1063
-      ],
+      "source_bbox": [640, 1013, 685, 1063],
       "crop_locator": "local-only:alphabet/digits-09-U+0030.png",
       "label_source": "declared-layout-sequence",
       "review_status": "accepted",

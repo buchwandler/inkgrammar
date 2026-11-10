@@ -1,4 +1,5 @@
 """Report connected-ink measurements without altering the supplied scans."""
+
 import json
 from pathlib import Path
 
@@ -33,8 +34,12 @@ def ink_components(mask):
     result = []
     for pixels in connected_ink(mask):
         ys, xs = zip(*pixels, strict=True)
-        result.append({"area": len(pixels), "bbox": [int(min(xs)), int(min(ys)),
-                                                   int(max(xs)) + 1, int(max(ys)) + 1]})
+        result.append(
+            {
+                "area": len(pixels),
+                "bbox": [int(min(xs)), int(min(ys)), int(max(xs)) + 1, int(max(ys)) + 1],
+            }
+        )
     return result
 
 
@@ -47,8 +52,13 @@ def main():
         path = Path("work/sas-1968/observations") / item["crop_locator"].split(":", 1)[1]
         with Image.open(path) as image:
             components = ink_components(threshold_image(image))
-        rows.append({"character": item["label"], "source_bbox": item["source_bbox"],
-                     "ink_components": components})
+        rows.append(
+            {
+                "character": item["label"],
+                "source_bbox": item["source_bbox"],
+                "ink_components": components,
+            }
+        )
     print(json.dumps(rows, indent=2))
 
 

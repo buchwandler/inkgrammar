@@ -1,0 +1,260 @@
+format: scriptstrokes-fit-topology
+format_version: 1
+glyphs:
+  c:
+    character: "c"
+    advance_width: 46
+    review_status: provisional
+    notes: "Open-oval occurrence only. Entry and exit remain outside this seed topology."
+    strokes:
+      - id: body
+        parts:
+          - instance: c-oval
+            primitive: sas-open-oval-01
+            attach: false
+            transform:
+              scale_x: 45
+              scale_y: 35
+  a:
+    character: "a"
+    advance_width: 52
+    review_status: provisional
+    notes: "Open-oval occurrence only. Entry, exit, and closure remain outside this seed topology."
+    strokes:
+      - id: body
+        parts:
+          - instance: a-oval
+            primitive: sas-open-oval-01
+            attach: false
+            transform:
+              scale_x: 45
+              scale_y: 35
+              dx: 6
+  C:
+    character: "C"
+    advance_width: 52
+    review_status: provisional
+    notes: "Open-oval occurrence only; this sample is held out during the open-oval fit."
+    strokes:
+      - id: body
+        parts:
+          - instance: C-oval
+            primitive: sas-open-oval-01
+            attach: false
+            transform:
+              scale_x: 48
+              scale_y: 60
+  i:
+    character: "i"
+    advance_width: 38
+    review_status: provisional
+    notes: "Underturn occurrence only; entry sweep and dot remain outside this seed topology."
+    strokes:
+      - id: body
+        parts:
+          - instance: i-underturn
+            primitive: sas-underturn-01
+            attach: false
+            transform:
+              scale_x: 38
+              scale_y: 38
+              dx: -3
+  u:
+    character: "u"
+    advance_width: 56
+    review_status: provisional
+    notes: "Two underturn occurrences; entry and exit remain outside this seed topology."
+    strokes:
+      - id: body
+        parts:
+          - instance: u-underturn-a
+            primitive: sas-underturn-01
+            attach: false
+            transform:
+              scale_x: 30
+              scale_y: 32
+          - instance: u-underturn-b
+            primitive: sas-underturn-01
+            attach: true
+            transform:
+              scale_x: 30
+              scale_y: 32
+              dx: 23
+  w:
+    character: "w"
+    advance_width: 60
+    review_status: provisional
+    notes: "Two underturn occurrences with separate provisional transforms; this sample remains hold-out."
+    strokes:
+      - id: body
+        parts:
+          - instance: w-underturn-a
+            primitive: sas-underturn-01
+            attach: false
+            transform:
+              scale_x: 32
+              scale_y: 27
+          - instance: w-underturn-b
+            primitive: sas-underturn-01
+            attach: true
+            transform:
+              scale_x: 32
+              scale_y: 27
+              dx: 25
+  l:
+    character: "l"
+    advance_width: 48
+    review_status: provisional
+    notes: "Shared ascender-loop instance plus a provisional exit connector."
+    strokes:
+      - id: body
+        parts:
+          - instance: l-loop
+            primitive: sas-ascender-loop-01
+            attach: false
+            transform:
+              scale_x: 45
+              scale_y: 56
+              dx: -2
+          - instance: l-exit
+            primitive: sas-exit-01
+            attach: true
+            transform:
+              scale_x: 28
+              scale_y: 18
+              dx: 17
+  b:
+    character: "b"
+    advance_width: 52
+    review_status: provisional
+    notes: "Shared ascender-loop instance plus a provisional b-body continuation."
+    strokes:
+      - id: body
+        parts:
+          - instance: b-loop
+            primitive: sas-ascender-loop-01
+            attach: false
+            transform:
+              scale_x: 38
+              scale_y: 55
+          - instance: b-continuation
+            primitive: sas-b-continuation-01
+            attach: true
+            transform:
+              scale_x: 25
+              scale_y: 36
+              dx: 20
+  k:
+    character: "k"
+    advance_width: 60
+    review_status: provisional
+    notes: "Shared ascender-loop instance plus a separate provisional k continuation; held out for loop fitting."
+    strokes:
+      - id: body
+        parts:
+          - instance: k-loop
+            primitive: sas-ascender-loop-01
+            attach: false
+            transform:
+              scale_x: 36
+              scale_y: 52
+          - instance: k-continuation
+            primitive: sas-k-continuation-01
+            attach: true
+            transform:
+              scale_x: 34
+              scale_y: 30
+              dx: 19
+  n:
+    character: "n"
+    advance_width: 45
+    review_status: provisional
+    notes: "Entry, one shared hump occurrence, and exit; connector transforms remain provisional."
+    strokes:
+      - id: body
+        parts:
+          - instance: n-entry
+            primitive: sas-entry-01
+            attach: false
+            transform:
+              scale_x: 8
+              scale_y: 7
+              dx: -4
+          - instance: n-hump
+            primitive: sas-hump-01
+            attach: false
+            transform:
+              scale_x: 39
+              scale_y: 31
+              dx: -4
+          - instance: n-exit
+            primitive: sas-exit-01
+            attach: true
+            transform:
+              scale_x: 13
+              scale_y: 12
+              dx: 24
+  m:
+    character: "m"
+    advance_width: 63
+    review_status: provisional
+    notes: "Entry, two shared hump occurrences, and exit; transforms remain provisional."
+    strokes:
+      - id: body
+        parts:
+          - instance: m-entry
+            primitive: sas-entry-01
+            attach: false
+            transform:
+              scale_x: 10
+              scale_y: 10
+              dx: -6
+          - instance: m-hump-a
+            primitive: sas-hump-01
+            attach: false
+            transform:
+              scale_x: 30
+              scale_y: 30
+              dx: -6
+          - instance: m-hump-b
+            primitive: sas-hump-01
+            attach: true
+            transform:
+              scale_x: 30
+              scale_y: 30
+              dx: 18
+          - instance: m-exit
+            primitive: sas-exit-01
+            attach: true
+            transform:
+              scale_x: 15
+              scale_y: 12
+              dx: 35
+  h:
+    character: "h"
+    advance_width: 52
+    review_status: provisional
+    notes: "Ascender-loop, hump, and exit components; h remains hold-out for both family fits."
+    strokes:
+      - id: body
+        parts:
+          - instance: h-ascender-loop
+            primitive: sas-ascender-loop-01
+            attach: false
+            transform:
+              scale_x: 30
+              scale_y: 55
+          - instance: h-hump
+            primitive: sas-hump-01
+            attach: true
+            transform:
+              scale_x: 30
+              scale_y: 26
+              dx: 18
+          - instance: h-exit
+            primitive: sas-exit-01
+            attach: true
+            transform:
+              scale_x: 13
+              scale_y: 12
+              dx: 37

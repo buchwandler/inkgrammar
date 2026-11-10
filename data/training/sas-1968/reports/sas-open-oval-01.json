@@ -1,0 +1,205 @@
+{
+  "evaluations": 266,
+  "format": "scriptstrokes-fit-report",
+  "format_version": 1,
+  "generalization_gap": 0.09443727447086725,
+  "hold_out": {
+    "mean_objective": 0.8083627672817797,
+    "policy": "diagnostic-only; never used for parameter selection",
+    "samples": [
+      {
+        "instances": [
+          {
+            "instance_id": "C-oval",
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {},
+            "transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 48.0,
+              "scale_y": 60.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.8083627672817797,
+        "sample_id": "sas1968-alphabet-U+0043",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.07819027124459066,
+          "complexity": 2.0,
+          "curvature_regularization": 0.002474532172725277,
+          "distance": 0.0310747005950445,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.8083380219600524,
+          "soft_mask": 0.8083380219600524,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "worst_member_objective": 0.8083627672817797
+  },
+  "initial_parameters": {
+    "segments.0.c1.y": 1.0,
+    "segments.0.c2.x": 0.0,
+    "segments.1.c1.x": 0.081081
+  },
+  "input_hashes": {
+    "corpus_sha256": "db177cab8d29cd5c6cfbfe18c00b909f38141831c0f308fb8b0a6941cc92d187",
+    "project_sha256": "18a3cd8a4d7a29f59b5cff523d477194ab5988f5279681af23050775ef3c4fb2",
+    "source_lock_sha256": "2a7f1d5af0674f594d597f752ae998cf8d82362af4de2ff7547ac73aec140d4e",
+    "support_sha256": {
+      "anchors": "a4300d3f8f0fa372a1035d22f2057d432f28809ca988ba8e901133e81e4c4778",
+      "families": "49975d0690494a450333cf0b0a98a9423af56c6c906d7d91b9a34823c88d3f10",
+      "fit_config": "81b44d7141ad5c869f606ea07c42326e0c61f6d7c65d1839985751ca22cd4225",
+      "observation_manifest": "1fd3617ba0068db43355b5ef6a4e9306e1879084d6a0652fd87b1e32baca9267",
+      "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
+      "topology": "f10390a41a0f1bcde130db3ab933cf791d2d21855180f05debb56276e3d92b53",
+      "training_materialization": "15d0a09db971fca5b4bbf90c3243df4615f7cb67e9676ae1d2a980c5a298593f"
+    }
+  },
+  "objective_version": 1,
+  "optimizer": {
+    "de_dimension_limit": 12,
+    "de_max_iterations": 20,
+    "de_population_size": 8,
+    "max_iterations": 200,
+    "method": "powell",
+    "seed": 1968,
+    "tolerance": 1e-5
+  },
+  "parameter_bounds": {
+    "segments.0.c1.y": [0.85, 1.1],
+    "segments.0.c2.x": [-0.1, 0.1],
+    "segments.1.c1.x": [0.0, 0.2]
+  },
+  "parameters": {
+    "segments.0.c1.y": 1.0349516912944703,
+    "segments.0.c2.x": 0.09423633540569609,
+    "segments.1.c1.x": 0.18378333328386898
+  },
+  "primitive": {
+    "bounds": {
+      "segments.0.c1.y": [0.85, 1.1],
+      "segments.0.c2.x": [-0.1, 0.1],
+      "segments.1.c1.x": [0.0, 0.2]
+    },
+    "frame": {
+      "nominal_end": [0.837838, 0.276596],
+      "start": [1.0, 0.659574]
+    },
+    "free_parameters": [
+      "segments.0.c1.y",
+      "segments.0.c2.x",
+      "segments.1.c1.x"
+    ],
+    "id": "sas-open-oval-01",
+    "kind": "cubic-chain",
+    "locked_parameters": ["frame.start", "segments.1.end"],
+    "provenance": {
+      "construction": "source-backed",
+      "trajectory": "inferred"
+    },
+    "segments": [
+      {
+        "c1": [0.567568, 1.0349516912944703],
+        "c2": [0.09423633540569609, 0.425532],
+        "end": [0.027027, 0.212766]
+      },
+      {
+        "c1": [0.18378333328386898, 0.0],
+        "c2": [0.594595, 0.106383],
+        "end": [0.837838, 0.276596]
+      }
+    ]
+  },
+  "primitive_id": "sas-open-oval-01",
+  "project_id": "sas-1968",
+  "stage": "primitive:sas-open-oval-01",
+  "training": {
+    "final_objective": 0.7139254928109124,
+    "initial_objective": 0.738782515960142,
+    "mean_objective": 0.7139254928109124,
+    "samples": [
+      {
+        "final_objective": 0.8050917594656712,
+        "initial_objective": 0.8155327136714894,
+        "instances": [
+          {
+            "instance_id": "c-oval",
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {},
+            "transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 45.0,
+              "scale_y": 35.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.8050917594656712,
+        "sample_id": "sas1968-alphabet-U+0063",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.006648285462873495,
+          "complexity": 2.0,
+          "curvature_regularization": 0.003912082480153725,
+          "distance": 0.03359733349619103,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.8050526386408697,
+          "soft_mask": 0.81869990516919,
+          "tangent": 0.0
+        }
+      },
+      {
+        "final_objective": 0.6227592261561535,
+        "initial_objective": 0.6620323182487946,
+        "instances": [
+          {
+            "instance_id": "a-oval",
+            "primitive_id": "sas-open-oval-01",
+            "residuals": {},
+            "transform": {
+              "dx": 6.0,
+              "dy": 0.0,
+              "scale_x": 45.0,
+              "scale_y": 35.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.6227592261561535,
+        "sample_id": "sas1968-alphabet-U+0061",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.061814908186769844,
+          "complexity": 2.0,
+          "curvature_regularization": 0.003912082480153725,
+          "distance": 0.013886461928828397,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.622720105331352,
+          "soft_mask": 0.6348467393461299,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "selection_split": "fit",
+    "worst_member_objective": 0.8050917594656712
+  },
+  "validation": {
+    "mean_objective": null,
+    "policy": "evaluated after fitting; not used for parameter optimization",
+    "samples": [],
+    "worst_member_objective": null
+  },
+  "visual_review": {
+    "region_overlay_count": 3,
+    "scope": "private work directory",
+    "sheet": "overlays/sas-open-oval-01/review-sheet.png",
+    "status": "promotion_pending"
+  }
+}

@@ -1,4 +1,5 @@
 """Explicit, verified installation of versioned runtime data bundles."""
+
 from __future__ import annotations
 
 import hashlib
@@ -28,6 +29,7 @@ def data_cache_dir() -> Path:
     if os.name == "nt":
         return Path(os.environ["LOCALAPPDATA"]) / "scriptstrokes"
     import sys
+
     if sys.platform == "darwin":
         return Path.home() / "Library" / "Caches" / "scriptstrokes"
     return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "scriptstrokes"
@@ -75,8 +77,15 @@ def _checksum_rows(payload: str) -> dict[str, str]:
 
 def _safe_path(name: str) -> PurePosixPath:
     path = PurePosixPath(name)
-    if (not name or "\\" in name or path.is_absolute() or ".." in path.parts
-            or ":" in name or not path.parts or path.as_posix() != name.rstrip("/")):
+    if (
+        not name
+        or "\\" in name
+        or path.is_absolute()
+        or ".." in path.parts
+        or ":" in name
+        or not path.parts
+        or path.as_posix() != name.rstrip("/")
+    ):
         raise ValueError(f"unsafe archive path: {name!r}")
     return path
 
@@ -138,19 +147,24 @@ def _verify_directory(root: Path, release: str) -> None:
         if hashlib.sha256((root / name).read_bytes()).hexdigest() != expected:
             raise ValueError(f"internal checksum mismatch: {name}")
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    if (manifest.get("format") != "scriptstrokes-release"
-            or manifest.get("format_version") != 3
-            or manifest.get("release_version") != release
-            or manifest.get("catalog") != "catalog.json"
-            or manifest.get("checksums") != "checksums.sha256"):
+    if (
+        manifest.get("format") != "scriptstrokes-release"
+        or manifest.get("format_version") != 3
+        or manifest.get("release_version") != release
+        or manifest.get("catalog") != "catalog.json"
+        or manifest.get("checksums") != "checksums.sha256"
+    ):
         raise ValueError("unsupported or inconsistent release manifest")
     requirement = manifest.get("requires_scriptstrokes")
-    if (not requirement
-            or Version(package_version("scriptstrokes")) not in SpecifierSet(requirement)):
+    if not requirement or Version(package_version("scriptstrokes")) not in SpecifierSet(
+        requirement
+    ):
         raise ValueError("data release is incompatible with installed scriptstrokes")
     catalog = json.loads((root / "catalog.json").read_text(encoding="utf-8"))
-    if (catalog.get("format") != "scriptstrokes-catalog"
-            or catalog.get("release_version") != release):
+    if (
+        catalog.get("format") != "scriptstrokes-catalog"
+        or catalog.get("release_version") != release
+    ):
         raise ValueError("inconsistent catalog")
     ids = set()
     for item in catalog["models"]:
@@ -202,12 +216,12 @@ def list_installed_releases() -> list[str]:
     root = data_cache_dir() / "releases"
     if not root.exists():
         return []
-    return sorted(path.name for path in root.iterdir()
-                  if path.is_dir() and (path / "manifest.json").is_file())
+    return sorted(
+        path.name for path in root.iterdir() if path.is_dir() and (path / "manifest.json").is_file()
+    )
 
 
-def released_model_path(model_id: str, *, release: str,
-                        auto_install: bool = False) -> Path:
+def released_model_path(model_id: str, *, release: str, auto_install: bool = False) -> Path:
     # Offline by default, including when selecting the latest installed release.
     if release == "latest" and not auto_install:
         installed = list_installed_releases()
@@ -222,8 +236,7 @@ def released_model_path(model_id: str, *, release: str,
     raise KeyError(f"model {model_id!r} not found in release {release}")
 
 
-def load_released_model(model_id: str, *, release: str,
-                        auto_install: bool = False) -> WritingModel:
+def load_released_model(model_id: str, *, release: str, auto_install: bool = False) -> WritingModel:
     path = released_model_path(model_id, release=release, auto_install=auto_install)
     return WritingModel.model_validate_json(path.read_text(encoding="utf-8"))
 

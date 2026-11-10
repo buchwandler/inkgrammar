@@ -1,4 +1,5 @@
 """Joint component fitting with independently reported hold-out glyphs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -48,10 +49,15 @@ def fit_component_candidates(
     if any(character not in model.glyphs for character in members):
         raise ValueError("fit members must be modeled glyphs")
     for character in members:
-        if not any(isinstance(stroke, PathStrokeRecipe)
-                   and any(isinstance(part, ComponentPart) and part.component == component_id
-                           for part in stroke.parts)
-                   for form in model.glyphs[character].forms.values() for stroke in form.strokes):
+        if not any(
+            isinstance(stroke, PathStrokeRecipe)
+            and any(
+                isinstance(part, ComponentPart) and part.component == component_id
+                for part in stroke.parts
+            )
+            for form in model.glyphs[character].forms.values()
+            for stroke in form.strokes
+        ):
             raise ValueError(f"{character!r} does not use component {component_id!r}")
     masks = {}
     for character, path in references.items():
@@ -82,8 +88,10 @@ def fit_component_candidates(
                             for stroke in form.strokes:
                                 if isinstance(stroke, PathStrokeRecipe):
                                     for part in stroke.parts:
-                                        if (isinstance(part, ComponentPart)
-                                                and part.component == component_id):
+                                        if (
+                                            isinstance(part, ComponentPart)
+                                            and part.component == component_id
+                                        ):
                                             transform = part.transform
                                             transform.scale_x *= scale_x
                                             transform.dx = (
@@ -104,6 +112,9 @@ def fit_component_candidates(
         if mean > best_mean:
             best_model, best_scores, best_mean, best_index = candidate_model, scores, mean, index
     assert best_model is not None
-    return ComponentFitResult(best_model, best_scores,
-                              {character: score(best_model, character) for character in holdout},
-                              best_index)
+    return ComponentFitResult(
+        best_model,
+        best_scores,
+        {character: score(best_model, character) for character in holdout},
+        best_index,
+    )

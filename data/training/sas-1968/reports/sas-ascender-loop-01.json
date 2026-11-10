@@ -1,0 +1,232 @@
+{
+  "evaluations": 240,
+  "format": "scriptstrokes-fit-report",
+  "format_version": 1,
+  "generalization_gap": 0.2725974526088395,
+  "hold_out": {
+    "mean_objective": 0.7736400121289445,
+    "policy": "diagnostic-only; never used for parameter selection",
+    "samples": [
+      {
+        "instances": [
+          {
+            "instance_id": "k-loop",
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {},
+            "transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 36.0,
+              "scale_y": 52.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.7559770853017418,
+        "sample_id": "sas1968-alphabet-U+006B",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.07952966321691307,
+          "complexity": 3.0,
+          "curvature_regularization": 0.0017823137129302088,
+          "distance": 0.0678537688569966,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.7559592621646125,
+          "soft_mask": 0.8794090432721265,
+          "tangent": 0.0
+        }
+      },
+      {
+        "instances": [
+          {
+            "instance_id": "h-ascender-loop",
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {},
+            "transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 30.0,
+              "scale_y": 55.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.7913029389561472,
+        "sample_id": "sas1968-alphabet-U+0068",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.1284484163597948,
+          "complexity": 3.0,
+          "curvature_regularization": 0.0018071940741907148,
+          "distance": 0.09765507759752375,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.7912848670154053,
+          "soft_mask": 0.9028354554664031,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "worst_member_objective": 0.7913029389561472
+  },
+  "initial_parameters": {
+    "segments.0.c1.y": 0.193548,
+    "segments.0.c2.x": 0.902439
+  },
+  "input_hashes": {
+    "corpus_sha256": "db177cab8d29cd5c6cfbfe18c00b909f38141831c0f308fb8b0a6941cc92d187",
+    "project_sha256": "18a3cd8a4d7a29f59b5cff523d477194ab5988f5279681af23050775ef3c4fb2",
+    "source_lock_sha256": "2a7f1d5af0674f594d597f752ae998cf8d82362af4de2ff7547ac73aec140d4e",
+    "support_sha256": {
+      "anchors": "a4300d3f8f0fa372a1035d22f2057d432f28809ca988ba8e901133e81e4c4778",
+      "families": "49975d0690494a450333cf0b0a98a9423af56c6c906d7d91b9a34823c88d3f10",
+      "fit_config": "81b44d7141ad5c869f606ea07c42326e0c61f6d7c65d1839985751ca22cd4225",
+      "observation_manifest": "1fd3617ba0068db43355b5ef6a4e9306e1879084d6a0652fd87b1e32baca9267",
+      "seed_grammar": "2e78749a388e15a0bbcdc069a73b87c38571473d6bd94d3007a27d55d02f07c3",
+      "topology": "f10390a41a0f1bcde130db3ab933cf791d2d21855180f05debb56276e3d92b53",
+      "training_materialization": "78e698e0261b98d0bab8c3d8d76737e5901ff61c8562d7d740cb917b4627b260"
+    }
+  },
+  "objective_version": 1,
+  "optimizer": {
+    "de_dimension_limit": 12,
+    "de_max_iterations": 20,
+    "de_population_size": 8,
+    "max_iterations": 200,
+    "method": "powell",
+    "seed": 1968,
+    "tolerance": 1e-5
+  },
+  "parameter_bounds": {
+    "segments.0.c1.y": [0.1, 0.3],
+    "segments.0.c2.x": [0.8, 1.0]
+  },
+  "parameters": {
+    "segments.0.c1.y": 0.12450013987987334,
+    "segments.0.c2.x": 0.8066844808467861
+  },
+  "primitive": {
+    "bounds": {
+      "segments.0.c1.y": [0.1, 0.3],
+      "segments.0.c2.x": [0.8, 1.0]
+    },
+    "frame": {
+      "nominal_end": [0.390244, 0.0],
+      "start": [0.0, 0.0]
+    },
+    "free_parameters": ["segments.0.c1.y", "segments.0.c2.x"],
+    "id": "sas-ascender-loop-01",
+    "kind": "cubic-chain",
+    "locked_parameters": ["frame.start", "segments.2.end"],
+    "provenance": {
+      "construction": "source-backed",
+      "trajectory": "inferred"
+    },
+    "segments": [
+      {
+        "c1": [0.365854, 0.12450013987987334],
+        "c2": [0.8066844808467861, 0.741935],
+        "end": [0.926829, 0.83871]
+      },
+      {
+        "c1": [1.0, 1.0],
+        "c2": [0.682927, 0.870968],
+        "end": [0.536585, 0.612903]
+      },
+      {
+        "c1": [0.390244, 0.354839],
+        "c2": [0.195122, 0.0],
+        "end": [0.390244, 0.0]
+      }
+    ]
+  },
+  "primitive_id": "sas-ascender-loop-01",
+  "project_id": "sas-1968",
+  "stage": "primitive:sas-ascender-loop-01",
+  "training": {
+    "final_objective": 0.501042559520105,
+    "initial_objective": 0.5312702162689209,
+    "mean_objective": 0.501042559520105,
+    "samples": [
+      {
+        "final_objective": 0.4370861767553729,
+        "initial_objective": 0.49280328589190275,
+        "instances": [
+          {
+            "instance_id": "l-loop",
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {},
+            "transform": {
+              "dx": -2.0,
+              "dy": 0.0,
+              "scale_x": 45.0,
+              "scale_y": 56.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.4370861767553729,
+        "sample_id": "sas1968-alphabet-U+006C",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.01158435987448972,
+          "complexity": 3.0,
+          "curvature_regularization": 0.0018012827678147885,
+          "distance": 0.007111579988181791,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.43706816392769476,
+          "soft_mask": 0.43706816392769476,
+          "tangent": 0.0
+        }
+      },
+      {
+        "final_objective": 0.5649989422848372,
+        "initial_objective": 0.5697371466459391,
+        "instances": [
+          {
+            "instance_id": "b-loop",
+            "primitive_id": "sas-ascender-loop-01",
+            "residuals": {},
+            "transform": {
+              "dx": 0.0,
+              "dy": 0.0,
+              "scale_x": 38.0,
+              "scale_y": 55.0,
+              "shear_x": 0.0
+            }
+          }
+        ],
+        "objective": 0.5649989422848372,
+        "sample_id": "sas1968-alphabet-U+0062",
+        "terms": {
+          "anchor": 0.0,
+          "bbox": 0.008275864429911942,
+          "complexity": 3.0,
+          "curvature_regularization": 0.0017822317095038725,
+          "distance": 0.03698305941125272,
+          "endpoint": 0.0,
+          "instance_regularization": 0.0,
+          "local_region": 0.5649811199677421,
+          "soft_mask": 0.6758535629867726,
+          "tangent": 0.0
+        }
+      }
+    ],
+    "selection_split": "fit",
+    "worst_member_objective": 0.5649989422848372
+  },
+  "validation": {
+    "mean_objective": null,
+    "policy": "evaluated after fitting; not used for parameter optimization",
+    "samples": [],
+    "worst_member_objective": null
+  },
+  "visual_review": {
+    "region_overlay_count": 4,
+    "scope": "private work directory",
+    "sheet": "overlays/sas-ascender-loop-01/review-sheet.png",
+    "status": "promotion_pending"
+  }
+}

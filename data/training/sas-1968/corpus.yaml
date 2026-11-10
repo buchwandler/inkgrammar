@@ -1,0 +1,138 @@
+format: scriptstrokes-fit-corpus
+format_version: 1
+samples:
+  - id: sas1968-alphabet-U+0069
+    kind: glyph
+    text: "i"
+    observation_id: sas1968-alphabet-U+0069
+    split: fit
+    loss_regions:
+      - id: underturn-body
+        instances: [i-underturn]
+        bbox_source: [0, 10, 39, 57]
+  - id: sas1968-alphabet-U+0075
+    kind: glyph
+    text: "u"
+    observation_id: sas1968-alphabet-U+0075
+    loss_regions:
+      - id: u-underturn-a
+        instances: [u-underturn-a]
+        bbox_source: [0, 0, 29, 41]
+      - id: u-underturn-b
+        instances: [u-underturn-b]
+        bbox_source: [24, 0, 53, 41]
+    split: fit
+  - id: sas1968-alphabet-U+0077
+    kind: glyph
+    text: "w"
+    observation_id: sas1968-alphabet-U+0077
+    split: hold-out
+    loss_regions:
+      - id: w-underturn-a
+        instances: [w-underturn-a]
+        bbox_source: [0, 0, 32, 41]
+      - id: w-underturn-b
+        instances: [w-underturn-b]
+        bbox_source: [25, 0, 57, 41]
+  - id: sas1968-alphabet-U+0041
+    kind: glyph
+    text: "A"
+    observation_id: sas1968-alphabet-U+0041
+    split: fit
+  - id: sas1968-alphabet-U+004D
+    kind: glyph
+    text: "M"
+    observation_id: sas1968-alphabet-U+004D
+    split: fit
+  - id: sas1968-alphabet-U+004E
+    kind: glyph
+    text: "N"
+    observation_id: sas1968-alphabet-U+004E
+    split: hold-out
+  - id: sas1968-alphabet-U+0063
+    kind: glyph
+    text: "c"
+    observation_id: sas1968-alphabet-U+0063
+    split: fit
+    loss_regions:
+      - id: open-oval-core
+        instances: [c-oval]
+        bbox_source: [12, 0, 57, 41]
+  - id: sas1968-alphabet-U+0061
+    kind: glyph
+    text: "a"
+    observation_id: sas1968-alphabet-U+0061
+    split: fit
+    loss_regions:
+      - id: open-oval-core
+        instances: [a-oval]
+        bbox_source: [12, 0, 57, 42]
+  - id: sas1968-alphabet-U+0043
+    kind: glyph
+    text: "C"
+    observation_id: sas1968-alphabet-U+0043
+    split: hold-out
+    loss_regions:
+      - id: open-oval-core
+        instances: [C-oval]
+        bbox_source: [0, 0, 53, 71]
+  - id: sas1968-alphabet-U+006C
+    kind: glyph
+    text: "l"
+    observation_id: sas1968-alphabet-U+006C
+    split: fit
+    loss_regions:
+      - id: ascender-loop
+        instances: [l-loop]
+        bbox_source: [0, 0, 50, 64]
+  - id: sas1968-alphabet-U+0062
+    kind: glyph
+    text: "b"
+    observation_id: sas1968-alphabet-U+0062
+    split: fit
+    loss_regions:
+      - id: ascender-loop
+        instances: [b-loop]
+        bbox_source: [0, 0, 34, 65]
+  - id: sas1968-alphabet-U+006B
+    kind: glyph
+    text: "k"
+    observation_id: sas1968-alphabet-U+006B
+    split: hold-out
+    loss_regions:
+      - id: ascender-loop
+        instances: [k-loop]
+        bbox_source: [0, 0, 34, 62]
+  - id: sas1968-alphabet-U+006E
+    kind: glyph
+    text: "n"
+    observation_id: sas1968-alphabet-U+006E
+    split: fit
+    loss_regions:
+      - id: hump-core
+        instances: [n-hump]
+        bbox_source: [10, 4, 34, 38]
+  - id: sas1968-alphabet-U+006D
+    kind: glyph
+    text: "m"
+    observation_id: sas1968-alphabet-U+006D
+    split: fit
+    loss_regions:
+      - id: first-hump
+        instances: [m-hump-a]
+        bbox_source: [10, 4, 32, 39]
+      - id: second-hump
+        instances: [m-hump-b]
+        bbox_source: [31, 4, 53, 39]
+  - id: sas1968-alphabet-U+0068
+    kind: glyph
+    text: "h"
+    observation_id: sas1968-alphabet-U+0068
+    split: hold-out
+    loss_regions:
+      - id: ascender-loop
+        instances: [h-ascender-loop]
+        bbox_source: [0, 0, 30, 64]
+      - id: hump-core
+        instances: [h-hump]
+        bbox_source: [27, 24, 52, 60]

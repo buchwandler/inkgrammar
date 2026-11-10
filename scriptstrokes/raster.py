@@ -81,6 +81,7 @@ def compare_masks(reference: np.ndarray, generated: np.ndarray) -> dict[str, flo
         "recall": float(intersection / ref_count) if ref_count else 0.0,
     }
 
+
 def compare_anchored_masks(
     reference: np.ndarray,
     generated: np.ndarray,
@@ -101,12 +102,24 @@ def compare_anchored_masks(
         raise ValueError("masks must be two-dimensional")
     scale = generated_pixels_per_reference_pixel
     image = Image.fromarray(generated.astype(np.uint8) * 255)
-    aligned = np.asarray(image.transform(
-        (reference.shape[1], reference.shape[0]), Image.Transform.AFFINE,
-        (scale, 0, generated_anchor[0] - reference_anchor[0] * scale,
-         0, scale, generated_anchor[1] - reference_anchor[1] * scale),
-        resample=Image.Resampling.NEAREST,
-    )) > 0
+    aligned = (
+        np.asarray(
+            image.transform(
+                (reference.shape[1], reference.shape[0]),
+                Image.Transform.AFFINE,
+                (
+                    scale,
+                    0,
+                    generated_anchor[0] - reference_anchor[0] * scale,
+                    0,
+                    scale,
+                    generated_anchor[1] - reference_anchor[1] * scale,
+                ),
+                resample=Image.Resampling.NEAREST,
+            )
+        )
+        > 0
+    )
     intersection = np.logical_and(reference, aligned).sum()
     union = np.logical_or(reference, aligned).sum()
     result = compare_masks(reference, generated)
@@ -116,8 +129,11 @@ def compare_anchored_masks(
         ys, xs = np.nonzero(mask)
         if not len(xs):
             return 0.0, 0.0, (0.0, 0.0)
-        return (float(xs.max() - xs.min() + 1), float(ys.max() - ys.min() + 1),
-                (float(xs.mean()), float(ys.mean())))
+        return (
+            float(xs.max() - xs.min() + 1),
+            float(ys.max() - ys.min() + 1),
+            (float(xs.mean()), float(ys.mean())),
+        )
 
     rw, rh, rc = bounds_and_center(reference)
     gw, gh, gc = bounds_and_center(generated)
@@ -129,7 +145,6 @@ def compare_anchored_masks(
     dy = (gc[1] - generated_anchor[1]) / scale + reference_anchor[1] - rc[1]
     result["center_of_mass_offset"] = float(np.hypot(dx, dy))
     return result
-
 
 
 @dataclass(frozen=True)
@@ -156,8 +171,9 @@ def render_text_frame(
     metrics = model.metrics
     if scale <= 0:
         raise ValueError("render scale must be positive")
-    paths = {stroke.id: sample_path(stroke.d, 18) for stroke in plan.strokes
-             if stroke.d is not None}
+    paths = {
+        stroke.id: sample_path(stroke.d, 18) for stroke in plan.strokes if stroke.d is not None
+    }
     ink_points = [point for points in paths.values() for point in points]
     ink_points.extend(stroke.tap for stroke in plan.strokes if stroke.tap is not None)
     padding = metrics.default_stroke_width / 2 + 1 / scale
@@ -204,8 +220,9 @@ def render_text_mask(
     tension_override: float | None = None,
     scale: float = 0.7,
 ) -> Image.Image:
-    return render_text_frame(model, text, gap_override=gap_override,
-                             tension_override=tension_override, scale=scale).image
+    return render_text_frame(
+        model, text, gap_override=gap_override, tension_override=tension_override, scale=scale
+    ).image
 
 
 def compare_text_to_image(

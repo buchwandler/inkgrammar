@@ -1,4 +1,5 @@
 """Release-safe source observations, independent of private scan files."""
+
 from __future__ import annotations
 
 from typing import Literal

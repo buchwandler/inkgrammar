@@ -1,4 +1,5 @@
 """Release-safe regression fixture declarations and recorded measurements."""
+
 from __future__ import annotations
 
 from typing import Literal
@@ -8,8 +9,13 @@ from pydantic import Field, model_validator
 from .models import StrictModel
 
 RegressionGroup = Literal[
-    "isolated-uppercase", "isolated-lowercase", "digits", "stroke-order-backed",
-    "connection-baseline", "connection-midline", "connection-attached",
+    "isolated-uppercase",
+    "isolated-lowercase",
+    "digits",
+    "stroke-order-backed",
+    "connection-baseline",
+    "connection-midline",
+    "connection-attached",
     "numbered-connection-examples",
 ]
 

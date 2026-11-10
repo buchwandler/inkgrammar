@@ -1,0 +1,361 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Literal
+
+from pydantic import Field, model_validator
+
+from ..models import StrictModel
+
+Point = tuple[float, float]
+
+
+def _path_value(value: object, path: str) -> object:
+    current = value
+    for part in path.split("."):
+        if isinstance(current, Mapping):
+            current = current[part]
+        elif isinstance(current, (list, tuple)):
+            index = {"x": 0, "y": 1}.get(part)
+            current = current[int(part) if index is None else index]
+        else:
+            raise KeyError(path)
+    return current
+
+
+class DuctusModel(StrictModel):
+    units_per_em: int = Field(gt=0, le=16384)
+    baseline: float = 0.0
+    x_height: float
+    cap_height: float
+    ascender: float
+    descender: float
+    slant_degrees: float = Field(ge=-45, le=45)
+    stroke_width: float = Field(gt=0)
+
+    instance_scale_sigma: float = Field(default=0.05, gt=0)
+    instance_shear_sigma: float = Field(default=0.03, gt=0)
+    instance_translation_sigma: float = Field(default=12.0, gt=0)
+
+
+class CubicSegment(StrictModel):
+    c1: Point
+    c2: Point
+    end: Point
+
+
+class PrimitiveFrame(StrictModel):
+    start: Point
+    nominal_end: Point
+
+
+class PrimitiveProvenance(StrictModel):
+    construction: str = "inferred"
+    trajectory: str = "inferred"
+
+
+class PrimitiveTemplate(StrictModel):
+    id: str
+    kind: Literal["cubic-chain"] = "cubic-chain"
+    frame: PrimitiveFrame
+    segments: list[CubicSegment] = Field(min_length=1)
+    free_parameters: list[str] = Field(default_factory=list)
+    locked_parameters: list[str] = Field(default_factory=list)
+    bounds: dict[str, tuple[float, float]] = Field(default_factory=dict)
+    provenance: PrimitiveProvenance = Field(default_factory=PrimitiveProvenance)
+
+    @model_validator(mode="after")
+    def validate_parameterization(self) -> PrimitiveTemplate:
+        free = self.free_parameters
+        locked = self.locked_parameters
+        if len(set(free)) != len(free) or len(set(locked)) != len(locked):
+            raise ValueError("free and locked parameter names must be unique")
+        if set(free) & set(locked):
+            raise ValueError("a parameter cannot be both free and locked")
+        if set(self.bounds) != set(free):
+            raise ValueError("every free parameter must have exactly one bound")
+
+        values = self.model_dump(mode="python")
+        for path in [*free, *locked]:
+            try:
+                value = _path_value(values, path)
+            except (KeyError, IndexError, ValueError) as exc:
+                raise ValueError(f"unknown primitive parameter path: {path}") from exc
+            if path in free:
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise ValueError(f"free parameter must select a numeric coordinate: {path}")
+                lower, upper = self.bounds[path]
+                if not lower < upper:
+                    raise ValueError(f"parameter bounds must be increasing: {path}")
+                if not lower <= value <= upper:
+                    raise ValueError(f"initial value is outside bounds: {path}")
+        return self
+
+
+class PrimitiveInstance(StrictModel):
+    id: str
+    primitive: str
+    scale_x: float = Field(default=1.0, gt=0)
+    scale_y: float = Field(default=1.0, gt=0)
+    shear_x: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+    shape: dict[str, float] = Field(default_factory=dict)
+    residual: dict[str, float] = Field(default_factory=dict)
+
+
+class PrimitiveOccurrence(StrictModel):
+    instance: str
+    primitive: str
+    attach: bool = True
+
+
+class GlyphStroke(StrictModel):
+    id: str
+    parts: list[PrimitiveOccurrence] = Field(min_length=1)
+
+
+class GlyphEndpoint(StrictModel):
+    instance: str
+    endpoint: Literal["start", "end"]
+    class_: str = Field(alias="class")
+
+
+class GlyphRecipe(StrictModel):
+    character: str = Field(min_length=1)
+    advance_width: float = Field(gt=0)
+    strokes: list[GlyphStroke] = Field(min_length=1)
+    entry: GlyphEndpoint | None = None
+    exit: GlyphEndpoint | None = None
+
+
+class FitAnchors(StrictModel):
+    baseline_y: float | None = None
+    origin_x: float | None = None
+    x_height_y: float | None = None
+    ascender_y: float | None = None
+
+
+class FitLossRegion(StrictModel):
+    id: str
+    instances: list[str] = Field(min_length=1)
+    bbox_source: tuple[float, float, float, float]
+
+    @model_validator(mode="after")
+    def validate_bbox(self) -> FitLossRegion:
+        x0, y0, x1, y1 = self.bbox_source
+        if not (0 <= x0 < x1 and 0 <= y0 < y1):
+            raise ValueError("loss region bbox must have positive dimensions")
+        return self
+
+
+class FitSample(StrictModel):
+    id: str
+    kind: Literal["glyph", "word"]
+    text: str = Field(min_length=1)
+    observation_id: str
+    split: Literal["fit", "validation", "hold-out"]
+    anchors: FitAnchors = Field(default_factory=FitAnchors)
+    active_instances: list[str] = Field(default_factory=list)
+    loss_regions: list[FitLossRegion] = Field(default_factory=list)
+    weight: float = Field(default=1.0, gt=0)
+
+
+class FitCorpus(StrictModel):
+    format: Literal["scriptstrokes-fit-corpus"] = "scriptstrokes-fit-corpus"
+    format_version: Literal[1] = 1
+    samples: list[FitSample] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_sample_ids(self) -> FitCorpus:
+        ids = [sample.id for sample in self.samples]
+        if len(set(ids)) != len(ids):
+            raise ValueError("duplicate fit sample id")
+        return self
+
+
+class FitCompileConfig(StrictModel):
+    output: str
+    runtime_schema_version: Literal[2] = 2
+
+
+class FitProject(StrictModel):
+    format: Literal["scriptstrokes-fit-project"] = "scriptstrokes-fit-project"
+    format_version: Literal[1] = 1
+    id: str
+    runtime_model_id: str
+    source_lock: str
+    observation_manifest: str
+    corpus: str
+    families: str
+    topology: str
+    anchors: str
+    fit_config: str
+    seed_grammar: str
+    private_work_dir: str
+    compile: FitCompileConfig
+
+
+class ScriptGrammar(StrictModel):
+    id: str
+    ductus: DuctusModel
+    primitives: dict[str, PrimitiveTemplate] = Field(default_factory=dict)
+    glyphs: dict[str, GlyphRecipe] = Field(default_factory=dict)
+    instances: dict[str, PrimitiveInstance] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_references(self) -> ScriptGrammar:
+        for key, primitive in self.primitives.items():
+            if key != primitive.id:
+                raise ValueError(f"primitive key does not match id: {key}")
+        for key, instance in self.instances.items():
+            if key != instance.id:
+                raise ValueError(f"instance key does not match id: {key}")
+            if instance.primitive not in self.primitives:
+                raise ValueError(f"instance references unknown primitive: {instance.primitive}")
+        for key, glyph in self.glyphs.items():
+            if key != glyph.character:
+                raise ValueError(f"glyph key does not match character: {key}")
+            for stroke in glyph.strokes:
+                for occurrence in stroke.parts:
+                    if occurrence.instance not in self.instances:
+                        raise ValueError(
+                            f"glyph references unknown instance: {occurrence.instance}"
+                        )
+                    if self.instances[occurrence.instance].primitive != occurrence.primitive:
+                        raise ValueError(
+                            f"glyph instance primitive mismatch: {occurrence.instance}"
+                        )
+        return self
+
+
+class SourceLockSource(StrictModel):
+    id: str
+    expected_filename: str
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    width_px: int = Field(gt=0)
+    height_px: int = Field(gt=0)
+    redistribution: Literal["private-until-reviewed"] = "private-until-reviewed"
+
+
+class SourceLockFile(StrictModel):
+    format: Literal["scriptstrokes-source-lock"] = "scriptstrokes-source-lock"
+    format_version: Literal[1] = 1
+    sources: list[SourceLockSource] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_source_ids(self) -> SourceLockFile:
+        ids = [source.id for source in self.sources]
+        filenames = [source.expected_filename for source in self.sources]
+        if any(
+            not filename
+            or filename in {".", ".."}
+            or "/" in filename
+            or chr(92) in filename
+            or any(ord(character) < 32 for character in filename)
+            for filename in filenames
+        ):
+            raise ValueError("source filenames must be simple basenames")
+        if len(set(ids)) != len(ids) or len(set(filenames)) != len(filenames):
+            raise ValueError("source IDs and filenames must be unique")
+        return self
+
+
+class FamilyDefinition(StrictModel):
+    id: str
+    primitive: str
+    fit: list[str] = Field(default_factory=list)
+    validation: list[str] = Field(default_factory=list)
+    hold_out: list[str] = Field(default_factory=list)
+    review_status: Literal["pending", "provisional", "reviewed", "uncertain"] = "provisional"
+    construction_evidence: str = "inferred"
+    trajectory_evidence: str = "inferred"
+
+    @model_validator(mode="after")
+    def validate_split_membership(self) -> FamilyDefinition:
+        members = [*self.fit, *self.validation, *self.hold_out]
+        if len(set(members)) != len(members):
+            raise ValueError("family sample splits must be disjoint")
+        return self
+
+
+class FitFamiliesFile(StrictModel):
+    format: Literal["scriptstrokes-fit-families"] = "scriptstrokes-fit-families"
+    format_version: Literal[1] = 1
+    families: list[FamilyDefinition] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_family_ids(self) -> FitFamiliesFile:
+        ids = [family.id for family in self.families]
+        if len(set(ids)) != len(ids):
+            raise ValueError("duplicate fit family id")
+        return self
+
+
+class TopologyTransform(StrictModel):
+    scale_x: float = Field(default=1.0, gt=0)
+    scale_y: float = Field(default=1.0, gt=0)
+    shear_x: float = 0.0
+    dx: float = 0.0
+    dy: float = 0.0
+
+
+class TopologyPart(StrictModel):
+    instance: str
+    primitive: str
+    attach: bool = True
+    transform: TopologyTransform = Field(default_factory=TopologyTransform)
+
+
+class TopologyStroke(StrictModel):
+    id: str
+    parts: list[TopologyPart] = Field(min_length=1)
+
+
+class TopologyGlyph(StrictModel):
+    character: str = Field(min_length=1)
+    advance_width: float = Field(gt=0)
+    strokes: list[TopologyStroke] = Field(min_length=1)
+    review_status: Literal["pending", "provisional", "reviewed", "uncertain"] = "provisional"
+    notes: str | None = None
+
+
+class FitTopologyFile(StrictModel):
+    format: Literal["scriptstrokes-fit-topology"] = "scriptstrokes-fit-topology"
+    format_version: Literal[1] = 1
+    glyphs: dict[str, TopologyGlyph] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_glyph_keys(self) -> FitTopologyFile:
+        for key, glyph in self.glyphs.items():
+            if key != glyph.character:
+                raise ValueError(f"topology glyph key does not match character: {key}")
+        return self
+
+
+class FitAnchorRecord(StrictModel):
+    source_id: str
+    source_bbox: tuple[int, int, int, int]
+    origin_x: float
+    baseline_y: float
+    review_status: Literal["pending", "provisional", "reviewed"] = "pending"
+    reviewed_by: str | None = None
+    review_method: str | None = None
+
+    @model_validator(mode="after")
+    def validate_anchor(self) -> FitAnchorRecord:
+        x0, y0, x1, y1 = self.source_bbox
+        if not (0 <= x0 < x1 and 0 <= y0 < y1):
+            raise ValueError("anchor source_bbox must have positive dimensions")
+        if not (0 <= self.origin_x <= x1 - x0 and 0 <= self.baseline_y <= y1 - y0):
+            raise ValueError("anchor coordinates must be inside the source crop")
+        if self.review_status == "reviewed" and not (self.reviewed_by and self.review_method):
+            raise ValueError("reviewed anchors require reviewer and method")
+        return self
+
+
+class FitAnchorsFile(StrictModel):
+    format: Literal["scriptstrokes-fit-anchors"] = "scriptstrokes-fit-anchors"
+    format_version: Literal[1] = 1
+    coordinate_frame: str
+    samples: dict[str, FitAnchorRecord] = Field(default_factory=dict)

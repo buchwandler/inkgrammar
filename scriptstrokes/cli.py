@@ -18,9 +18,11 @@ from .release import build_release
 app = typer.Typer(no_args_is_help=True, help="ScriptStrokes writing-model tools.")
 page_app = typer.Typer(no_args_is_help=True, help="Scan-page extraction tools.")
 model_app = typer.Typer(no_args_is_help=True, help="Writing-model tools.")
+fit_app = typer.Typer(no_args_is_help=True, help="Hierarchical handwriting fitting tools.")
 app.add_typer(page_app, name="page")
 app.add_typer(model_app, name="model")
 app.add_typer(data_app, name="data")
+app.add_typer(fit_app, name="fit")
 
 
 @app.command()
@@ -80,10 +82,16 @@ def model_coverage_command(
     root = model.parent.parent
     observation_path = root / "observations" / loaded.id / "manifest.json"
     regression_path = root / "regressions" / loaded.id / "manifest.json"
-    observations = (ObservationManifest.model_validate_json(observation_path.read_text())
-                    if observation_path.exists() else None)
-    regressions = (RegressionManifest.model_validate_json(regression_path.read_text())
-                   if regression_path.exists() else None)
+    observations = (
+        ObservationManifest.model_validate_json(observation_path.read_text())
+        if observation_path.exists()
+        else None
+    )
+    regressions = (
+        RegressionManifest.model_validate_json(regression_path.read_text())
+        if regression_path.exists()
+        else None
+    )
     report = model_coverage(loaded, observations=observations, regressions=regressions)
     if format_ == "json":
         typer.echo(json.dumps(report, ensure_ascii=False, indent=2))
@@ -162,9 +170,105 @@ def build_release_command(
 ) -> None:
     """Build a consumer-only JSON/schema/QC release ZIP."""
     release_root, archive = build_release(
-        models, output, version, requires_scriptstrokes=requires_scriptstrokes,
+        models,
+        output,
+        version,
+        requires_scriptstrokes=requires_scriptstrokes,
         git_commit=git_commit,
     )
     typer.echo(f"Built {release_root}")
     typer.echo(f"Built {archive}")
     typer.echo(f"Built {archive.with_suffix('.zip.sha256')}")
+
+
+@fit_app.command("validate-project")
+def fit_validate_project(
+    project: Path = typer.Argument(..., exists=True),  # noqa: B008
+) -> None:
+    """Validate the source-free fitting project and all referenced metadata."""
+    from .fitting.workspace import load_fit_project
+
+    try:
+        bundle = load_fit_project(project)
+    except (OSError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(
+        f"Validated {bundle.project.id}: {len(bundle.source_lock.sources)} source locks, "
+        f"{len(bundle.corpus.samples)} samples, {len(bundle.grammar.primitives)} primitives, "
+        f"{len(bundle.topology.glyphs)} topology glyphs"
+    )
+
+
+@fit_app.command("materialize")
+def fit_materialize(
+    project: Path = typer.Argument(..., exists=True),  # noqa: B008
+    source_dir: Path = typer.Option(..., "--source-dir", exists=True, file_okay=False),  # noqa: B008
+    work_dir: Path | None = typer.Option(None, "--work-dir"),  # noqa: B008
+) -> None:
+    """Verify private source locks and regenerate crops, masks, fields, and review sheet."""
+    from .fitting.workspace import load_fit_project, materialize_fit_project
+
+    try:
+        bundle = load_fit_project(project)
+        result = materialize_fit_project(bundle, source_dir, work_dir=work_dir)
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(
+        f"Materialized {result.sample_count} samples from {result.source_count} locked sources "
+        f"into {result.output_dir} ({result.artifact_count} artifacts)"
+    )
+
+
+@fit_app.command("optimize-primitive")
+def fit_optimize_primitive(
+    project: Path = typer.Argument(..., exists=True),  # noqa: B008
+    primitive: str = typer.Argument(...),
+    resume: bool = typer.Option(False, "--resume"),  # noqa: B008
+) -> None:
+    """Fit a shared primitive from its fit-split glyph samples."""
+    from .fitting.family_fit import optimize_primitive_family
+    from .fitting.workspace import load_fit_project
+
+    try:
+        bundle = load_fit_project(project)
+        artifacts = optimize_primitive_family(bundle, primitive, resume=resume)
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    training = artifacts.report["training"]
+    typer.echo(
+        f"Fitted {primitive}: training objective "
+        f"{training['initial_objective']:.6f} -> {training['final_objective']:.6f}"
+    )
+    typer.echo(f"Checkpoint: {artifacts.checkpoint_path}")
+    typer.echo(f"Report: {artifacts.json_report_path}")
+    typer.echo(f"Visual review sheet: {artifacts.private_review_sheet_path}")
+
+
+@fit_app.command("report")
+def fit_report(
+    project: Path = typer.Argument(..., exists=True),  # noqa: B008
+    report_format: str = typer.Option("markdown", "--format"),  # noqa: B008
+) -> None:
+    """Print generated primitive-fit reports without loading private source imagery."""
+    from .fitting.family_fit import load_fit_reports
+    from .fitting.workspace import load_fit_project
+
+    if report_format not in {"json", "markdown"}:
+        raise typer.BadParameter("--format must be json or markdown")
+    try:
+        bundle = load_fit_project(project)
+        reports = load_fit_reports(bundle)
+        if not reports:
+            typer.echo("No fit reports found.")
+        elif report_format == "json":
+            typer.echo(json.dumps(reports, ensure_ascii=False, indent=2, sort_keys=True))
+        else:
+            for index, report in enumerate(reports):
+                if index:
+                    typer.echo("")
+                report_path = bundle.project_dir / "reports" / f"{report['primitive_id']}.md"
+                if report_path.is_symlink():
+                    raise ValueError("fit report must not be a symlink")
+                typer.echo(report_path.read_text(encoding="utf-8"))
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc

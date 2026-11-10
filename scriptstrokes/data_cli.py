@@ -1,4 +1,5 @@
 """Commands for explicit runtime data installation and inspection."""
+
 import typer
 
 from .data import (

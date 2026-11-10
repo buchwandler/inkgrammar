@@ -1,0 +1,16 @@
+format: scriptstrokes-fit-project
+format_version: 1
+id: sas-1968
+runtime_model_id: sas-1968
+source_lock: source-lock.json
+observation_manifest: ../../observations/sas-1968/manifest.json
+corpus: corpus.yaml
+families: families.yaml
+topology: topology.yaml
+anchors: anchors.json
+fit_config: fit-config.yaml
+seed_grammar: seed-grammar.yaml
+private_work_dir: ../../../work/sas-1968
+compile:
+  output: ../../models/sas-1968.yaml
+  runtime_schema_version: 2

@@ -26,10 +26,16 @@ def server(tmp_path, monkeypatch):
     base = f"http://127.0.0.1:{httpd.server_port}"
     monkeypatch.setenv("SCRIPTSTROKES_DATA_BASE_URL", base)
     monkeypatch.setenv("SCRIPTSTROKES_DATA_DIR", str(tmp_path / "cache"))
-    (public / "latest.json").write_text(json.dumps({
-        "tag_name": "v0.1.0", "assets": [{"name": archive.name,
-        "browser_download_url": f"{base}/v0.1.0/{archive.name}"}],
-    }))
+    (public / "latest.json").write_text(
+        json.dumps(
+            {
+                "tag_name": "v0.1.0",
+                "assets": [
+                    {"name": archive.name, "browser_download_url": f"{base}/v0.1.0/{archive.name}"}
+                ],
+            }
+        )
+    )
     yield archive
     httpd.shutdown()
     httpd.server_close()
@@ -49,8 +55,9 @@ def test_install_and_load_offline(server, monkeypatch):
     root = data.install_release("0.1.0")
     assert root.is_dir()
     assert data.list_installed_releases() == ["0.1.0"]
-    monkeypatch.setattr(data.urllib.request, "urlopen",
-                        lambda *a, **k: pytest.fail("unexpected network"))
+    monkeypatch.setattr(
+        data.urllib.request, "urlopen", lambda *a, **k: pytest.fail("unexpected network")
+    )
     assert data.verify_release("0.1.0") == root
     assert data.load_released_model("demo-looped", release="0.1.0").id == "demo-looped"
     assert data.load_released_model("demo-looped", release="latest").id == "demo-looped"
@@ -98,10 +105,18 @@ def test_internal_corruption_rejected_atomically(server):
     assert not list((data.data_cache_dir() / "releases").iterdir())
 
 
-@pytest.mark.parametrize("name", [
-    "../escape", "/absolute", "C:/absolute", "root/../../escape", "root\\escape",
-    "scriptstrokes-data-0.1.0/../escape", "unexpected-root/file",
-])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "../escape",
+        "/absolute",
+        "C:/absolute",
+        "root/../../escape",
+        "root\\escape",
+        "scriptstrokes-data-0.1.0/../escape",
+        "unexpected-root/file",
+    ],
+)
 def test_unsafe_paths_rejected(server, name):
     rewrite_archive(server, {name: b"unsafe"})
     with pytest.raises(ValueError, match="unsafe|unexpected"):
@@ -130,8 +145,9 @@ def test_installed_corruption_rejected(server):
 
 
 def test_incompatible_release_rejected(server):
-    build_release(["data/models/demo-looped.yaml"], server.parent, "0.1.0",
-                  requires_scriptstrokes=">=999")
+    build_release(
+        ["data/models/demo-looped.yaml"], server.parent, "0.1.0", requires_scriptstrokes=">=999"
+    )
     with pytest.raises(ValueError, match="incompatible"):
         data.install_release("0.1.0")
     assert not (data.data_cache_dir() / "releases" / "0.1.0").exists()
@@ -150,8 +166,13 @@ def test_cli(server):
     assert result.exit_code == 0, result.output
     assert "Release URL:" in result.output
     assert "checksums verified" in result.output
-    for args in (["list"], ["path", "0.1.0"], ["verify", "0.1.0"],
-                 ["model", "demo-looped", "--release", "0.1.0"], ["remove", "0.1.0"]):
+    for args in (
+        ["list"],
+        ["path", "0.1.0"],
+        ["verify", "0.1.0"],
+        ["model", "demo-looped", "--release", "0.1.0"],
+        ["remove", "0.1.0"],
+    ):
         result = runner.invoke(app, ["data", *args])
         assert result.exit_code == 0, result.output
 
@@ -163,8 +184,11 @@ def test_v3_release_deterministic_and_self_contained(tmp_path):
     assert json.loads((root / "manifest.json").read_text())["format_version"] == 3
     assert (root / "schemas/observation.schema.json").is_file()
     assert (root / "schemas/regression.schema.json").is_file()
-    assert first.with_suffix(".zip.sha256").read_text().startswith(
-        hashlib.sha256(first.read_bytes()).hexdigest())
+    assert (
+        first.with_suffix(".zip.sha256")
+        .read_text()
+        .startswith(hashlib.sha256(first.read_bytes()).hexdigest())
+    )
     assert not list(root.rglob("*.png"))
 
 
