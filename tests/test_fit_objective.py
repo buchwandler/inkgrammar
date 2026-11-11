@@ -105,6 +105,17 @@ def test_instance_regularization_penalizes_large_transform_and_residuals():
     assert result.total > 0
 
 
+def test_objective_v3_rejects_legacy_raster_weights_and_settings():
+    with pytest.raises(ValueError, match="legacy raster weights"):
+        ObjectiveConfig.model_validate({"version": 3, "weights": {"distance": 1.0}})
+
+    with pytest.raises(ValueError, match="legacy geometry settings"):
+        ObjectiveConfig.model_validate({"version": 3, "geometry": {"path_to_ink": 1.0}})
+
+    with pytest.raises(ValueError, match="require objective v3"):
+        ObjectiveConfig.model_validate({"version": 2, "centerline": {"sample_schedule": [8, 16]}})
+
+
 def test_objective_config_is_versioned_and_weights_are_nonnegative():
     assert ObjectiveConfig().version == 1
     with pytest.raises(ValidationError):

@@ -59,6 +59,7 @@ dev = [
 ]
 fit = [
   "scipy>=1.11",
+  "scikit-image>=0.26,<0.27",
 ]
 
 [project.scripts]

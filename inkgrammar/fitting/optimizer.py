@@ -2,19 +2,24 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Literal
+from pathlib import Path
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import Field
 
 from ..models import StrictModel
-from .checkpoint import CheckpointIteration, FitCheckpoint
+from .checkpoint import CheckpointIteration, FitCheckpoint, summarize_trace
 from .parameterization import ParameterSpace
 
 
 class OptimizerConfig(StrictModel):
     method: Literal[
-        "powell", "differential_evolution+powell", "least_squares", "alternating-least-squares"
+        "powell",
+        "differential_evolution+powell",
+        "least_squares",
+        "alternating-least-squares",
+        "centerline-em-trf",
     ] = "powell"
     seed: int = Field(default=1968, ge=0)
     max_iterations: int = Field(default=200, gt=0)
@@ -52,6 +57,8 @@ def _backend(config: OptimizerConfig) -> str:
         return "scipy-powell"
     if config.method == "least_squares":
         return "scipy-least-squares-trf"
+    if config.method == "centerline-em-trf":
+        return "inkgrammar-centerline-em-trf"
     if config.method == "alternating-least-squares":
         return "inkgrammar-alternating-least-squares"
     return "scipy-differential-evolution+powell"
@@ -100,6 +107,7 @@ def optimize_parameters(
     initial: Sequence[float] | np.ndarray | None = None,
     config: OptimizerConfig | None = None,
     prior_history: Sequence[CheckpointIteration] = (),
+    jac_sparsity: Any | None = None,
 ) -> OptimizationResult:
     """Minimize a bounded scalar objective or a residual vector."""
     config = config or OptimizerConfig()
@@ -168,7 +176,7 @@ def optimize_parameters(
         )
 
     if not names:
-        if config.method in {"least_squares", "alternating-least-squares"}:
+        if config.method in {"least_squares", "alternating-least-squares", "centerline-em-trf"}:
             residuals = evaluate_residuals(optimizer_start)
             value = _least_squares_cost(residuals, config.loss, config.f_scale)
         else:
@@ -201,7 +209,7 @@ def optimize_parameters(
         )
         optimizer_start = np.asarray(coarse.x, dtype=float)
 
-    if config.method in {"least_squares", "alternating-least-squares"}:
+    if config.method in {"least_squares", "alternating-least-squares", "centerline-em-trf"}:
         refined = least_squares(
             evaluate_residuals,
             optimizer_start,
@@ -214,6 +222,7 @@ def optimize_parameters(
             ftol=config.tolerance,
             xtol=config.tolerance,
             gtol=config.tolerance,
+            jac_sparsity=jac_sparsity,
         )
         solver_parameters = raw_candidate(refined.x)
         residuals = evaluate_residuals(refined.x)
@@ -260,6 +269,7 @@ def resume_optimization(
             "scipy-powell": "powell",
             "scipy-differential-evolution+powell": "differential_evolution+powell",
             "scipy-least-squares-trf": "least_squares",
+            "inkgrammar-centerline-em-trf": "centerline-em-trf",
         }
         try:
             method = methods[checkpoint.optimizer.backend]
@@ -271,7 +281,6 @@ def resume_optimization(
         objective,
         initial=initial,
         config=config,
-        prior_history=checkpoint.history,
     )
 
 
@@ -284,16 +293,41 @@ def checkpoint_from_result(
     """Build a portable checkpoint from accepted numeric optimization state."""
     if set(checkpoint.parameters) != set(result.parameter_names):
         raise ValueError("checkpoint parameter names do not match optimization result")
+    trace_summary = summarize_trace(result.history, checkpoint.trace_summary)
     updates = {
         "parameters": dict(zip(result.parameter_names, result.parameters.tolist(), strict=True)),
         "training_metrics": {
             **checkpoint.training_metrics,
             "objective": result.objective,
         },
-        "history": list(result.history),
+        "progress": checkpoint.progress.model_copy(
+            update={"evaluations": trace_summary.evaluations}
+        ),
+        "trace_summary": trace_summary,
     }
     if config is not None:
         updates["optimizer"] = checkpoint.optimizer.model_copy(
             update={"backend": _backend(config), "seed": config.seed}
         )
     return checkpoint.model_copy(update=updates)
+
+
+def save_optimization_trace(result: OptimizationResult, path: str | Path) -> None:
+    """Write an optional debug trace to a private path under ignored work/."""
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    history = result.history
+    parameters = np.asarray(
+        [[item.parameters[name] for name in result.parameter_names] for item in history],
+        dtype=np.float32,
+    ).reshape(len(history), len(result.parameter_names))
+    accepted = np.zeros(len(history), dtype=bool)
+    if history:
+        accepted[result.accepted_history_index] = True
+    with destination.open("wb") as stream:
+        np.savez_compressed(
+            stream,
+            objective=np.asarray([item.objective for item in history], dtype=np.float64),
+            parameters=parameters,
+            accepted=accepted,
+        )

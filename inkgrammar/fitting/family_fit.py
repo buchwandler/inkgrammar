@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 from PIL import Image, ImageDraw
+from scipy.ndimage import convolve, distance_transform_edt
+from skimage.morphology import skeletonize
 
 from .. import __version__
 from .checkpoint import (
@@ -233,6 +235,87 @@ def _evaluate_sample(
     )
 
 
+def _skeleton_endpoints(skeleton: np.ndarray) -> np.ndarray:
+    neighbors = convolve(
+        skeleton.astype(np.uint8),
+        np.ones((3, 3), dtype=np.uint8),
+        mode="constant",
+    )
+    return np.argwhere(skeleton & (neighbors - skeleton == 1))
+
+
+def _skeleton_tangents(skeleton: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    coordinates = np.argwhere(skeleton)
+    tangent_map = np.zeros((*skeleton.shape, 2), dtype=np.float32)
+    valid = np.zeros(skeleton.shape, dtype=bool)
+    for coordinate in coordinates:
+        local = coordinates[np.max(np.abs(coordinates - coordinate), axis=1) <= 2]
+        if len(local) < 2:
+            continue
+        centered = local - local.mean(axis=0)
+        _, _, vectors = np.linalg.svd(centered, full_matrices=False)
+        key = tuple(coordinate)
+        tangent_map[key] = vectors[0]
+        valid[key] = True
+    return tangent_map, valid
+
+
+def _skeleton_tangent_rms(target: np.ndarray, generated: np.ndarray) -> float | None:
+    target_tangents, target_valid = _skeleton_tangents(target)
+    generated_tangents, generated_valid = _skeleton_tangents(generated)
+    points = np.argwhere(generated_valid)
+    if not len(points) or not np.any(target_valid):
+        return None
+    nearest = distance_transform_edt(~target_valid, return_indices=True)[1]
+    angles = []
+    for y, x in points:
+        target_tangent = target_tangents[nearest[0, y, x], nearest[1, y, x]]
+        generated_tangent = generated_tangents[y, x]
+        cosine = abs(float(np.dot(target_tangent, generated_tangent)))
+        angles.append(float(np.arccos(np.clip(cosine, 0.0, 1.0))))
+    return float(np.sqrt(np.mean(np.square(angles))))
+
+
+def _overlay_diagnostics(
+    reference_ink: np.ndarray,
+    generated_ink: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, dict[str, float | None]]:
+    target_skeleton = skeletonize(reference_ink)
+    generated_skeleton = skeletonize(generated_ink)
+    if np.any(reference_ink) and np.any(generated_ink):
+        candidate_distances = distance_transform_edt(~reference_ink)[generated_ink]
+        target_distances = distance_transform_edt(~generated_ink)[reference_ink]
+        coverage = float(np.mean(target_distances <= 2.0))
+        candidate_p95 = float(np.percentile(candidate_distances, 95))
+        target_p95 = float(np.percentile(target_distances, 95))
+    else:
+        coverage = 0.0
+        candidate_p95 = None
+        target_p95 = None
+    target_endpoints = _skeleton_endpoints(target_skeleton)
+    generated_endpoints = _skeleton_endpoints(generated_skeleton)
+    if len(target_endpoints) and len(generated_endpoints):
+        distances = np.linalg.norm(
+            target_endpoints[:, None, :] - generated_endpoints[None, :, :], axis=2
+        )
+        endpoint_values = np.concatenate((distances.min(axis=0), distances.min(axis=1)))
+        endpoint_rms = float(np.sqrt(np.mean(endpoint_values**2)))
+    else:
+        endpoint_rms = None
+    metrics = {
+        "curve_to_target_p95_px": candidate_p95,
+        "target_to_curve_p95_px": target_p95,
+        "endpoint_rms_px": endpoint_rms,
+        "tangent_rms_rad": _skeleton_tangent_rms(target_skeleton, generated_skeleton),
+        "assigned_coverage": coverage,
+    }
+    return target_skeleton, generated_skeleton, metrics
+
+
+def _metric_text(value: float | None, unit: str = "px") -> str:
+    return "n/a" if value is None else f"{value:.1f} {unit}"
+
+
 def _write_private_overlays(
     bundle: FitProjectBundle,
     primitive_id: str,
@@ -251,7 +334,7 @@ def _write_private_overlays(
         raise ValueError("private primitive overlay directory must not be a symlink")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    images: list[tuple[str, Image.Image]] = []
+    images: list[tuple[str, Image.Image, dict[str, float | None]]] = []
     for prepared in samples:
         deltas = (occurrence_deltas or {}).get(prepared.sample.id)
         variants = (
@@ -273,42 +356,65 @@ def _write_private_overlays(
                 region_mask = mask[top:bottom, left:right] > 0
                 reference_ink = (region_reference > 0.05) & region_mask
                 generated_ink = (region_generated > 0.05) & region_mask
+                target_skeleton, generated_skeleton, metrics = _overlay_diagnostics(
+                    reference_ink, generated_ink
+                )
                 overlay = np.full((*region_reference.shape, 3), 255, dtype=np.uint8)
                 overlay[reference_ink] = (220, 40, 40)
                 overlay[generated_ink] = (40, 70, 220)
                 overlay[reference_ink & generated_ink] = (30, 30, 30)
-                label = f"{prepared.sample.id} | {region_id}"
-                if include_nominal:
-                    label = f"{label} | {variant}"
-                image = Image.fromarray(overlay)
-                scale = 4
-                enlarged = image.resize(
-                    (image.width * scale, image.height * scale), Image.Resampling.NEAREST
+                overlay[target_skeleton] = (20, 160, 60)
+                overlay[generated_skeleton] = (200, 30, 180)
+                label = (
+                    f"{prepared.sample.text} / {region_id} / {prepared.sample.split} / {variant}"
                 )
-                labeled = Image.new("RGB", (enlarged.width, enlarged.height + 20), "white")
-                ImageDraw.Draw(labeled).text((2, 2), label, fill="black")
-                labeled.paste(enlarged, (0, 20))
+                image = Image.fromarray(overlay)
                 suffix = f"--{variant}" if include_nominal else ""
                 output_path = output_dir / f"{prepared.sample.id}--{region_id}{suffix}.png"
                 if output_path.is_symlink():
                     raise ValueError("private overlay output must not be a symlink")
-                labeled.save(output_path, format="PNG", optimize=False, compress_level=9)
-                images.append((label, labeled))
+                image.save(output_path, format="PNG", optimize=False, compress_level=9)
+                image = image.resize((image.width * 4, image.height * 4), Image.Resampling.NEAREST)
+                images.append((label, image, metrics))
 
-    columns, cell_width, cell_height = 3, 180, 120
+    columns, cell_width, cell_height = 2, 360, 260
     rows = (len(images) + columns - 1) // columns
-    sheet = Image.new("RGB", (columns * cell_width, rows * cell_height), "white")
+    sheet = Image.new("RGB", (columns * cell_width, rows * cell_height + 28), "white")
     draw = ImageDraw.Draw(sheet)
-    for index, (label, image) in enumerate(images):
+    for index, (label, image, metrics) in enumerate(images):
         column, row = index % columns, index // columns
         left, top = column * cell_width, row * cell_height
-        draw.text((left + 4, top + 3), label, fill="black")
+        draw.text((left + 5, top + 4), label, fill="black")
         thumbnail = image.copy()
-        thumbnail.thumbnail((cell_width - 8, cell_height - 24), Image.Resampling.NEAREST)
+        thumbnail.thumbnail((cell_width - 12, 178), Image.Resampling.NEAREST)
         sheet.paste(
             thumbnail,
-            (left + (cell_width - thumbnail.width) // 2, top + 20),
+            (left + (cell_width - thumbnail.width) // 2, top + 22),
         )
+        draw.text(
+            (left + 5, top + 204),
+            f"curve->target p95: {_metric_text(metrics['curve_to_target_p95_px'])}  "
+            f"target->curve p95: {_metric_text(metrics['target_to_curve_p95_px'])}",
+            fill="black",
+        )
+        draw.text(
+            (left + 5, top + 220),
+            f"endpoint RMS: {_metric_text(metrics['endpoint_rms_px'])}  "
+            f"tangent RMS: {_metric_text(metrics['tangent_rms_rad'], 'rad')}",
+            fill="black",
+        )
+        draw.text(
+            (left + 5, top + 236),
+            f"assigned coverage: {_metric_text(metrics['assigned_coverage'], '')}",
+            fill="black",
+        )
+    legend_y = rows * cell_height + 8
+    draw.text(
+        (6, legend_y),
+        "Red: assigned reference   Blue: generated   Black: overlap   "
+        "Green: target trace   Magenta: generated centerline",
+        fill="black",
+    )
     sheet_path = output_dir / "review-sheet.png"
     if sheet_path.is_symlink():
         raise ValueError("private overlay sheet must not be a symlink")
@@ -546,6 +652,10 @@ def optimize_primitive_family(
         from .family_fit_v2 import optimize_primitive_family_v2
 
         return optimize_primitive_family_v2(bundle, primitive_id, resume=resume)
+    if bundle.fit_config.objective.version == 3:
+        from .family_fit_v3 import optimize_primitive_family_v3
+
+        return optimize_primitive_family_v3(bundle, primitive_id, resume=resume)
     family = next(
         (family for family in bundle.families.families if family.primitive == primitive_id),
         None,

@@ -18,6 +18,7 @@ from .checkpoint import (
     FitCheckpoint,
     load_checkpoint,
     save_checkpoint,
+    summarize_trace,
     validate_checkpoint_objective_version,
 )
 from .family_fit import (
@@ -647,7 +648,6 @@ def optimize_primitive_family_v2(
         start_template, states = occurrence_space.decode(start_vector, template)
         state_by_id = {state.instance_id: state for state in states}
         start_occurrences = [replace(item, state=state_by_id[item.key]) for item in occurrences]
-        prior_history = list(checkpoint.history)
 
     selected_template = start_template
     selected_occurrences = start_occurrences
@@ -893,6 +893,7 @@ def optimize_primitive_family_v2(
             ),
             parameters=initial_parameters,
         )
+    trace_summary = summarize_trace(solver_history, checkpoint.trace_summary)
     checkpoint_update = checkpoint.model_copy(
         update={
             "inputs": inputs,
@@ -909,7 +910,10 @@ def optimize_primitive_family_v2(
                 "initial_objective": initial_score,
                 "mean_objective": float(member_summary["mean_objective"] or 0.0),
             },
-            "history": solver_history,
+            "progress": checkpoint.progress.model_copy(
+                update={"evaluations": trace_summary.evaluations}
+            ),
+            "trace_summary": trace_summary,
         }
     )
     save_checkpoint(checkpoint_update, checkpoint_path)

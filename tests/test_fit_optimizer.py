@@ -1,13 +1,18 @@
 import numpy as np
 import pytest
 
-from inkgrammar.fitting.checkpoint import FitCheckpoint
+from inkgrammar.fitting.checkpoint import (
+    FitCheckpoint,
+    FitCheckpointV1,
+    migrate_checkpoint_v1,
+)
 from inkgrammar.fitting.models import PrimitiveTemplate
 from inkgrammar.fitting.optimizer import (
     OptimizerConfig,
     checkpoint_from_result,
     optimize_parameters,
     resume_optimization,
+    save_optimization_trace,
 )
 from inkgrammar.fitting.parameterization import ParameterSpace
 
@@ -88,7 +93,7 @@ def test_differential_evolution_initialization_is_seeded_and_dimension_bounded()
         )
 
 
-def test_checkpoint_resume_uses_accepted_parameters_and_preserves_history():
+def test_checkpoint_resume_uses_accepted_parameters_without_persisting_history():
     space = ParameterSpace.from_primitive(primitive())
     objective = quadratic
     start = checkpoint({"segments.0.c1.x": 0.1, "segments.0.c1.y": 0.4})
@@ -98,9 +103,60 @@ def test_checkpoint_resume_uses_accepted_parameters_and_preserves_history():
     resumed = resume_optimization(stored, space, objective)
 
     np.testing.assert_allclose(resumed.parameters, first.parameters, atol=1e-4)
-    assert len(resumed.history) > len(stored.history)
-    assert resumed.history[: len(stored.history)] == tuple(stored.history)
+    assert stored.trace_summary.evaluations == first.evaluations
+    assert resumed.evaluations == len(resumed.history)
     assert resumed.objective < 1e-8
+
+
+def test_resume_after_v1_migration_starts_from_accepted_parameters():
+    space = ParameterSpace.from_primitive(primitive())
+    accepted = {"segments.0.c1.x": 0.1, "segments.0.c1.y": 0.4}
+    payload = checkpoint(accepted).model_dump(mode="json")
+    payload.pop("progress")
+    payload.pop("trace_summary")
+    payload["format_version"] = 1
+    payload["history"] = [
+        {
+            "iteration": 0,
+            "objective": 0.5,
+            "parameters": {"segments.0.c1.x": -0.4, "segments.0.c1.y": 0.2},
+        }
+    ]
+    migrated = migrate_checkpoint_v1(FitCheckpointV1.model_validate(payload))
+    first_candidates = []
+
+    def residuals(vector):
+        first_candidates.append(vector.copy())
+        return vector - np.array([0.25, 0.7])
+
+    result = resume_optimization(
+        migrated,
+        space,
+        residuals,
+        config=OptimizerConfig(method="least_squares", loss="linear"),
+    )
+
+    np.testing.assert_allclose(
+        first_candidates[0],
+        [accepted["segments.0.c1.x"], accepted["segments.0.c1.y"]],
+    )
+    np.testing.assert_allclose(result.parameters, [0.25, 0.7], atol=1e-7)
+
+
+def test_optional_optimizer_trace_is_written_as_compressed_arrays(tmp_path):
+    result = optimize_parameters(
+        ParameterSpace.from_primitive(primitive()),
+        quadratic,
+        config=OptimizerConfig(max_iterations=20),
+    )
+    path = tmp_path / "work" / "traces" / "synthetic.npz"
+
+    save_optimization_trace(result, path)
+
+    with np.load(path) as trace:
+        assert trace["objective"].shape == (len(result.history),)
+        assert trace["parameters"].shape == (len(result.history), len(result.parameter_names))
+        assert trace["accepted"].sum() == 1
 
 
 def test_resume_rejects_checkpoint_with_different_parameter_names():

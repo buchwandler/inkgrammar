@@ -23,6 +23,7 @@ app.add_typer(page_app, name="page")
 app.add_typer(model_app, name="model")
 app.add_typer(data_app, name="data")
 app.add_typer(fit_app, name="fit")
+CONTROL_SHEET_OUTPUT = Path("work/sas-1968/control/alphabet.png")
 
 
 @app.command()
@@ -242,6 +243,31 @@ def fit_optimize_primitive(
     typer.echo(f"Checkpoint: {artifacts.checkpoint_path}")
     typer.echo(f"Report: {artifacts.json_report_path}")
     typer.echo(f"Visual review sheet: {artifacts.private_review_sheet_path}")
+
+
+@fit_app.command("control-sheet")
+def fit_control_sheet(
+    project: Path = typer.Argument(..., exists=True),  # noqa: B008
+    output: Path = typer.Option(CONTROL_SHEET_OUTPUT, "--output"),  # noqa: B008
+    include_digits: bool = typer.Option(False, "--include-digits"),  # noqa: B008
+    occurrence_deltas: bool = typer.Option(False, "--occurrence-deltas"),  # noqa: B008
+) -> None:
+    """Render a source-free, common-scale control sheet for the target alphabet."""
+    from .fitting.control_sheet import write_control_sheet
+    from .fitting.workspace import load_fit_project
+
+    try:
+        result = write_control_sheet(
+            load_fit_project(project),
+            output,
+            include_digits=include_digits,
+            occurrence_deltas=occurrence_deltas,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError, yaml.YAMLError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"Control sheet: {output}")
+    typer.echo(f"JSON report: {output.with_suffix('.json')}")
+    typer.echo(f"Rendered {result['rendered_count']} of {result['target_count']} target glyphs")
 
 
 @fit_app.command("fit-glyphs")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -41,9 +42,21 @@ class CheckpointIteration(StrictModel):
     parameters: dict[str, float] = Field(default_factory=dict)
 
 
-class FitCheckpoint(StrictModel):
+class CheckpointProgress(StrictModel):
+    restart_index: int = Field(default=0, ge=0)
+    cycle_index: int = Field(default=0, ge=0)
+    evaluations: int = Field(default=0, ge=0)
+
+
+class CheckpointTraceSummary(StrictModel):
+    evaluations: int = Field(default=0, ge=0)
+    initial_objective: float | None = None
+    best_objective: float | None = None
+    last_objective: float | None = None
+
+
+class _CheckpointFields(StrictModel):
     format: Literal["inkgrammar-fit-checkpoint"] = "inkgrammar-fit-checkpoint"
-    format_version: Literal[1] = 1
     project_id: str
     stage: str
     created_by: CheckpointCreator
@@ -52,7 +65,59 @@ class FitCheckpoint(StrictModel):
     parameters: dict[str, float]
     training_metrics: dict[str, float] = Field(default_factory=dict)
     holdout_metrics: dict[str, float] = Field(default_factory=dict)
+
+
+class FitCheckpointV1(_CheckpointFields):
+    format_version: Literal[1] = 1
     history: list[CheckpointIteration] = Field(default_factory=list)
+
+
+class FitCheckpoint(_CheckpointFields):
+    format_version: Literal[2] = 2
+    progress: CheckpointProgress = Field(default_factory=CheckpointProgress)
+    trace_summary: CheckpointTraceSummary = Field(default_factory=CheckpointTraceSummary)
+
+
+def summarize_trace(
+    history: Sequence[CheckpointIteration],
+    previous: CheckpointTraceSummary | None = None,
+) -> CheckpointTraceSummary:
+    objectives = [item.objective for item in history]
+    prior = previous or CheckpointTraceSummary()
+    combined_best = [value for value in (prior.best_objective, *objectives) if value is not None]
+    return CheckpointTraceSummary(
+        evaluations=prior.evaluations + len(objectives),
+        initial_objective=(
+            prior.initial_objective
+            if prior.initial_objective is not None
+            else objectives[0]
+            if objectives
+            else None
+        ),
+        best_objective=min(combined_best) if combined_best else None,
+        last_objective=objectives[-1] if objectives else prior.last_objective,
+    )
+
+
+def migrate_checkpoint_v1(checkpoint: FitCheckpointV1) -> FitCheckpoint:
+    objectives = [item.objective for item in checkpoint.history]
+    return FitCheckpoint(
+        project_id=checkpoint.project_id,
+        stage=checkpoint.stage,
+        created_by=checkpoint.created_by,
+        inputs=checkpoint.inputs,
+        optimizer=checkpoint.optimizer,
+        parameters=checkpoint.parameters,
+        training_metrics=checkpoint.training_metrics,
+        holdout_metrics=checkpoint.holdout_metrics,
+        progress=CheckpointProgress(evaluations=len(objectives)),
+        trace_summary=CheckpointTraceSummary(
+            evaluations=len(objectives),
+            initial_objective=objectives[0] if objectives else None,
+            best_objective=min(objectives) if objectives else None,
+            last_objective=objectives[-1] if objectives else None,
+        ),
+    )
 
 
 def validate_checkpoint_objective_version(checkpoint: FitCheckpoint, expected_version: int) -> None:
@@ -77,4 +142,7 @@ def save_checkpoint(checkpoint: FitCheckpoint, path: str | Path) -> None:
 
 
 def load_checkpoint(path: str | Path) -> FitCheckpoint:
-    return FitCheckpoint.model_validate_json(Path(path).read_text(encoding="utf-8"))
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if payload.get("format_version") == 1:
+        return migrate_checkpoint_v1(FitCheckpointV1.model_validate(payload))
+    return FitCheckpoint.model_validate(payload)

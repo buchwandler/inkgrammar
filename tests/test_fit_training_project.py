@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 
 from inkgrammar.fitting.models import (
@@ -13,6 +14,7 @@ from inkgrammar.fitting.models import (
 )
 from inkgrammar.fitting.objective import ObjectiveConfig
 from inkgrammar.fitting.optimizer import OptimizerConfig
+from inkgrammar.fitting.workspace import FitRunConfig
 from inkgrammar.observations import ObservationManifest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +45,7 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     )
     assert len(source_lock.sources) == 5
     assert len(corpus.samples) == 15
-    assert objective.version == 2
+    assert objective.version == 3
     assert optimizer.seed == 1968
     assert set(topology.glyphs) <= {sample.text for sample in corpus.samples}
     assert all(
@@ -170,3 +172,23 @@ def test_compositional_families_isolate_w_h_k_and_local_responsibility():
         "ascender-loop",
         "hump-core",
     }
+
+
+def test_objective_v3_rejects_unsupported_optimizer_settings():
+    config = {
+        "format": "inkgrammar-fit-config",
+        "format_version": 1,
+        "objective": {"version": 3},
+        "optimizer": {
+            "method": "centerline-em-trf",
+            "max_iterations": 20,
+        },
+        "split_policy": {
+            "fit": "fit",
+            "validation": "diagnostic",
+            "hold-out": "report",
+        },
+    }
+
+    with pytest.raises(ValueError, match="does not support optimizer settings"):
+        FitRunConfig.model_validate(config)

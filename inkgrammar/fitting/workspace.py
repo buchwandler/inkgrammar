@@ -54,6 +54,22 @@ class FitRunConfig(StrictModel):
     def validate_format(self) -> FitRunConfig:
         if self.format != "inkgrammar-fit-config" or self.format_version != 1:
             raise ValueError("unsupported fitting configuration format")
+        if self.objective.version == 3:
+            if self.optimizer.method != "centerline-em-trf":
+                raise ValueError("objective v3 requires optimizer method centerline-em-trf")
+            unsupported = {
+                "max_iterations",
+                "de_max_iterations",
+                "de_population_size",
+                "de_dimension_limit",
+                "joint_refine",
+            } & self.optimizer.model_fields_set
+            if unsupported:
+                raise ValueError(
+                    f"objective v3 does not support optimizer settings: {sorted(unsupported)}"
+                )
+        elif self.optimizer.method == "centerline-em-trf":
+            raise ValueError("optimizer method centerline-em-trf requires objective v3")
         return self
 
 

@@ -3,9 +3,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 from math import log, pi
+from typing import Literal
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from ..models import StrictModel
 from .models import DuctusModel, PrimitiveInstance
@@ -30,6 +31,37 @@ class GeometryResidualWeights(StrictModel):
     endpoint: float = Field(default=0.6, ge=0)
     tangent: float = Field(default=0.25, ge=0)
     assigned_coverage: float = Field(default=0.2, ge=0)
+    position_sigma_px: float = Field(default=1.5, gt=0)
+    coverage_sigma_px: float = Field(default=1.5, gt=0)
+    endpoint_sigma_px: float = Field(default=1.0, gt=0)
+    tangent_sigma_rad: float = Field(default=0.20, gt=0)
+    radius_sigma_px: float = Field(default=1.5, gt=0)
+    candidate_to_target: float = Field(default=1.0, ge=0)
+    target_to_candidate: float = Field(default=1.0, ge=0)
+    radius: float = Field(default=0.1, ge=0)
+    coverage_tolerance_px: float = Field(default=2.0, gt=0)
+
+
+class AssignmentConfig(StrictModel):
+    sigma_px: float = Field(default=4.0, gt=0)
+    min_target_probability: float = Field(default=0.55, ge=0, le=1)
+    outlier_mass: float = Field(default=0.15, gt=0)
+    recompute_each_cycle: bool = True
+
+
+class CenterlineConfig(StrictModel):
+    method: Literal["skeletonize"] = "skeletonize"
+    sample_schedule: list[int] = Field(default_factory=lambda: [24, 48, 96], min_length=1)
+    min_spur_length_px: float = Field(default=3.0, ge=0)
+    min_confidence: float = Field(default=0.25, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def validate_schedule(self) -> CenterlineConfig:
+        if any(count < 2 for count in self.sample_schedule):
+            raise ValueError("centerline sample counts must be at least two")
+        if self.sample_schedule != sorted(set(self.sample_schedule)):
+            raise ValueError("centerline sample schedule must be strictly increasing")
+        return self
 
 
 class PriorWeights(StrictModel):
@@ -44,13 +76,50 @@ class FamilyBalanceWeights(StrictModel):
 
 
 class ObjectiveConfig(StrictModel):
-    version: int = Field(default=1, gt=0)
+    version: int = Field(default=1, ge=1, le=3)
     weights: ObjectiveWeights = Field(default_factory=ObjectiveWeights)
     geometry: GeometryResidualWeights = Field(default_factory=GeometryResidualWeights)
     priors: PriorWeights = Field(default_factory=PriorWeights)
     family: FamilyBalanceWeights = Field(default_factory=FamilyBalanceWeights)
-
+    assignment: AssignmentConfig = Field(default_factory=AssignmentConfig)
+    centerline: CenterlineConfig = Field(default_factory=CenterlineConfig)
     residual_sigma: float = Field(default=0.05, gt=0)
+
+    @model_validator(mode="after")
+    def validate_version_settings(self) -> ObjectiveConfig:
+        legacy_geometry = {"path_to_ink", "normal_center", "assigned_coverage"}
+        v3_geometry = {
+            "position_sigma_px",
+            "coverage_sigma_px",
+            "endpoint_sigma_px",
+            "tangent_sigma_rad",
+            "radius_sigma_px",
+            "candidate_to_target",
+            "target_to_candidate",
+            "radius",
+            "coverage_tolerance_px",
+        }
+        if self.version == 3:
+            if "weights" in self.model_fields_set or "residual_sigma" in self.model_fields_set:
+                raise ValueError(
+                    "objective v3 does not support legacy raster weights or residual_sigma"
+                )
+            unsupported = legacy_geometry & self.geometry.model_fields_set
+            if unsupported:
+                raise ValueError(
+                    f"objective v3 does not support legacy geometry settings: {sorted(unsupported)}"
+                )
+            if not self.assignment.recompute_each_cycle:
+                raise ValueError("objective v3 requires assignment recomputation each EM cycle")
+        else:
+            if {"assignment", "centerline"} & self.model_fields_set:
+                raise ValueError("assignment and centerline settings require objective v3")
+            unsupported = v3_geometry & self.geometry.model_fields_set
+            if unsupported:
+                raise ValueError(
+                    f"objective v3 geometry settings require version 3: {sorted(unsupported)}"
+                )
+        return self
 
 
 @dataclass(frozen=True)

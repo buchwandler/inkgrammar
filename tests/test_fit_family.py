@@ -5,13 +5,15 @@ from pathlib import Path
 import numpy as np
 import pytest
 import yaml
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy.ndimage import distance_transform_edt
 from typer.testing import CliRunner
 
 from inkgrammar.cli import app
 from inkgrammar.fitting.checkpoint import load_checkpoint
 from inkgrammar.fitting.family_fit import (
+    _prepare_sample,
+    _write_private_overlays,
     optimize_primitive_family,
     primitive_path,
     refresh_primitive_artifact_hashes,
@@ -303,7 +305,7 @@ def test_refresh_primitive_artifact_hashes_preserves_fit_results(tmp_path):
     assert refreshed.project_sha256 != before_checkpoint.inputs.project_sha256
     assert after_checkpoint.inputs == refreshed
     assert after_checkpoint.parameters == before_checkpoint.parameters
-    assert after_checkpoint.history == before_checkpoint.history
+    assert after_checkpoint.trace_summary == before_checkpoint.trace_summary
     assert after_report.pop("input_hashes") == refreshed.model_dump(mode="json")
     before_report.pop("input_hashes")
     assert after_report == before_report
@@ -626,3 +628,165 @@ def test_word_validation_is_diagnostic_only_for_holdout_words(tmp_path):
     assert second.report["metrics"] != first.report["metrics"]
     assert second.report["occurrence_fit_sources"] == first.report["occurrence_fit_sources"]
     assert second.report["parameter_updates"] is False
+
+
+def test_private_review_sheet_has_single_labels_metrics_and_centerline_colors(
+    tmp_path, monkeypatch
+):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    sample = next(item for item in bundle.corpus.samples if item.id == "sample-c")
+    prepared = _prepare_sample(bundle, sample, PRIMITIVE_ID)
+    labels = []
+    original_draw = ImageDraw.Draw
+
+    class TextTrackingDraw:
+        def __init__(self, draw):
+            self.draw = draw
+
+        def text(self, xy, text, *args, **kwargs):
+            labels.append(text)
+            return self.draw.text(xy, text, *args, **kwargs)
+
+        def __getattr__(self, name):
+            return getattr(self.draw, name)
+
+    monkeypatch.setattr(
+        ImageDraw,
+        "Draw",
+        lambda image, *args, **kwargs: TextTrackingDraw(original_draw(image, *args, **kwargs)),
+    )
+    sheet_path = _write_private_overlays(
+        bundle,
+        PRIMITIVE_ID,
+        bundle.grammar.primitives[PRIMITIVE_ID],
+        [prepared],
+        include_nominal=True,
+    )
+    panel_labels = [text for text in labels if text.startswith("c /")]
+    assert panel_labels == [
+        "c / oval-core / fit / nominal",
+        "c / oval-core / fit / aligned",
+    ]
+    assert all("sample-c" not in label for label in panel_labels)
+    assert any("curve->target p95" in text for text in labels)
+    assert any("target->curve p95" in text for text in labels)
+    assert any("endpoint RMS" in text for text in labels)
+    assert any("tangent RMS" in text for text in labels)
+    assert any("assigned coverage" in text for text in labels)
+
+    with Image.open(sheet_path) as image:
+        assert image.size == (720, 288)
+    overlay_dir = bundle.private_work_dir / "overlays" / PRIMITIVE_ID
+    with Image.open(overlay_dir / "sample-c--oval-core--nominal.png") as image:
+        assert image.size == (64, 64)
+        colors = {
+            tuple(color) for color in np.asarray(image.convert("RGB")).reshape(-1, 3).tolist()
+        }
+    assert {
+        (220, 40, 40),
+        (40, 70, 220),
+        (30, 30, 30),
+        (20, 160, 60),
+        (200, 30, 180),
+    } <= colors
+    assert all(
+        path.resolve().is_relative_to(bundle.private_work_dir) for path in overlay_dir.iterdir()
+    )
+
+    first_bytes = sheet_path.read_bytes()
+    labels.clear()
+    second_path = _write_private_overlays(
+        bundle,
+        PRIMITIVE_ID,
+        bundle.grammar.primitives[PRIMITIVE_ID],
+        [prepared],
+        include_nominal=True,
+    )
+    assert second_path.read_bytes() == first_bytes
+    assert len([text for text in labels if text.startswith("c /")]) == 2
+
+
+def test_objective_v3_fit_uses_centerline_assignments_and_keeps_validation_and_holdout_diagnostic(
+    tmp_path,
+):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+
+    families_path = project_dir / "families.yaml"
+    families = yaml.safe_load(families_path.read_text(encoding="utf-8"))
+    families["families"][0]["fit"] = ["sample-c"]
+    families["families"][0]["validation"] = ["sample-a"]
+    corpus_path = project_dir / "corpus.yaml"
+    corpus = yaml.safe_load(corpus_path.read_text(encoding="utf-8"))
+    next(sample for sample in corpus["samples"] if sample["id"] == "sample-a")["split"] = (
+        "validation"
+    )
+    _write_yaml(corpus_path, corpus)
+    families["families"][0]["alignment"] = {"free": ["dx"]}
+    _write_yaml(families_path, families)
+
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"] = {
+        "version": 3,
+        "assignment": {
+            "sigma_px": 20.0,
+            "min_target_probability": 0.1,
+            "outlier_mass": 0.1,
+            "recompute_each_cycle": True,
+        },
+        "centerline": {
+            "method": "skeletonize",
+            "sample_schedule": [8, 12],
+            "min_spur_length_px": 0.0,
+            "min_confidence": 0.1,
+        },
+    }
+    config["optimizer"] = {
+        "method": "centerline-em-trf",
+        "seed": 1968,
+        "loss": "linear",
+        "max_nfev": 5,
+        "max_cycles": 1,
+        "convergence_relative": 0.0005,
+        "restarts": 1,
+    }
+    _write_yaml(config_path, config)
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    first = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    first_parameters = first.report["parameters"]
+    first_holdout = first.report["hold_out"]["samples"][0]["objective"]
+    first_validation = first.report["validation"]["samples"][0]["objective"]
+
+    assert first.report["format_version"] == 3
+    assert first.report["objective_version"] == 3
+    assert first.report["training"]["selection_split"] == "fit"
+    assert first.report["optimizer"]["backend"] == "inkgrammar-centerline-em-trf"
+    assert first.report["optimizer"]["jacobian_sparsity_nnz"] > 0
+    assert first.report["hold_out"]["policy"].startswith("evaluated after fitting")
+    assert first.report["validation"]["policy"].startswith("evaluated after fitting")
+    assert first.report["hold_out"]["samples"][0]["instances"][0]["assignment"]["target_pixels"] > 0
+    assert first.private_review_sheet_path.is_file()
+
+    changed_mask = np.zeros((64, 64), dtype=np.uint8)
+    changed_mask[31:34, 12:52] = 255
+    changed_distance = distance_transform_edt(changed_mask == 0).astype(np.float32)
+    for sample_id in ("sample-a", "sample-C"):
+        Image.fromarray(changed_mask, mode="L").save(
+            bundle.private_work_dir / "materialized" / "masks" / f"{sample_id}.png",
+            format="PNG",
+            optimize=False,
+            compress_level=9,
+        )
+        with (
+            bundle.private_work_dir / "materialized" / "distance-fields" / f"{sample_id}.npy"
+        ).open("wb") as stream:
+            np.save(stream, changed_distance, allow_pickle=False)
+    second = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    assert second.report["parameters"] == pytest.approx(first_parameters, abs=1e-8)
+    assert second.report["hold_out"]["samples"][0]["objective"] != first_holdout
+    assert second.report["validation"]["samples"][0]["objective"] != first_validation
