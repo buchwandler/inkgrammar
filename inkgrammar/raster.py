@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -146,6 +147,56 @@ def compare_anchored_masks(
     dy = (gc[1] - generated_anchor[1]) / scale + reference_anchor[1] - rc[1]
     result["center_of_mass_offset"] = float(np.hypot(dx, dy))
     return result
+
+
+@dataclass(frozen=True)
+class ScaleSanityReport:
+    """Scale/unit diagnostics comparing fitted ink geometry to runtime metrics."""
+
+    ink_bbox_height: float
+    x_height: float
+    stroke_width: float
+    ink_bbox_height_over_x_height: float
+    stroke_width_over_x_height: float
+    stroke_width_over_ink_bbox_height: float
+    flags: tuple[str, ...]
+
+    @property
+    def pathological(self) -> bool:
+        return bool(self.flags)
+
+
+def scale_sanity(
+    *,
+    ink_bbox_height: float,
+    x_height: float,
+    stroke_width: float,
+    allow_stroke_wider_than_ink: bool = False,
+) -> ScaleSanityReport:
+    """Report the documented scale ratios and flag pathological combinations.
+
+    Flags ``stroke_width >= ink_bbox_height`` unless explicitly allowed for a
+    special mark. Exact acceptable ratios are script-dependent and are not
+    hard-coded here.
+    """
+    if ink_bbox_height <= 0:
+        raise ValueError("ink bbox height must be positive")
+    if x_height <= 0:
+        raise ValueError("x height must be positive")
+    if stroke_width <= 0:
+        raise ValueError("stroke width must be positive")
+    flags = []
+    if stroke_width >= ink_bbox_height and not allow_stroke_wider_than_ink:
+        flags.append("stroke_width >= ink_bbox_height")
+    return ScaleSanityReport(
+        ink_bbox_height=ink_bbox_height,
+        x_height=x_height,
+        stroke_width=stroke_width,
+        ink_bbox_height_over_x_height=ink_bbox_height / x_height,
+        stroke_width_over_x_height=stroke_width / x_height,
+        stroke_width_over_ink_bbox_height=stroke_width / ink_bbox_height,
+        flags=tuple(flags),
+    )
 
 
 @dataclass(frozen=True)
