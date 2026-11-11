@@ -68,8 +68,23 @@ class FitRunConfig(StrictModel):
                 raise ValueError(
                     f"objective v3 does not support optimizer settings: {sorted(unsupported)}"
                 )
-        elif self.optimizer.method == "centerline-em-trf":
-            raise ValueError("optimizer method centerline-em-trf requires objective v3")
+        elif self.objective.version == 4:
+            if self.optimizer.method != "spline-alt-lsq":
+                raise ValueError("objective v4 requires optimizer method spline-alt-lsq")
+            unsupported = {
+                "max_iterations",
+                "de_max_iterations",
+                "de_population_size",
+                "de_dimension_limit",
+                "joint_refine",
+                "restarts",
+            } & self.optimizer.model_fields_set
+            if unsupported:
+                raise ValueError(
+                    f"objective v4 does not support optimizer settings: {sorted(unsupported)}"
+                )
+        elif self.optimizer.method in {"centerline-em-trf", "spline-alt-lsq"}:
+            raise ValueError("specialized optimizer methods require objective v3 or v4")
         return self
 
 

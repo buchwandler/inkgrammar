@@ -60,10 +60,11 @@ def _primitive_templates(
         if not path.is_file():
             continue
         report = json.loads(path.read_text(encoding="utf-8"))
-        if report.get("format_version") != 2 or report.get("objective_version") != 2:
+        report_version = report.get("objective_version")
+        if report.get("format_version") != report_version or report_version not in {2, 3, 4}:
             continue
         templates[primitive_id] = PrimitiveTemplate.model_validate(report["primitive"])
-        sources[primitive_id] = "objective-v2-family-report"
+        sources[primitive_id] = f"objective-v{report_version}-family-report"
     return templates, sources
 
 
@@ -84,7 +85,8 @@ def _family_delta(
     if report_path.is_symlink() or not report_path.is_file():
         return OccurrenceDelta()
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    if report.get("format_version") != 2 or report.get("objective_version") != 2:
+    report_version = report.get("objective_version")
+    if report.get("format_version") != report_version or report_version not in {2, 3, 4}:
         return OccurrenceDelta()
     occurrence = report.get("occurrences", {}).get(f"{sample_id}--{part.instance}")
     if occurrence is None:

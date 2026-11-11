@@ -45,6 +45,78 @@ class CubicSegment(StrictModel):
     end: Point
 
 
+class SplineEndpointPolicy(StrictModel):
+    start: Literal["locked", "free", "anchored"] = "locked"
+    end: Literal["locked", "free", "anchored"] = "locked"
+
+
+class SplineWidthModel(StrictModel):
+    kind: Literal["constant", "bspline"] = "constant"
+    value: float | None = Field(default=None, gt=0)
+    degree: Literal[2] | None = None
+    knots: list[float] | None = None
+    coefficients: list[float] | None = None
+
+    @model_validator(mode="after")
+    def validate_width(self) -> SplineWidthModel:
+        if self.kind == "constant":
+            if (
+                self.value is None
+                or not isfinite(self.value)
+                or any(value is not None for value in (self.degree, self.knots, self.coefficients))
+            ):
+                raise ValueError("constant spline width requires only a positive finite value")
+            return self
+        if (
+            self.value is not None
+            or self.degree != 2
+            or self.knots is None
+            or self.coefficients is None
+        ):
+            raise ValueError("B-spline width requires degree, knots, and coefficients")
+        if len(self.coefficients) < self.degree + 1:
+            raise ValueError("B-spline width requires at least degree + 1 coefficients")
+        if len(self.knots) != len(self.coefficients) + self.degree + 1:
+            raise ValueError("B-spline width knot count does not match coefficient count")
+        if not all(isfinite(value) for value in [*self.knots, *self.coefficients]):
+            raise ValueError("B-spline width knots and coefficients must be finite")
+        if any(value <= 0 for value in self.coefficients):
+            raise ValueError("B-spline width coefficients must be positive")
+        if self.knots != sorted(self.knots):
+            raise ValueError("B-spline width knots must be nondecreasing")
+        if self.knots[:3] != [0.0] * 3 or self.knots[-3:] != [1.0] * 3:
+            raise ValueError("B-spline width knots must be clamped to [0, 1]")
+        interior = self.knots[3:-3]
+        if any(not 0.0 < value < 1.0 for value in interior) or len(set(interior)) != len(interior):
+            raise ValueError("B-spline width interior knots must be simple and inside (0, 1)")
+        return self
+
+
+class BSplineGeometry(StrictModel):
+    degree: Literal[3] = 3
+    knots: list[float]
+    control_points: list[Point] = Field(min_length=4)
+    endpoint_policy: SplineEndpointPolicy = Field(default_factory=SplineEndpointPolicy)
+    width: SplineWidthModel | None = None
+
+    @model_validator(mode="after")
+    def validate_geometry(self) -> BSplineGeometry:
+        if len(self.knots) != len(self.control_points) + self.degree + 1:
+            raise ValueError("B-spline knot count must equal control point count + degree + 1")
+        if not all(isfinite(value) for value in self.knots):
+            raise ValueError("B-spline knots must be finite")
+        if not all(isfinite(value) for point in self.control_points for value in point):
+            raise ValueError("B-spline control points must be finite")
+        if self.knots != sorted(self.knots):
+            raise ValueError("B-spline knots must be nondecreasing")
+        if self.knots[:4] != [0.0] * 4 or self.knots[-4:] != [1.0] * 4:
+            raise ValueError("cubic B-spline knots must be clamped to [0, 1]")
+        interior = self.knots[4:-4]
+        if any(not 0.0 < value < 1.0 for value in interior) or len(set(interior)) != len(interior):
+            raise ValueError("cubic B-spline interior knots must be simple and inside (0, 1)")
+        return self
+
+
 class PrimitiveFrame(StrictModel):
     start: Point
     nominal_end: Point
@@ -57,9 +129,10 @@ class PrimitiveProvenance(StrictModel):
 
 class PrimitiveTemplate(StrictModel):
     id: str
-    kind: Literal["cubic-chain"] = "cubic-chain"
+    kind: Literal["cubic-chain", "bspline-centerline"] = "cubic-chain"
     frame: PrimitiveFrame
-    segments: list[CubicSegment] = Field(min_length=1)
+    segments: list[CubicSegment] | None = None
+    spline: BSplineGeometry | None = None
     free_parameters: list[str] = Field(default_factory=list)
     locked_parameters: list[str] = Field(default_factory=list)
     bounds: dict[str, tuple[float, float]] = Field(default_factory=dict)
@@ -67,6 +140,22 @@ class PrimitiveTemplate(StrictModel):
 
     @model_validator(mode="after")
     def validate_parameterization(self) -> PrimitiveTemplate:
+        if self.kind == "cubic-chain":
+            if not self.segments:
+                raise ValueError("cubic-chain primitives require at least one segment")
+            if self.spline is not None:
+                raise ValueError("cubic-chain primitives must not contain spline geometry")
+        else:
+            if self.spline is None:
+                raise ValueError("bspline-centerline primitives require spline geometry")
+            if self.segments is not None:
+                raise ValueError("bspline-centerline primitives must not contain cubic segments")
+            if any(
+                path.startswith("spline.")
+                for path in [*self.free_parameters, *self.locked_parameters, *self.bounds]
+            ):
+                raise ValueError("legacy parameterization must not address spline geometry")
+
         free = self.free_parameters
         locked = self.locked_parameters
         if len(set(free)) != len(free) or len(set(locked)) != len(locked):

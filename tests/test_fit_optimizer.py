@@ -213,3 +213,12 @@ def test_least_squares_backend_fits_residual_vector():
     assert result.backend == "scipy-least-squares-trf"
     assert result.status is not None
     assert result.success is True
+
+
+def test_spline_alt_lsq_configuration_exposes_alternating_cycle_controls():
+    config = OptimizerConfig(method="spline-alt-lsq")
+
+    assert config.max_cycles == 6
+    assert config.transform_max_nfev == 120
+    assert config.irls_iterations == 3
+    assert config.assignment_update_interval == 1

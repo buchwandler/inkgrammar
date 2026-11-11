@@ -42,6 +42,11 @@ from .optimizer import (
 )
 from .parameterization import ParameterSpace, ParameterSpec
 from .render import FittingRender, render_paths, render_traces
+from .seed_migration import (
+    SeedMigrationResult,
+    migrate_legacy_seed,
+    write_seed_migration_report,
+)
 from .trace import CompiledPartTrace, compile_glyph_trace
 from .word_validation import WordValidationArtifacts, validate_composed_words
 from .workspace import (
@@ -98,6 +103,9 @@ __all__ = [
     "load_fit_reports",
     "optimize_primitive_family",
     "primitive_path",
+    "SeedMigrationResult",
+    "migrate_legacy_seed",
+    "write_seed_migration_report",
     "fit_compositional_glyphs",
     "validate_composed_words",
 ]

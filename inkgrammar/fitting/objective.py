@@ -64,6 +64,26 @@ class CenterlineConfig(StrictModel):
         return self
 
 
+class SplineCurveConfig(StrictModel):
+    basis: Literal["cubic-bspline"] = "cubic-bspline"
+    parameterization: Literal["normalized-arclength"] = "normalized-arclength"
+    default_control_points: int = Field(default=6, ge=4)
+    smoothness_lambda: float = Field(default=0.02, ge=0)
+    seed_lambda: float = Field(default=0.01, ge=0)
+    robust_loss: Literal["huber", "soft_l1"] = "huber"
+    robust_scale_px: float = Field(default=1.5, gt=0)
+    adaptive_knots: Literal[False] = False
+
+
+class SplineCorrespondenceConfig(StrictModel):
+    method: Literal["monotone-arclength"] = "monotone-arclength"
+    warp_weight: float = Field(default=0.10, ge=0)
+    gap_penalty: float = Field(default=0.20, ge=0)
+    tangent_weight: float = Field(default=0.2, ge=0)
+    position_sigma_px: float = Field(default=2.0, gt=0)
+    tangent_sigma_rad: float = Field(default=0.35, gt=0)
+
+
 class PriorWeights(StrictModel):
     transform: float = Field(default=0.2, ge=0)
     shape: float = Field(default=0.05, ge=0)
@@ -76,13 +96,15 @@ class FamilyBalanceWeights(StrictModel):
 
 
 class ObjectiveConfig(StrictModel):
-    version: int = Field(default=1, ge=1, le=3)
+    version: int = Field(default=1, ge=1, le=4)
     weights: ObjectiveWeights = Field(default_factory=ObjectiveWeights)
     geometry: GeometryResidualWeights = Field(default_factory=GeometryResidualWeights)
     priors: PriorWeights = Field(default_factory=PriorWeights)
     family: FamilyBalanceWeights = Field(default_factory=FamilyBalanceWeights)
     assignment: AssignmentConfig = Field(default_factory=AssignmentConfig)
     centerline: CenterlineConfig = Field(default_factory=CenterlineConfig)
+    curve: SplineCurveConfig = Field(default_factory=SplineCurveConfig)
+    correspondence: SplineCorrespondenceConfig = Field(default_factory=SplineCorrespondenceConfig)
     residual_sigma: float = Field(default=0.05, gt=0)
 
     @model_validator(mode="after")
@@ -104,6 +126,8 @@ class ObjectiveConfig(StrictModel):
                 raise ValueError(
                     "objective v3 does not support legacy raster weights or residual_sigma"
                 )
+            if {"curve", "correspondence"} & self.model_fields_set:
+                raise ValueError("spline curve settings require objective v4")
             unsupported = legacy_geometry & self.geometry.model_fields_set
             if unsupported:
                 raise ValueError(
@@ -111,9 +135,22 @@ class ObjectiveConfig(StrictModel):
                 )
             if not self.assignment.recompute_each_cycle:
                 raise ValueError("objective v3 requires assignment recomputation each EM cycle")
+        elif self.version == 4:
+            if "weights" in self.model_fields_set or "residual_sigma" in self.model_fields_set:
+                raise ValueError(
+                    "objective v4 does not support legacy raster weights or residual_sigma"
+                )
+            if not self.assignment.recompute_each_cycle:
+                raise ValueError("objective v4 requires assignment recomputation each cycle")
+            if "radius" in self.geometry.model_fields_set and self.geometry.radius != 0.0:
+                raise ValueError("objective v4 requires radius fitting to remain separate")
+            if "curvature" in self.priors.model_fields_set and self.priors.curvature != 0.0:
+                raise ValueError("objective v4 uses spline roughness instead of curvature priors")
         else:
             if {"assignment", "centerline"} & self.model_fields_set:
-                raise ValueError("assignment and centerline settings require objective v3")
+                raise ValueError("assignment and centerline settings require objective v3 or v4")
+            if {"curve", "correspondence"} & self.model_fields_set:
+                raise ValueError("spline curve settings require objective v4")
             unsupported = v3_geometry & self.geometry.model_fields_set
             if unsupported:
                 raise ValueError(

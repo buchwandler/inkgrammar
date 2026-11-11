@@ -20,6 +20,7 @@ class OptimizerConfig(StrictModel):
         "least_squares",
         "alternating-least-squares",
         "centerline-em-trf",
+        "spline-alt-lsq",
     ] = "powell"
     seed: int = Field(default=1968, ge=0)
     max_iterations: int = Field(default=200, gt=0)
@@ -31,6 +32,9 @@ class OptimizerConfig(StrictModel):
     f_scale: float = Field(default=1.0, gt=0)
     max_nfev: int = Field(default=250, gt=0)
     max_cycles: int = Field(default=6, gt=0)
+    transform_max_nfev: int = Field(default=120, gt=0)
+    irls_iterations: int = Field(default=3, ge=1)
+    assignment_update_interval: int = Field(default=1, gt=0)
     convergence_relative: float = Field(default=0.0005, gt=0)
     joint_refine: bool = True
     restarts: int = Field(default=8, ge=1)
@@ -61,6 +65,8 @@ def _backend(config: OptimizerConfig) -> str:
         return "inkgrammar-centerline-em-trf"
     if config.method == "alternating-least-squares":
         return "inkgrammar-alternating-least-squares"
+    if config.method == "spline-alt-lsq":
+        return "inkgrammar-spline-alt-lsq"
     return "scipy-differential-evolution+powell"
 
 

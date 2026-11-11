@@ -129,3 +129,26 @@ def test_objective_rejects_invalid_frame_and_coverage_values():
     generated[0, 0] = 2
     with pytest.raises(ValueError, match="between zero and one"):
         evaluate_objective(reference, generated, x_height=16)
+
+
+def test_objective_v4_configures_spline_and_correspondence_without_v3_curvature():
+    config = ObjectiveConfig.model_validate(
+        {
+            "version": 4,
+            "curve": {"basis": "cubic-bspline", "default_control_points": 7},
+            "correspondence": {"warp_weight": 0.2, "gap_penalty": 0.3},
+            "assignment": {"sigma_px": 4.0},
+            "centerline": {"sample_schedule": [32, 64, 128]},
+            "geometry": {"radius": 0.0},
+        }
+    )
+
+    assert config.version == 4
+    assert config.curve.default_control_points == 7
+    assert config.correspondence.warp_weight == 0.2
+    with pytest.raises(ValueError, match="legacy raster weights"):
+        ObjectiveConfig.model_validate({"version": 4, "weights": {"distance": 0.5}})
+    with pytest.raises(ValueError, match="radius fitting to remain separate"):
+        ObjectiveConfig.model_validate({"version": 4, "geometry": {"radius": 0.1}})
+    with pytest.raises(ValidationError):
+        ObjectiveConfig.model_validate({"version": 4, "curve": {"adaptive_knots": True}})

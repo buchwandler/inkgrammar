@@ -790,3 +790,101 @@ def test_objective_v3_fit_uses_centerline_assignments_and_keeps_validation_and_h
     assert second.report["parameters"] == pytest.approx(first_parameters, abs=1e-8)
     assert second.report["hold_out"]["samples"][0]["objective"] != first_holdout
     assert second.report["validation"]["samples"][0]["objective"] != first_validation
+
+
+def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    project_dir = project_path.parent
+    config_path = project_dir / "fit-config.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["objective"] = {
+        "version": 4,
+        "curve": {
+            "basis": "cubic-bspline",
+            "default_control_points": 6,
+            "smoothness_lambda": 0.001,
+            "seed_lambda": 0.001,
+            "robust_scale_px": 1.5,
+        },
+        "correspondence": {
+            "method": "monotone-arclength",
+            "position_sigma_px": 3.0,
+            "tangent_sigma_rad": 0.35,
+            "tangent_weight": 0.1,
+            "warp_weight": 0.2,
+            "gap_penalty": 0.3,
+        },
+        "assignment": {"sigma_px": 8.0, "recompute_each_cycle": True},
+        "centerline": {
+            "method": "skeletonize",
+            "sample_schedule": [24],
+            "min_spur_length_px": 1.0,
+        },
+        "geometry": {"radius": 0.0},
+        "priors": {"curvature": 0.0},
+    }
+    config["optimizer"] = {
+        "method": "spline-alt-lsq",
+        "seed": 1968,
+        "max_cycles": 4,
+        "transform_max_nfev": 30,
+        "irls_iterations": 2,
+        "assignment_update_interval": 1,
+        "convergence_relative": 0.0005,
+    }
+    _write_yaml(config_path, config)
+    seed_path = project_dir / "seed-grammar.yaml"
+    original_seed = seed_path.read_bytes()
+
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    result = optimize_primitive_family(bundle, PRIMITIVE_ID)
+
+    assert result.report["format_version"] == 4
+    assert result.report["objective_version"] == 4
+    assert result.report["optimizer"]["backend"] == "inkgrammar-spline-alt-lsq"
+    assert result.report["primitive"]["kind"] == "bspline-centerline"
+    assert result.report["diagnostics"]["seed_conversion"]["source_kind"] == "cubic-chain"
+    assert result.report["diagnostics"]["assignment"]["cycles"] > 0
+    assert result.report["diagnostics"]["topology"]["matches"] is True
+    diagnostics = result.report["diagnostics"]
+    assert 0.0 <= diagnostics["assignment"]["mean_entropy"] <= 1.0
+    assert "target_path_change_fraction" in diagnostics["assignment"]
+    assert diagnostics["topology"]["expected_self_intersections"]
+    assert "p95_curvature" in diagnostics["smoothness"]
+    assert diagnostics["dense_geometry"]["max_candidate_to_target_p95_px"] >= 0.0
+    assert "assigned_coverage" in result.report["promotion"]["gates"]
+    with Image.open(result.private_review_sheet_path) as review_image:
+        review_pixels = np.asarray(review_image.convert("RGB"))
+    assert np.any(np.all(review_pixels == (255, 255, 0), axis=-1))
+    assert np.any(np.all(review_pixels == (0, 220, 220), axis=-1))
+    assert result.report["promotion"]["automatic_promotion"] is False
+    assert result.report["hold_out"]["policy"].startswith("post-fit diagnostic only")
+    assert result.private_review_sheet_path.is_file()
+    assert seed_path.read_bytes() == original_seed
+
+    from inkgrammar.fitting.glyph_fit import _composed_paths, _family_delta, _primitive_templates
+
+    templates, sources = _primitive_templates(bundle)
+    assert templates[PRIMITIVE_ID].kind == "bspline-centerline"
+    assert sources[PRIMITIVE_ID] == "objective-v4-family-report"
+    part = bundle.topology.glyphs["c"].strokes[0].parts[0]
+    delta = _family_delta(bundle, "sample-c", part)
+    paths = _composed_paths(bundle.topology.glyphs["c"], templates, {part.instance: delta})
+    assert part.instance in paths
+
+    report_bytes = result.json_report_path.read_bytes()
+    checkpoint_bytes = result.checkpoint_path.read_bytes()
+    repeated = optimize_primitive_family(bundle, PRIMITIVE_ID)
+    assert repeated.report == result.report
+    assert result.json_report_path.read_bytes() == report_bytes
+    assert result.checkpoint_path.read_bytes() == checkpoint_bytes
+
+    checkpoint = load_checkpoint(result.checkpoint_path)
+    assert checkpoint.optimizer.objective_version == 4
+    assert any(name.startswith("shared.control_points.") for name in checkpoint.parameters)
+    cli_result = CliRunner().invoke(
+        app,
+        ["fit", "optimize-primitive", str(project_path), PRIMITIVE_ID, "--resume"],
+    )
+    assert cli_result.exit_code == 0, cli_result.output

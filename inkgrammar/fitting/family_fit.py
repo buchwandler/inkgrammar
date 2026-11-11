@@ -37,6 +37,7 @@ from .optimizer import (
 )
 from .parameterization import ParameterSpace
 from .render import FittingRender, render_paths
+from .spline import spline_to_cubic_segments
 from .workspace import FitProjectBundle
 
 
@@ -73,9 +74,19 @@ def primitive_path(template: PrimitiveTemplate, transform: TopologyTransform) ->
             transform.dy + transform.scale_y * y,
         )
 
-    start = map_point(template.frame.start)
+    if template.kind == "bspline-centerline":
+        if template.spline is None:
+            raise ValueError("bspline-centerline primitive has no spline geometry")
+        start_point = tuple(template.spline.control_points[0])
+        segments = spline_to_cubic_segments(template.spline)
+    else:
+        start_point = template.frame.start
+        segments = template.segments
+        if segments is None:
+            raise ValueError("cubic-chain primitive has no segments")
+    start = map_point(start_point)
     commands = [f"M {_number(start[0])} {_number(start[1])}"]
-    for segment in template.segments:
+    for segment in segments:
         c1, c2, end = map(map_point, (segment.c1, segment.c2, segment.end))
         commands.append(
             "C "
@@ -187,6 +198,8 @@ def _render_sample(
 
 
 def _primitive_objective_config(bundle: FitProjectBundle) -> ObjectiveConfig:
+    if bundle.fit_config.objective.version == 4:
+        return bundle.fit_config.objective
     weights = bundle.fit_config.objective.weights.model_copy(
         update={
             "soft_mask": 0.0,
@@ -213,8 +226,9 @@ def _evaluate_sample(
     prepared: _PreparedSample,
     bundle: FitProjectBundle,
     config: ObjectiveConfig,
+    occurrence_deltas: dict[str, OccurrenceDelta] | None = None,
 ) -> ObjectiveResult:
-    rendered, paths = _render_sample(template, prepared, bundle)
+    rendered, paths = _render_sample(template, prepared, bundle, occurrence_deltas)
     local_regions = []
     for _, mask, instance_ids in prepared.regions:
         component = np.zeros(prepared.reference.shape, dtype=np.float32)
@@ -231,7 +245,11 @@ def _evaluate_sample(
         target_distance_field=prepared.target_distance,
         local_regions=local_regions,
         paths=paths,
-        complexity_count=float(len(template.segments)),
+        complexity_count=float(
+            len(template.spline.control_points)
+            if template.spline is not None
+            else len(template.segments or ())
+        ),
     )
 
 
@@ -324,6 +342,7 @@ def _write_private_overlays(
     occurrence_deltas: dict[str, dict[str, OccurrenceDelta]] | None = None,
     *,
     include_nominal: bool = False,
+    diagnostic_curves: dict[str, tuple[np.ndarray, np.ndarray]] | None = None,
 ) -> Path:
     overlays_root = bundle.private_work_dir / "overlays"
     if overlays_root.is_symlink():
@@ -363,8 +382,35 @@ def _write_private_overlays(
                 overlay[reference_ink] = (220, 40, 40)
                 overlay[generated_ink] = (40, 70, 220)
                 overlay[reference_ink & generated_ink] = (30, 30, 30)
-                overlay[target_skeleton] = (20, 160, 60)
+                selected_curves = []
+                for instance_id in instance_ids:
+                    curve = (diagnostic_curves or {}).get(f"{prepared.sample.id}--{instance_id}")
+                    if curve is not None:
+                        selected_curves.append(curve)
+                overlay[target_skeleton] = (255, 165, 0) if selected_curves else (20, 160, 60)
                 overlay[generated_skeleton] = (200, 30, 180)
+                if selected_curves:
+                    image = Image.fromarray(overlay)
+                    draw = ImageDraw.Draw(image)
+                    for xy, tangents in selected_curves:
+                        local_points = [
+                            (round(point[0] - left), round(point[1] - top)) for point in xy
+                        ]
+                        draw.line(local_points, fill=(20, 160, 60), width=1)
+                        for point in (local_points[0], local_points[-1]):
+                            draw.ellipse(
+                                (point[0] - 2, point[1] - 2, point[0] + 2, point[1] + 2),
+                                fill=(255, 255, 0),
+                            )
+                        for index in np.linspace(0, len(xy) - 1, min(5, len(xy)), dtype=int):
+                            point = local_points[index]
+                            tangent = tangents[index]
+                            end = (
+                                round(point[0] + 6 * tangent[0]),
+                                round(point[1] + 6 * tangent[1]),
+                            )
+                            draw.line((point, end), fill=(0, 220, 220), width=1)
+                    overlay = np.asarray(image).copy()
                 label = (
                     f"{prepared.sample.text} / {region_id} / {prepared.sample.split} / {variant}"
                 )
@@ -409,12 +455,16 @@ def _write_private_overlays(
             fill="black",
         )
     legend_y = rows * cell_height + 8
-    draw.text(
-        (6, legend_y),
+    legend = (
         "Red: assigned reference   Blue: generated   Black: overlap   "
-        "Green: target trace   Magenta: generated centerline",
-        fill="black",
+        "Green: target trace   Magenta: generated centerline"
     )
+    if diagnostic_curves is not None:
+        legend += (
+            "   Orange: rejected branches   Green: selected path"
+            "   Yellow: endpoints   Cyan: tangents"
+        )
+    draw.text((6, legend_y), legend, fill="black")
     sheet_path = output_dir / "review-sheet.png"
     if sheet_path.is_symlink():
         raise ValueError("private overlay sheet must not be a symlink")
@@ -556,6 +606,7 @@ def _optimizer_backend(method: str) -> str:
         "differential_evolution+powell": "scipy-differential-evolution+powell",
         "least_squares": "scipy-least-squares-trf",
         "alternating-least-squares": "inkgrammar-alternating-least-squares",
+        "spline-alt-lsq": "inkgrammar-spline-alt-lsq",
     }[method]
 
 
@@ -656,6 +707,10 @@ def optimize_primitive_family(
         from .family_fit_v3 import optimize_primitive_family_v3
 
         return optimize_primitive_family_v3(bundle, primitive_id, resume=resume)
+    if bundle.fit_config.objective.version == 4:
+        from .family_fit_v4 import optimize_primitive_family_v4
+
+        return optimize_primitive_family_v4(bundle, primitive_id, resume=resume)
     family = next(
         (family for family in bundle.families.families if family.primitive == primitive_id),
         None,
