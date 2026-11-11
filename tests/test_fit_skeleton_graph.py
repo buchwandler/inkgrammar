@@ -3,6 +3,7 @@ from skimage.draw import circle_perimeter
 
 from inkgrammar.fitting.skeleton_graph import (
     build_skeleton_graph,
+    prepare_topology_paths,
     prune_spurs,
     select_topology_path,
 )
@@ -149,3 +150,32 @@ def test_open_with_loop_path_preserves_a_cycle_and_its_continuation():
     assert path.edge_ids == (0, 1, 2)
     np.testing.assert_array_equal(path.xy[0], [0.0, 0.0])
     np.testing.assert_array_equal(path.xy[-1], [2.0, 0.0])
+
+
+
+def test_prepared_topology_path_inventory_matches_dynamic_selection():
+    skeleton = np.zeros((9, 9), dtype=bool)
+    skeleton[4, 1:8] = True
+    graph = build_skeleton_graph(
+        skeleton,
+        min_spur_length_px=0.0,
+        already_skeleton=True,
+    )
+    candidate = np.column_stack((np.arange(1.0, 8.0), np.full(7, 4.0)))
+    inventory = prepare_topology_paths(graph)
+
+    prepared_path = select_topology_path(
+        graph,
+        expected_cycles=0,
+        candidate_xy=candidate,
+        path_inventory=inventory,
+    )
+    direct_path = select_topology_path(
+        graph,
+        expected_cycles=0,
+        candidate_xy=candidate,
+    )
+
+    np.testing.assert_array_equal(prepared_path.xy, direct_path.xy)
+    assert prepared_path.edge_ids == direct_path.edge_ids
+    assert prepared_path.ambiguous == direct_path.ambiguous

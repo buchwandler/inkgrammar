@@ -3,6 +3,10 @@ format_version: 1
 families:
   - id: sas-underturn-01
     primitive: sas-underturn-01
+    topology:
+      path_kind: open
+      expected_cycles: 0
+      expected_self_intersections: 0
     alignment:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
@@ -15,6 +19,10 @@ families:
     trajectory_evidence: inferred
   - id: sas-open-oval-01
     primitive: sas-open-oval-01
+    topology:
+      path_kind: open
+      expected_cycles: 0
+      expected_self_intersections: 0
     alignment:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
@@ -27,6 +35,10 @@ families:
     trajectory_evidence: inferred
   - id: sas-ascender-loop-01
     primitive: sas-ascender-loop-01
+    topology:
+      path_kind: open-with-loop
+      expected_cycles: 1
+      expected_self_intersections: 1
     alignment:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
@@ -40,6 +52,10 @@ families:
     trajectory_evidence: inferred
   - id: sas-hump-01
     primitive: sas-hump-01
+    topology:
+      path_kind: open
+      expected_cycles: 0
+      expected_self_intersections: 0
     alignment:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:

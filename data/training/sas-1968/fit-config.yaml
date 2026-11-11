@@ -1,7 +1,23 @@
 format: inkgrammar-fit-config
 format_version: 1
 objective:
-  version: 3
+  version: 4
+  curve:
+    basis: cubic-bspline
+    parameterization: normalized-arclength
+    default_control_points: 6
+    smoothness_lambda: 0.02
+    seed_lambda: 0.01
+    robust_loss: huber
+    robust_scale_px: 1.5
+    adaptive_knots: false
+  correspondence:
+    method: monotone-arclength
+    position_sigma_px: 2.0
+    tangent_sigma_rad: 0.35
+    tangent_weight: 0.2
+    warp_weight: 0.10
+    gap_penalty: 0.20
   assignment:
     sigma_px: 4.0
     min_target_probability: 0.55
@@ -9,37 +25,34 @@ objective:
     recompute_each_cycle: true
   centerline:
     method: skeletonize
-    sample_schedule: [24, 48, 96]
+    sample_schedule: [32, 64, 128]
     min_spur_length_px: 3.0
     min_confidence: 0.25
   geometry:
-    position_sigma_px: 1.5
-    coverage_sigma_px: 1.5
-    endpoint_sigma_px: 1.0
-    tangent_sigma_rad: 0.20
-    radius_sigma_px: 1.5
-    candidate_to_target: 1.0
-    target_to_candidate: 1.0
-    endpoint: 0.8
-    tangent: 0.3
-    radius: 0.1
-    coverage_tolerance_px: 2.0
+    radius: 0.0
   priors:
-    transform: 0.15
-    shape: 0.03
-    curvature: 0.01
+    curvature: 0.0
   family:
     worst: 0.20
     spread: 0.05
 optimizer:
-  method: centerline-em-trf
+  method: spline-annealed-alt-lsq
   seed: 1968
-  loss: soft_l1
-  f_scale: 1.0
-  max_nfev: 120
-  max_cycles: 4
+  anneal_steps: 240
+  anneal_initial_samples: 32
+  anneal_target_uphill_acceptance: 0.80
+  anneal_cooling: 0.975
+  anneal_sigma_max: 0.30
+  anneal_sigma_min: 0.025
+  anneal_reheat_patience: 40
+  anneal_restart_patience: 100
+  anneal_top_k: 4
+  anneal_coarse_cycles: 2
+  anneal_medium_cycles: 4
+  anneal_final_cycles: 10
+  transform_max_nfev: 120
+  irls_iterations: 3
   convergence_relative: 0.0005
-  restarts: 2
 render:
   stroke_width_px: 3.0
   supersampling: 4

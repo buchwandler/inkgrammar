@@ -792,7 +792,17 @@ def test_objective_v3_fit_uses_centerline_assignments_and_keeps_validation_and_h
     assert second.report["validation"]["samples"][0]["objective"] != first_validation
 
 
-def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
+@pytest.mark.parametrize(
+    "optimizer_method",
+    [
+        "spline-alt-lsq",
+        "spline-annealed-alt-lsq",
+        "dual-annealing+spline-alt-lsq",
+        "spline-random-restarts",
+        "differential-evolution+spline-alt-lsq",
+    ],
+)
+def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path, optimizer_method):
     repository, project_path, source_dir = _write_project(tmp_path)
     project_dir = project_path.parent
     config_path = project_dir / "fit-config.yaml"
@@ -824,7 +834,7 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
         "priors": {"curvature": 0.0},
     }
     config["optimizer"] = {
-        "method": "spline-alt-lsq",
+        "method": optimizer_method,
         "seed": 1968,
         "max_cycles": 4,
         "transform_max_nfev": 30,
@@ -832,6 +842,22 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
         "assignment_update_interval": 1,
         "convergence_relative": 0.0005,
     }
+    if optimizer_method in {
+        "spline-annealed-alt-lsq",
+        "dual-annealing+spline-alt-lsq",
+        "spline-random-restarts",
+        "differential-evolution+spline-alt-lsq",
+    }:
+        config["optimizer"].update(
+            {
+                "anneal_steps": 2,
+                "anneal_initial_samples": 2,
+                "anneal_top_k": 2,
+                "anneal_coarse_cycles": 1,
+                "anneal_medium_cycles": 1,
+                "anneal_final_cycles": 1,
+            }
+        )
     _write_yaml(config_path, config)
     seed_path = project_dir / "seed-grammar.yaml"
     original_seed = seed_path.read_bytes()
@@ -842,13 +868,30 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
 
     assert result.report["format_version"] == 4
     assert result.report["objective_version"] == 4
-    assert result.report["optimizer"]["backend"] == "inkgrammar-spline-alt-lsq"
+    expected_backend = {
+        "spline-alt-lsq": "inkgrammar-spline-alt-lsq",
+        "spline-annealed-alt-lsq": "inkgrammar-annealed-spline-alt-lsq",
+        "dual-annealing+spline-alt-lsq": "scipy-dual-annealing-seed",
+        "spline-random-restarts": "inkgrammar-random-restart-spline-seed",
+        "differential-evolution+spline-alt-lsq": "scipy-differential-evolution-spline-seed",
+    }[optimizer_method]
+    assert result.report["optimizer"]["backend"] == expected_backend
     assert result.report["primitive"]["kind"] == "bspline-centerline"
     assert result.report["diagnostics"]["seed_conversion"]["source_kind"] == "cubic-chain"
     assert result.report["diagnostics"]["assignment"]["cycles"] > 0
     assert result.report["diagnostics"]["topology"]["matches"] is True
     diagnostics = result.report["diagnostics"]
     assert 0.0 <= diagnostics["assignment"]["mean_entropy"] <= 1.0
+    assert (diagnostics["annealing"] is not None) == (
+        optimizer_method in {"spline-annealed-alt-lsq", "dual-annealing+spline-alt-lsq"}
+    )
+    assert (diagnostics["search_energy"] is not None) == (
+        optimizer_method != "spline-alt-lsq"
+    )
+    assert (diagnostics["seed_search"] is not None) == (optimizer_method != "spline-alt-lsq")
+    if optimizer_method != "spline-alt-lsq":
+        assert diagnostics["seed_search"]["top_k_refined"] == 2.0
+        assert diagnostics["seed_search"]["coarse_fit_evaluations"] > 0
     assert "target_path_change_fraction" in diagnostics["assignment"]
     assert diagnostics["topology"]["expected_self_intersections"]
     assert "p95_curvature" in diagnostics["smoothness"]
@@ -875,6 +918,8 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
 
     report_bytes = result.json_report_path.read_bytes()
     checkpoint_bytes = result.checkpoint_path.read_bytes()
+    assert b".png" not in checkpoint_bytes
+    assert b"history" not in checkpoint_bytes.lower()
     repeated = optimize_primitive_family(bundle, PRIMITIVE_ID)
     assert repeated.report == result.report
     assert result.json_report_path.read_bytes() == report_bytes
@@ -882,9 +927,48 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path):
 
     checkpoint = load_checkpoint(result.checkpoint_path)
     assert checkpoint.optimizer.objective_version == 4
+    assert checkpoint.training_metrics["topology_exact_evaluations"] >= 0
+    assert checkpoint.training_metrics["topology_penalized_evaluations"] >= 0
+    assert checkpoint.training_metrics["topology_no_path_evaluations"] >= 0
+    if optimizer_method == "spline-alt-lsq":
+        assert checkpoint.training_metrics["seed_search_coarse_fit_evaluations"] == 0
+    else:
+        assert checkpoint.training_metrics["seed_search_coarse_fit_evaluations"] > 0
+        assert checkpoint.training_metrics["seed_search_initial_energy"] >= 0
+        assert checkpoint.training_metrics["seed_search_best_coarse_energy"] >= 0
+        assert checkpoint.training_metrics["seed_search_final_energy"] >= 0
     assert any(name.startswith("shared.control_points.") for name in checkpoint.parameters)
     cli_result = CliRunner().invoke(
         app,
         ["fit", "optimize-primitive", str(project_path), PRIMITIVE_ID, "--resume"],
     )
     assert cli_result.exit_code == 0, cli_result.output
+    report_result = CliRunner().invoke(
+        app,
+        ["fit", "report", str(project_path), "--format", "markdown"],
+    )
+    assert report_result.exit_code == 0, report_result.output
+    assert ("Global seed search" in report_result.output) == (
+        optimizer_method != "spline-alt-lsq"
+    )
+    if optimizer_method != "spline-alt-lsq":
+        holdout_mask = np.zeros((64, 64), dtype=np.uint8)
+        holdout_mask[31:34, 12:52] = 255
+        Image.fromarray(holdout_mask, mode="L").save(
+            bundle.private_work_dir / "materialized" / "masks" / "sample-C.png",
+            format="PNG",
+            optimize=False,
+        )
+        holdout_distance = distance_transform_edt(holdout_mask == 0).astype(np.float32)
+        with (
+            bundle.private_work_dir / "materialized" / "distance-fields" / "sample-C.npy"
+        ).open("wb") as stream:
+            np.save(stream, holdout_distance, allow_pickle=False)
+        holdout_changed = optimize_primitive_family(bundle, PRIMITIVE_ID)
+        assert holdout_changed.report["parameters"] == pytest.approx(
+            result.report["parameters"], abs=1e-8
+        )
+        assert (
+            holdout_changed.report["hold_out"]["samples"][0]["objective"]
+            != result.report["hold_out"]["samples"][0]["objective"]
+        )

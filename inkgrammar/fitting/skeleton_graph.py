@@ -82,6 +82,13 @@ class SkeletonPath:
     ambiguous: bool
     alternatives: int
 
+@dataclass(frozen=True)
+class TopologyPathInventory:
+    graph: SkeletonGraph
+    paths_by_kind: dict[
+        Literal["open", "loop", "open-with-loop"],
+        tuple[tuple[tuple[int, ...], int, int, int], ...],
+    ]
 
 def _pixel_adjacency(skeleton: np.ndarray) -> dict[Pixel, tuple[Pixel, ...]]:
     pixels = {tuple(map(int, pixel)) for pixel in np.argwhere(skeleton)}
@@ -360,6 +367,18 @@ def _loop_paths(graph: SkeletonGraph) -> list[tuple[tuple[int, ...], int, int, i
         walk(node.id, node.id, (), {node.id})
     return list(paths.values())
 
+def prepare_topology_paths(graph: SkeletonGraph) -> TopologyPathInventory:
+    """Enumerate candidate routes once so repeated selections only rerank them."""
+    return TopologyPathInventory(
+        graph=graph,
+        paths_by_kind={
+            "open": tuple(_open_paths(graph, "open")),
+            "loop": tuple(_loop_paths(graph)),
+            "open-with-loop": tuple(_open_paths(graph, "open-with-loop")),
+        },
+    )
+
+
 
 def _path_curvature_cost(xy: np.ndarray) -> float:
     vectors = np.diff(xy, axis=0)
@@ -378,25 +397,21 @@ def _path_curvature_cost(xy: np.ndarray) -> float:
     return float(np.mean(turns[adjacent] ** 2)) if np.any(adjacent) else 0.0
 
 
-def select_topology_path(
+def rank_topology_paths(
     graph: SkeletonGraph,
     *,
     path_kind: Literal["open", "loop", "open-with-loop"] = "open",
-    expected_cycles: int | None = None,
     expected_endpoints: tuple[Point | None, Point | None] | None = None,
     endpoint_tolerance_px: float = 3.0,
     expected_length_px: float | None = None,
     candidate_xy: np.ndarray | None = None,
-) -> SkeletonPath:
-    """Choose a path after enforcing topology and endpoint evidence.
-
-    Candidate proximity is only the final tie-breaker among paths that pass the
-    hard topology and endpoint constraints.
-    """
+    path_inventory: TopologyPathInventory | None = None,
+) -> tuple[SkeletonPath, ...]:
+    """Return feasible paths in deterministic candidate-proximity order."""
     if path_kind not in {"open", "loop", "open-with-loop"}:
         raise ValueError(f"unsupported path kind: {path_kind}")
-    if expected_cycles is not None and graph.cycle_count != expected_cycles:
-        raise ValueError(f"skeleton has {graph.cycle_count} cycles, expected {expected_cycles}")
+    if path_inventory is not None and path_inventory.graph is not graph:
+        raise ValueError("topology path inventory belongs to a different skeleton graph")
     if not np.isfinite(endpoint_tolerance_px) or endpoint_tolerance_px < 0.0:
         raise ValueError("endpoint tolerance must be finite and nonnegative")
     if expected_length_px is not None and (
@@ -411,9 +426,11 @@ def select_topology_path(
     if candidate is not None and not np.isfinite(candidate).all():
         raise ValueError("candidate curve must contain finite xy points")
 
-    candidates = _loop_paths(graph) if path_kind == "loop" else _open_paths(graph, path_kind)
-    if not candidates:
-        raise ValueError(f"no path satisfies topology kind {path_kind!r}")
+    candidates = (
+        path_inventory.paths_by_kind[path_kind]
+        if path_inventory is not None
+        else _loop_paths(graph) if path_kind == "loop" else _open_paths(graph, path_kind)
+    )
     start_expected, end_expected = expected_endpoints or (None, None)
     for point in (start_expected, end_expected):
         if point is not None and (
@@ -421,7 +438,7 @@ def select_topology_path(
         ):
             raise ValueError("expected endpoint coordinates must be finite xy pairs")
     start_nodes = {node.id: np.asarray(node.xy) for node in graph.nodes}
-    filtered = []
+    scored = []
     for edge_ids, start, end, cycles in candidates:
         if (
             start_expected is not None
@@ -457,7 +474,7 @@ def select_topology_path(
             abs(length - expected_length_px) if expected_length_px is not None else length
         )
         curvature = _path_curvature_cost(xy)
-        filtered.append(
+        scored.append(
             (
                 edge_ids,
                 start,
@@ -472,29 +489,69 @@ def select_topology_path(
                 directional_proximity,
             )
         )
-    if not filtered:
-        raise ValueError("no path satisfies the expected endpoint regions")
+    scored.sort(key=lambda item: (-item[6], item[10], item[8], item[9], item[7], item[0]))
+    if not scored:
+        return ()
 
-    filtered.sort(key=lambda item: (-item[6], item[10], item[8], item[9], item[7], item[0]))
-    selected = filtered[0]
     ambiguous = False
-    if len(filtered) > 1:
-        alternative = filtered[1]
+    if len(scored) > 1:
+        selected, alternative = scored[:2]
         same_confidence = abs(selected[6] - alternative[6]) < 0.05
         similar_length = abs(selected[5] - alternative[5]) < max(2.0, 0.05 * selected[5])
         similar_proximity = candidate is None or (
-            abs(selected[8] - alternative[8]) < 0.5 and abs(selected[10] - alternative[10]) < 0.5
+            abs(selected[8] - alternative[8]) < 0.5
+            and abs(selected[10] - alternative[10]) < 0.5
         )
         ambiguous = same_confidence and similar_length and similar_proximity
-    confidence = selected[6] * (0.5 if ambiguous else 1.0)
-    return SkeletonPath(
-        xy=selected[4],
-        edge_ids=selected[0],
-        start_node=selected[1],
-        end_node=selected[2],
-        length_px=selected[5],
-        confidence=confidence,
-        cycle_count=selected[3],
-        ambiguous=ambiguous,
-        alternatives=len(filtered),
+
+    paths = []
+    for index, item in enumerate(scored):
+        paths.append(
+            SkeletonPath(
+                xy=item[4],
+                edge_ids=item[0],
+                start_node=item[1],
+                end_node=item[2],
+                length_px=item[5],
+                confidence=item[6] * (0.5 if index == 0 and ambiguous else 1.0),
+                cycle_count=item[3],
+                ambiguous=index == 0 and ambiguous,
+                alternatives=len(scored),
+            )
+        )
+    return tuple(paths)
+
+
+def select_topology_path(
+    graph: SkeletonGraph,
+    *,
+    path_kind: Literal["open", "loop", "open-with-loop"] = "open",
+    expected_cycles: int | None = None,
+    expected_endpoints: tuple[Point | None, Point | None] | None = None,
+    endpoint_tolerance_px: float = 3.0,
+    expected_length_px: float | None = None,
+    candidate_xy: np.ndarray | None = None,
+    path_inventory: TopologyPathInventory | None = None,
+) -> SkeletonPath:
+    """Choose a path after enforcing the requested graph-cycle and endpoint constraints."""
+    if expected_cycles is not None and graph.cycle_count != expected_cycles:
+        raise ValueError(f"skeleton has {graph.cycle_count} cycles, expected {expected_cycles}")
+    candidates = (
+        path_inventory.paths_by_kind[path_kind]
+        if path_inventory is not None
+        else _loop_paths(graph) if path_kind == "loop" else _open_paths(graph, path_kind)
     )
+    ranked = rank_topology_paths(
+        graph,
+        path_kind=path_kind,
+        expected_endpoints=expected_endpoints,
+        endpoint_tolerance_px=endpoint_tolerance_px,
+        expected_length_px=expected_length_px,
+        candidate_xy=candidate_xy,
+        path_inventory=path_inventory,
+    )
+    if ranked:
+        return ranked[0]
+    if not candidates:
+        raise ValueError(f"no path satisfies topology kind {path_kind!r}")
+    raise ValueError("no path satisfies the expected endpoint regions")

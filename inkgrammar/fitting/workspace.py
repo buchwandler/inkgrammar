@@ -64,13 +64,25 @@ class FitRunConfig(StrictModel):
                 "de_dimension_limit",
                 "joint_refine",
             } & self.optimizer.model_fields_set
+            unsupported |= {
+                name for name in self.optimizer.model_fields_set if name.startswith("anneal_")
+            }
             if unsupported:
                 raise ValueError(
                     f"objective v3 does not support optimizer settings: {sorted(unsupported)}"
                 )
         elif self.objective.version == 4:
-            if self.optimizer.method != "spline-alt-lsq":
-                raise ValueError("objective v4 requires optimizer method spline-alt-lsq")
+            if self.optimizer.method not in {
+                "spline-alt-lsq",
+                "spline-annealed-alt-lsq",
+                "dual-annealing+spline-alt-lsq",
+                "spline-random-restarts",
+                "differential-evolution+spline-alt-lsq",
+            }:
+                raise ValueError(
+                    "objective v4 requires spline-alt-lsq, spline-annealed-alt-lsq, "
+                    "or dual-annealing+spline-alt-lsq"
+                )
             unsupported = {
                 "max_iterations",
                 "de_max_iterations",
@@ -79,11 +91,22 @@ class FitRunConfig(StrictModel):
                 "joint_refine",
                 "restarts",
             } & self.optimizer.model_fields_set
+            if self.optimizer.method == "spline-alt-lsq":
+                unsupported |= {
+                    name for name in self.optimizer.model_fields_set if name.startswith("anneal_")
+                }
             if unsupported:
                 raise ValueError(
                     f"objective v4 does not support optimizer settings: {sorted(unsupported)}"
                 )
-        elif self.optimizer.method in {"centerline-em-trf", "spline-alt-lsq"}:
+        elif self.optimizer.method in {
+            "centerline-em-trf",
+            "spline-alt-lsq",
+            "spline-annealed-alt-lsq",
+            "dual-annealing+spline-alt-lsq",
+            "spline-random-restarts",
+            "differential-evolution+spline-alt-lsq",
+        }:
             raise ValueError("specialized optimizer methods require objective v3 or v4")
         return self
 

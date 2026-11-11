@@ -607,6 +607,10 @@ def _optimizer_backend(method: str) -> str:
         "least_squares": "scipy-least-squares-trf",
         "alternating-least-squares": "inkgrammar-alternating-least-squares",
         "spline-alt-lsq": "inkgrammar-spline-alt-lsq",
+        "spline-annealed-alt-lsq": "inkgrammar-annealed-spline-alt-lsq",
+        "dual-annealing+spline-alt-lsq": "scipy-dual-annealing-seed",
+        "spline-random-restarts": "inkgrammar-random-restart-spline-seed",
+        "differential-evolution+spline-alt-lsq": "scipy-differential-evolution-spline-seed",
     }[method]
 
 
@@ -643,6 +647,22 @@ def _report_markdown(report: dict[str, Any]) -> str:
             "| --- | ---: |",
         ]
     )
+    diagnostics = report.get("diagnostics", {})
+    seed_search = diagnostics.get("seed_search", diagnostics.get("annealing"))
+    if seed_search is not None:
+        search_energy = diagnostics.get("search_energy", {})
+        lines.extend(
+            [
+                "",
+                "## Global seed search",
+                "",
+                f"Method: `{seed_search.get('method', report['optimizer']['backend'])}`",
+                f"Coarse fit evaluations: {seed_search.get('coarse_fit_evaluations', 'n/a')}",
+                f"Initial energy: {search_energy.get('initial', {}).get('total', 'n/a')}",
+                f"Final energy: {search_energy.get('final', {}).get('total', 'n/a')}",
+                "",
+            ]
+        )
     for sample in report["validation"]["samples"]:
         lines.append(f"| `{sample['sample_id']}` | {sample['objective']:.6f} |")
     lines.extend(

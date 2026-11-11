@@ -9,6 +9,7 @@ from inkgrammar.fitting.checkpoint import (
 from inkgrammar.fitting.models import PrimitiveTemplate
 from inkgrammar.fitting.optimizer import (
     OptimizerConfig,
+    _backend,
     checkpoint_from_result,
     optimize_parameters,
     resume_optimization,
@@ -222,3 +223,26 @@ def test_spline_alt_lsq_configuration_exposes_alternating_cycle_controls():
     assert config.transform_max_nfev == 120
     assert config.irls_iterations == 3
     assert config.assignment_update_interval == 1
+
+
+
+def test_annealed_spline_optimizer_settings_are_bounded_and_validated():
+    config = OptimizerConfig(method="spline-annealed-alt-lsq")
+
+    assert config.anneal_steps == 240
+    assert config.anneal_top_k == 4
+    assert _backend(config) == "inkgrammar-annealed-spline-alt-lsq"
+    dual = OptimizerConfig(method="dual-annealing+spline-alt-lsq")
+    assert _backend(dual) == "scipy-dual-annealing-seed"
+    random = OptimizerConfig(method="spline-random-restarts")
+    assert _backend(random) == "inkgrammar-random-restart-spline-seed"
+    differential = OptimizerConfig(method="differential-evolution+spline-alt-lsq")
+    assert _backend(differential) == "scipy-differential-evolution-spline-seed"
+    with pytest.raises(ValueError, match="sigma_min"):
+        OptimizerConfig(anneal_sigma_min=0.4, anneal_sigma_max=0.3)
+    with pytest.raises(ValueError, match="nondecreasing"):
+        OptimizerConfig(
+            anneal_coarse_cycles=4,
+            anneal_medium_cycles=2,
+            anneal_final_cycles=10,
+        )

@@ -4,15 +4,20 @@ import pytest
 from inkgrammar.fitting.family_fit_v4 import (
     MonotoneCurveCorrespondence,
     ObservedCurve,
+    PreparedTopologyTarget,
     SplineOccurrence,
     estimate_constant_width,
+    evaluate_family_search_energy,
+    evaluate_topology_path,
     extract_observed_curve,
     fit_occurrence_transform,
     fit_spline_family,
     monotone_curve_correspondence,
+    prepare_topology_target,
 )
 from inkgrammar.fitting.models import (
     BSplineGeometry,
+    FamilyTopology,
     OccurrenceFitBounds,
     OccurrenceFitState,
     PrimitiveFrame,
@@ -21,6 +26,12 @@ from inkgrammar.fitting.models import (
     TopologyTransform,
 )
 from inkgrammar.fitting.objective import SplineCorrespondenceConfig, SplineCurveConfig
+from inkgrammar.fitting.skeleton_graph import (
+    SkeletonEdge,
+    SkeletonGraph,
+    SkeletonNode,
+    prepare_topology_paths,
+)
 from inkgrammar.fitting.spline import sample_curve_by_arclength
 
 
@@ -87,19 +98,25 @@ def test_topology_target_extracts_an_ordered_confidence_weighted_curve():
     confidence[20, 20] = 0.4
     radius = np.ones(mask.shape)
     candidate = np.column_stack((np.full(31, 20.0), np.arange(5.0, 36.0)))
-
-    target, graph, path = extract_observed_curve(
+    prepared = prepare_topology_target(
         mask,
         confidence=confidence,
         radius=radius,
         min_spur_length_px=0.0,
+    )
+
+    target, graph, path = extract_observed_curve(
+        mask,
+        min_spur_length_px=0.0,
         expected_cycles=0,
         expected_endpoints=((20.0, 5.0), (20.0, 35.0)),
         candidate_xy=candidate,
+        prepared_target=prepared,
         sample_count=31,
     )
 
     assert graph.endpoint_count == 2
+    assert graph is prepared.graph
     assert path.start_node != path.end_node
     assert np.all(np.diff(target.u) > 0.0)
     assert target.xy.shape == (31, 2)
@@ -270,3 +287,136 @@ def test_width_profile_is_separate_from_centerline_shape():
         estimate_constant_width(np.array([1.0, 2.0]), np.array([1.0, 1.0]), TopologyTransform())
         == 3.0
     )
+
+
+
+def prepared_target_from_graph(graph):
+    shape = (9, 9)
+    return PreparedTopologyTarget(
+        mask=np.zeros(shape, dtype=bool),
+        graph=graph,
+        path_inventory=prepare_topology_paths(graph),
+        radius_map=np.zeros(shape),
+        confidence_map=np.ones(shape),
+        min_spur_length_px=0.0,
+    )
+
+
+def incidental_cycle_graph():
+    return SkeletonGraph(
+        nodes=(
+            SkeletonNode(0, (1.0, 2.0), degree=1, radius=1.0, confidence=1.0),
+            SkeletonNode(1, (4.0, 2.0), degree=3, radius=1.0, confidence=1.0),
+            SkeletonNode(2, (7.0, 2.0), degree=1, radius=1.0, confidence=1.0),
+        ),
+        edges=(
+            SkeletonEdge(0, 1, np.array([[1.0, 2.0], [4.0, 2.0]]), 3.0, 1.0, 1.0),
+            SkeletonEdge(
+                1,
+                1,
+                np.array([[4.0, 2.0], [4.0, 1.0], [5.0, 1.0], [5.0, 2.0], [4.0, 2.0]]),
+                4.0,
+                1.0,
+                1.0,
+            ),
+            SkeletonEdge(1, 2, np.array([[4.0, 2.0], [7.0, 2.0]]), 3.0, 1.0, 1.0),
+        ),
+    )
+
+
+def test_declared_open_topology_returns_finite_penalty_for_incidental_graph_cycle():
+    prepared = prepared_target_from_graph(incidental_cycle_graph())
+    candidate = np.array([[1.0, 2.0], [4.0, 2.0], [7.0, 2.0]])
+
+    result = evaluate_topology_path(
+        prepared,
+        FamilyTopology(
+            path_kind="open",
+            expected_cycles=0,
+            expected_self_intersections=0,
+        ),
+        candidate,
+    )
+
+    assert result.path is not None
+    assert result.exact_match is False
+    assert np.isfinite(result.topology_penalty)
+    assert result.diagnostics["expected_path_kind"] == "open"
+    assert result.diagnostics["selected_path_kind"] == "open"
+    assert result.diagnostics["cycle_mismatch"] == 1
+
+
+def test_candidate_self_intersection_does_not_change_declared_open_topology():
+    prepared = prepared_target_from_graph(incidental_cycle_graph())
+    candidate = np.array(
+        [[1.0, 3.0], [5.0, 3.0], [5.0, 1.0], [3.0, 5.0], [7.0, 5.0]]
+    )
+
+    result = evaluate_topology_path(
+        prepared,
+        FamilyTopology(
+            path_kind="open",
+            expected_cycles=0,
+            expected_self_intersections=0,
+        ),
+        candidate,
+    )
+
+    assert result.path is not None
+    assert result.diagnostics["expected_path_kind"] == "open"
+    assert result.diagnostics["candidate_self_intersections"] == 1
+    assert result.topology_penalty >= 10.0
+
+
+def test_search_topology_returns_finite_no_path_result():
+    graph = SkeletonGraph(nodes=(), edges=())
+    prepared = prepared_target_from_graph(graph)
+
+    result = evaluate_topology_path(
+        prepared,
+        FamilyTopology(path_kind="open-with-loop", expected_cycles=1),
+        np.array([[1.0, 2.0], [3.0, 2.0]]),
+    )
+
+    assert result.path is None
+    assert result.exact_match is False
+    assert result.topology_penalty == 50.0
+    assert result.diagnostics["no_path"] is True
+
+    configured = evaluate_topology_path(
+        prepared,
+        FamilyTopology(path_kind="open-with-loop", expected_cycles=1),
+        np.array([[1.0, 2.0], [3.0, 2.0]]),
+        no_path_penalty=17.0,
+    )
+    assert configured.topology_penalty == 17.0
+
+
+def test_family_search_energy_reports_balanced_terms_and_invalid_penalty():
+    energy = evaluate_family_search_energy(
+        [1.0, 3.0],
+        endpoint_values=[2.0],
+        tangent_values=[0.4],
+        topology_values=[5.0],
+        saturation_values=[0.25],
+        assignment_instability=0.3,
+        roughness_penalty=0.2,
+        seed_distance_penalty=0.1,
+    )
+
+    assert energy.total == pytest.approx(7.095)
+    assert energy.geometry_mean == pytest.approx(2.0)
+    assert energy.geometry_worst == pytest.approx(3.0)
+    assert energy.geometry_spread == pytest.approx(1.0)
+    assert energy.as_dict()["total"] == energy.total
+
+    invalid = evaluate_family_search_energy([1.0], invalid_candidate=True)
+    assert invalid.total == 1e6
+    assert np.isfinite(invalid.total)
+
+
+def test_family_search_energy_rejects_nonfinite_or_negative_terms():
+    with pytest.raises(ValueError, match="finite and nonnegative"):
+        evaluate_family_search_energy([float("nan")])
+    with pytest.raises(ValueError, match="finite and nonnegative"):
+        evaluate_family_search_energy([-0.1])

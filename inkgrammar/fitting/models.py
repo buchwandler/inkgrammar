@@ -627,9 +627,17 @@ class FamilyAlignmentConfig(StrictModel):
         return self
 
 
+class FamilyTopology(StrictModel):
+    path_kind: Literal["open", "loop", "open-with-loop"]
+    expected_cycles: int | None = Field(default=None, ge=0)
+    expected_self_intersections: int | None = Field(default=None, ge=0)
+    endpoint_policy: Literal["supervised", "open", "auto"] = "auto"
+
+
 class FamilyDefinition(StrictModel):
     id: str
     primitive: str
+    topology: FamilyTopology | None = None
     fit: list[str] = Field(default_factory=list)
     validation: list[str] = Field(default_factory=list)
     hold_out: list[str] = Field(default_factory=list)

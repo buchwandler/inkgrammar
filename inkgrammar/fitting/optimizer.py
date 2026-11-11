@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from ..models import StrictModel
 from .checkpoint import CheckpointIteration, FitCheckpoint, summarize_trace
@@ -21,6 +21,10 @@ class OptimizerConfig(StrictModel):
         "alternating-least-squares",
         "centerline-em-trf",
         "spline-alt-lsq",
+        "spline-annealed-alt-lsq",
+        "dual-annealing+spline-alt-lsq",
+        "spline-random-restarts",
+        "differential-evolution+spline-alt-lsq",
     ] = "powell"
     seed: int = Field(default=1968, ge=0)
     max_iterations: int = Field(default=200, gt=0)
@@ -39,6 +43,29 @@ class OptimizerConfig(StrictModel):
     joint_refine: bool = True
     restarts: int = Field(default=8, ge=1)
 
+    anneal_steps: int = Field(default=240, ge=1)
+    anneal_initial_samples: int = Field(default=32, ge=1)
+    anneal_target_uphill_acceptance: float = Field(default=0.80, gt=0, lt=1)
+    anneal_cooling: float = Field(default=0.975, gt=0, lt=1)
+    anneal_sigma_max: float = Field(default=0.30, gt=0)
+    anneal_sigma_min: float = Field(default=0.025, gt=0)
+    anneal_reheat_patience: int = Field(default=40, ge=1)
+    anneal_restart_patience: int = Field(default=100, ge=1)
+    anneal_top_k: int = Field(default=4, ge=1)
+    anneal_coarse_cycles: int = Field(default=2, ge=1)
+    anneal_medium_cycles: int = Field(default=4, ge=1)
+    anneal_final_cycles: int = Field(default=10, ge=1)
+    anneal_topology_penalty: float = Field(default=20.0, ge=0)
+    anneal_no_path_penalty: float = Field(default=50.0, ge=0)
+    anneal_transform_saturation_penalty: float = Field(default=5.0, ge=0)
+
+    @model_validator(mode="after")
+    def validate_annealing_ranges(self) -> OptimizerConfig:
+        if self.anneal_sigma_min > self.anneal_sigma_max:
+            raise ValueError("annealing sigma_min must not exceed sigma_max")
+        if not self.anneal_coarse_cycles <= self.anneal_medium_cycles <= self.anneal_final_cycles:
+            raise ValueError("annealing refinement cycles must be nondecreasing")
+        return self
 
 @dataclass(frozen=True)
 class OptimizationResult:
@@ -67,6 +94,14 @@ def _backend(config: OptimizerConfig) -> str:
         return "inkgrammar-alternating-least-squares"
     if config.method == "spline-alt-lsq":
         return "inkgrammar-spline-alt-lsq"
+    if config.method == "spline-annealed-alt-lsq":
+        return "inkgrammar-annealed-spline-alt-lsq"
+    if config.method == "dual-annealing+spline-alt-lsq":
+        return "scipy-dual-annealing-seed"
+    if config.method == "spline-random-restarts":
+        return "inkgrammar-random-restart-spline-seed"
+    if config.method == "differential-evolution+spline-alt-lsq":
+        return "scipy-differential-evolution-spline-seed"
     return "scipy-differential-evolution+powell"
 
 

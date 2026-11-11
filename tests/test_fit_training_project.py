@@ -45,8 +45,10 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     )
     assert len(source_lock.sources) == 5
     assert len(corpus.samples) == 15
-    assert objective.version == 3
+    assert objective.version == 4
     assert optimizer.seed == 1968
+    assert optimizer.method == "spline-annealed-alt-lsq"
+    assert optimizer.anneal_steps == 240
     assert set(topology.glyphs) <= {sample.text for sample in corpus.samples}
     assert all(
         part.primitive in grammar.primitives
@@ -190,5 +192,36 @@ def test_objective_v3_rejects_unsupported_optimizer_settings():
         },
     }
 
+    with pytest.raises(ValueError, match="does not support optimizer settings"):
+        FitRunConfig.model_validate(config)
+
+
+
+def test_objective_v4_accepts_annealed_method_and_rejects_annealing_settings_on_baseline():
+    config = {
+        "format": "inkgrammar-fit-config",
+        "format_version": 1,
+        "objective": {"version": 4},
+        "optimizer": {
+            "method": "spline-annealed-alt-lsq",
+            "anneal_steps": 12,
+            "anneal_top_k": 2,
+        },
+        "split_policy": {"fit": "fit", "validation": "diagnostic", "hold-out": "report"},
+    }
+    validated = FitRunConfig.model_validate(config)
+    assert validated.optimizer.method == "spline-annealed-alt-lsq"
+    config["optimizer"] = {
+        "method": "dual-annealing+spline-alt-lsq",
+        "anneal_steps": 12,
+    }
+    validated = FitRunConfig.model_validate(config)
+    assert validated.optimizer.method == "dual-annealing+spline-alt-lsq"
+    for method in ("spline-random-restarts", "differential-evolution+spline-alt-lsq"):
+        config["optimizer"] = {"method": method, "anneal_steps": 12}
+        validated = FitRunConfig.model_validate(config)
+        assert validated.optimizer.method == method
+
+    config["optimizer"] = {"method": "spline-alt-lsq", "anneal_steps": 12}
     with pytest.raises(ValueError, match="does not support optimizer settings"):
         FitRunConfig.model_validate(config)

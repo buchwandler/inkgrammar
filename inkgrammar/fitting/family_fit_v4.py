@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from math import sqrt
 from typing import Any, Literal
@@ -8,8 +8,11 @@ from typing import Any, Literal
 import numpy as np
 from scipy.ndimage import distance_transform_edt
 from scipy.optimize import least_squares
+from scipy.spatial import cKDTree
 
+from .annealing import AnnealingConfig, simulated_annealing
 from .models import (
+    FamilyTopology,
     OccurrenceFitState,
     PrimitiveTemplate,
     SplineWidthModel,
@@ -18,7 +21,15 @@ from .models import (
 )
 from .objective import SplineCorrespondenceConfig, SplineCurveConfig
 from .seed_migration import SeedMigrationResult, migrate_legacy_seed
-from .skeleton_graph import SkeletonGraph, SkeletonPath, build_skeleton_graph, select_topology_path
+from .skeleton_graph import (
+    SkeletonGraph,
+    SkeletonPath,
+    TopologyPathInventory,
+    build_skeleton_graph,
+    prepare_topology_paths,
+    rank_topology_paths,
+    select_topology_path,
+)
 from .spline import evaluate_primitive_curve, sample_curve_by_arclength
 from .spline_fit import SplineObservation, solve_shared_spline_coefficients
 
@@ -33,6 +44,138 @@ class ObservedCurve:
     source_indices: np.ndarray
     ambiguous: np.ndarray
     supervise_endpoints: bool = True
+
+@dataclass(frozen=True)
+class PreparedTopologyTarget:
+    mask: np.ndarray
+    graph: SkeletonGraph
+    path_inventory: TopologyPathInventory
+    radius_map: np.ndarray
+    confidence_map: np.ndarray
+    min_spur_length_px: float
+@dataclass(frozen=True)
+class TopologyPathResult:
+    path: SkeletonPath | None
+    exact_match: bool
+    topology_penalty: float
+    diagnostics: dict[str, Any]
+
+class NoTopologyPathError(ValueError):
+    """Raised when no observed skeleton path can support a local fit."""
+
+
+@dataclass(frozen=True)
+class FamilySearchEnergy:
+    total: float
+    geometry_mean: float
+    geometry_worst: float
+    geometry_spread: float
+    endpoint: float
+    tangent: float
+    topology: float
+    saturation: float
+    assignment: float
+    roughness: float
+    seed_distance: float
+
+    def as_dict(self) -> dict[str, float]:
+        return {
+            "total": self.total,
+            "geometry_mean": self.geometry_mean,
+            "geometry_worst": self.geometry_worst,
+            "geometry_spread": self.geometry_spread,
+            "endpoint": self.endpoint,
+            "tangent": self.tangent,
+            "topology": self.topology,
+            "saturation": self.saturation,
+            "assignment": self.assignment,
+            "roughness": self.roughness,
+            "seed_distance": self.seed_distance,
+        }
+
+
+def evaluate_family_search_energy(
+    geometry_values: Sequence[float],
+    *,
+    endpoint_values: Sequence[float] = (),
+    tangent_values: Sequence[float] = (),
+    topology_values: Sequence[float] = (),
+    saturation_values: Sequence[float] = (),
+    assignment_instability: float = 0.0,
+    roughness_penalty: float = 0.0,
+    seed_distance_penalty: float = 0.0,
+    family_worst_weight: float = 0.25,
+    family_spread_weight: float = 0.1,
+    topology_weight: float = 0.4,
+    saturation_weight: float = 0.2,
+    invalid_candidate: bool = False,
+) -> FamilySearchEnergy:
+    def finite_values(name: str, values: Sequence[float]) -> np.ndarray:
+        array = np.asarray(values, dtype=float)
+        if array.ndim != 1 or not np.isfinite(array).all() or np.any(array < 0.0):
+            raise ValueError(f"search energy {name} values must be finite and nonnegative")
+        return array
+
+    geometry = finite_values("geometry", geometry_values)
+    if geometry.size == 0:
+        raise ValueError("search energy requires at least one geometry value")
+    endpoint = finite_values("endpoint", endpoint_values)
+    tangent = finite_values("tangent", tangent_values)
+    topology = finite_values("topology", topology_values)
+    saturation = finite_values("saturation", saturation_values)
+    scalar_values = np.asarray(
+        [
+            assignment_instability,
+            roughness_penalty,
+            seed_distance_penalty,
+            family_worst_weight,
+            family_spread_weight,
+            topology_weight,
+            saturation_weight,
+        ],
+        dtype=float,
+    )
+    if not np.isfinite(scalar_values).all() or np.any(scalar_values < 0.0):
+        raise ValueError("search energy scalar terms and weights must be finite and nonnegative")
+
+    geometry_mean = float(np.mean(geometry))
+    geometry_worst = float(np.max(geometry))
+    geometry_spread = float(np.std(geometry))
+    endpoint_mean = float(np.mean(endpoint)) if endpoint.size else 0.0
+    tangent_mean = float(np.mean(tangent)) if tangent.size else 0.0
+    topology_mean = float(np.mean(topology)) if topology.size else 0.0
+    saturation_mean = float(np.mean(saturation)) if saturation.size else 0.0
+    total = (
+        geometry_mean
+        + (0.35 + family_worst_weight) * geometry_worst
+        + family_spread_weight * geometry_spread
+        + 0.50 * endpoint_mean
+        + 0.25 * tangent_mean
+        + topology_weight * topology_mean
+        + saturation_weight * saturation_mean
+        + 0.10 * assignment_instability
+        + 0.05 * roughness_penalty
+        + 0.05 * seed_distance_penalty
+    )
+    if invalid_candidate:
+        total = 1e6
+    return FamilySearchEnergy(
+        total=float(total),
+        geometry_mean=geometry_mean,
+        geometry_worst=geometry_worst,
+        geometry_spread=geometry_spread,
+        endpoint=endpoint_mean,
+        tangent=tangent_mean,
+        topology=topology_mean,
+        saturation=saturation_mean,
+        assignment=float(assignment_instability),
+        roughness=float(roughness_penalty),
+        seed_distance=float(seed_distance_penalty),
+    )
+
+
+
+
 
 
 @dataclass(frozen=True)
@@ -84,20 +227,14 @@ def _sample_polyline(points: np.ndarray, count: int) -> tuple[np.ndarray, np.nda
     return parameters, sampled, distances
 
 
-def extract_observed_curve(
+def prepare_topology_target(
     target_mask: np.ndarray,
     *,
     confidence: np.ndarray | None = None,
     radius: np.ndarray | None = None,
     min_spur_length_px: float = 3.0,
-    path_kind: Literal["open", "loop", "open-with-loop"] = "open",
-    expected_cycles: int | None = None,
-    expected_endpoints: tuple[tuple[float, float] | None, tuple[float, float] | None] | None = None,
-    candidate_xy: np.ndarray | None = None,
-    endpoint_tolerance_px: float = 4.0,
-    sample_count: int = 128,
-) -> tuple[ObservedCurve, SkeletonGraph, SkeletonPath]:
-    """Build an ordered, confidence-weighted curve from a topology-selected skeleton path."""
+) -> PreparedTopologyTarget:
+    """Build the candidate-independent graph, path inventory, and target maps once."""
     mask = np.asarray(target_mask, dtype=bool)
     if mask.ndim != 2 or not np.any(mask):
         raise ValueError("target mask must be a nonempty two-dimensional image")
@@ -121,20 +258,66 @@ def extract_observed_curve(
         or np.any(radius_map < 0.0)
     ):
         raise ValueError("target radius must be finite, nonnegative, and match the mask")
-
     graph = build_skeleton_graph(
         mask,
         min_spur_length_px=min_spur_length_px,
         radius=radius_map,
         confidence=confidence_map,
     )
-    path = select_topology_path(
+    return PreparedTopologyTarget(
+        mask=mask,
+        graph=graph,
+        path_inventory=prepare_topology_paths(graph),
+        radius_map=radius_map,
+        confidence_map=confidence_map,
+        min_spur_length_px=min_spur_length_px,
+    )
+
+
+def extract_observed_curve(
+    target_mask: np.ndarray,
+    *,
+    confidence: np.ndarray | None = None,
+    radius: np.ndarray | None = None,
+    min_spur_length_px: float = 3.0,
+    path_kind: Literal["open", "loop", "open-with-loop"] = "open",
+    expected_cycles: int | None = None,
+    expected_endpoints: tuple[tuple[float, float] | None, tuple[float, float] | None] | None = None,
+    candidate_xy: np.ndarray | None = None,
+    prepared_target: PreparedTopologyTarget | None = None,
+    preselected_path: SkeletonPath | None = None,
+    endpoint_tolerance_px: float = 4.0,
+    sample_count: int = 128,
+) -> tuple[ObservedCurve, SkeletonGraph, SkeletonPath]:
+    """Build an ordered, confidence-weighted curve from a topology-selected skeleton path."""
+    mask = np.asarray(target_mask, dtype=bool)
+    if mask.ndim != 2 or not np.any(mask):
+        raise ValueError("target mask must be a nonempty two-dimensional image")
+    if prepared_target is None:
+        prepared_target = prepare_topology_target(
+            mask,
+            confidence=confidence,
+            radius=radius,
+            min_spur_length_px=min_spur_length_px,
+        )
+    elif (
+        confidence is not None
+        or radius is not None
+        or not np.array_equal(mask, prepared_target.mask)
+        or min_spur_length_px != prepared_target.min_spur_length_px
+    ):
+        raise ValueError("prepared topology target does not match the requested observation")
+    confidence_map = prepared_target.confidence_map
+    radius_map = prepared_target.radius_map
+    graph = prepared_target.graph
+    path = preselected_path or select_topology_path(
         graph,
         path_kind=path_kind,
         expected_cycles=expected_cycles,
         expected_endpoints=expected_endpoints,
         endpoint_tolerance_px=endpoint_tolerance_px,
         candidate_xy=candidate_xy,
+        path_inventory=prepared_target.path_inventory,
     )
     u, xy, _ = _sample_polyline(path.xy, sample_count)
     tangents = np.gradient(xy, axis=0)
@@ -673,6 +856,132 @@ def _has_polyline_self_intersection(points: np.ndarray) -> bool:
     return False
 
 
+def evaluate_topology_path(
+    prepared_target: PreparedTopologyTarget,
+    expected_topology: FamilyTopology,
+    candidate_xy: np.ndarray,
+    *,
+    endpoint_tolerance_px: float = 3.0,
+    cycle_penalty: float = 20.0,
+    no_path_penalty: float = 50.0,
+) -> TopologyPathResult:
+    """Rank candidate paths against declared topology without rejecting mismatches."""
+    candidate = np.asarray(candidate_xy, dtype=float)
+    if candidate.ndim != 2 or candidate.shape[1] != 2 or len(candidate) < 2:
+        raise ValueError("candidate curve must have shape (N, 2) with N >= 2")
+    if not np.isfinite(candidate).all():
+        raise ValueError("candidate curve must contain finite xy points")
+
+    fallback_kinds = {
+        "open": ("open", "open-with-loop", "loop"),
+        "loop": ("loop", "open-with-loop", "open"),
+        "open-with-loop": ("open-with-loop", "open", "loop"),
+    }
+    candidate_intersections = int(_has_polyline_self_intersection(candidate))
+    ranked = []
+    for path_kind in fallback_kinds[expected_topology.path_kind]:
+        paths = rank_topology_paths(
+            prepared_target.graph,
+            path_kind=path_kind,
+            endpoint_tolerance_px=endpoint_tolerance_px,
+            candidate_xy=candidate,
+            path_inventory=prepared_target.path_inventory,
+        )
+        for path in paths:
+            expected_endpoints = 0 if expected_topology.path_kind == "loop" else 2
+            cycle_mismatch = (
+                0
+                if expected_topology.expected_cycles is None
+                else max(
+                    abs(prepared_target.graph.cycle_count - expected_topology.expected_cycles),
+                    abs(path.cycle_count - expected_topology.expected_cycles),
+                )
+            )
+            endpoint_mismatch = abs(prepared_target.graph.endpoint_count - expected_endpoints)
+            intersection_mismatch = (
+                0
+                if expected_topology.expected_self_intersections is None
+                else max(
+                    abs(candidate_intersections - expected_topology.expected_self_intersections),
+                    abs(
+                        int(_has_polyline_self_intersection(path.xy))
+                        - expected_topology.expected_self_intersections
+                    ),
+                )
+            )
+            path_kind_mismatch = int(path_kind != expected_topology.path_kind)
+            penalty_terms = {
+                "cycle_count": cycle_penalty * cycle_mismatch,
+                "endpoint_count": 10.0 * endpoint_mismatch,
+                "self_intersection": 10.0 * intersection_mismatch,
+                "path_kind": 20.0 * path_kind_mismatch,
+                "ambiguous_path": 5.0 * int(path.ambiguous),
+            }
+            penalty = float(sum(penalty_terms.values()))
+            proximity = float(cKDTree(path.xy).query(candidate, k=1)[0].mean())
+            diagnostics = {
+                "expected_path_kind": expected_topology.path_kind,
+                "selected_path_kind": path_kind,
+                "observed_graph_cycles": prepared_target.graph.cycle_count,
+                "selected_path_cycles": path.cycle_count,
+                "cycle_mismatch": cycle_mismatch,
+                "expected_endpoint_count": expected_endpoints,
+                "observed_endpoint_count": prepared_target.graph.endpoint_count,
+                "endpoint_mismatch": endpoint_mismatch,
+                "expected_self_intersections": expected_topology.expected_self_intersections,
+                "candidate_self_intersections": candidate_intersections,
+                "selected_path_self_intersections": int(_has_polyline_self_intersection(path.xy)),
+                "self_intersection_mismatch": intersection_mismatch,
+                "path_kind_mismatch": bool(path_kind_mismatch),
+                "ambiguous": path.ambiguous,
+                "no_path": False,
+                "penalty_terms": penalty_terms,
+                "penalty": penalty,
+            }
+            exact_match = (
+                penalty == 0.0
+                and path_kind == expected_topology.path_kind
+                and not path.ambiguous
+            )
+            ranked.append(
+                (
+                    penalty,
+                    proximity,
+                    -path.confidence,
+                    path.edge_ids,
+                    path,
+                    exact_match,
+                    diagnostics,
+                )
+            )
+
+    if not ranked:
+        diagnostics = {
+            "expected_path_kind": expected_topology.path_kind,
+            "selected_path_kind": None,
+            "observed_graph_cycles": prepared_target.graph.cycle_count,
+            "selected_path_cycles": None,
+            "cycle_mismatch": None,
+            "expected_endpoint_count": 0 if expected_topology.path_kind == "loop" else 2,
+            "observed_endpoint_count": prepared_target.graph.endpoint_count,
+            "endpoint_mismatch": None,
+            "expected_self_intersections": expected_topology.expected_self_intersections,
+            "candidate_self_intersections": candidate_intersections,
+            "selected_path_self_intersections": None,
+            "self_intersection_mismatch": None,
+            "path_kind_mismatch": False,
+            "ambiguous": False,
+            "no_path": True,
+            "penalty_terms": {"no_path": no_path_penalty},
+            "penalty": no_path_penalty,
+        }
+        return TopologyPathResult(None, False, no_path_penalty, diagnostics)
+
+    ranked.sort(key=lambda item: (item[0], item[1], item[2], item[3]))
+    best = ranked[0]
+    return TopologyPathResult(best[4], best[5], best[0], best[6])
+
+
 def optimize_primitive_family_v4(
     bundle: Any,
     primitive_id: str,
@@ -681,6 +990,7 @@ def optimize_primitive_family_v4(
 ):
     import json
 
+    from scipy.optimize import differential_evolution, dual_annealing
     from scipy.spatial import cKDTree
 
     from .. import __version__
@@ -723,6 +1033,18 @@ def optimize_primitive_family_v4(
 
     objective = bundle.fit_config.objective
     optimizer = bundle.fit_config.optimizer
+    fit_backend = {
+        "spline-alt-lsq": "inkgrammar-spline-alt-lsq",
+        "spline-annealed-alt-lsq": "inkgrammar-annealed-spline-alt-lsq",
+        "dual-annealing+spline-alt-lsq": "scipy-dual-annealing-seed",
+        "spline-random-restarts": "inkgrammar-random-restart-spline-seed",
+        "differential-evolution+spline-alt-lsq": "scipy-differential-evolution-spline-seed",
+    }[optimizer.method]
+    family_topology = family.topology or FamilyTopology(
+        path_kind="open",
+        expected_cycles=0,
+        expected_self_intersections=0,
+    )
     source_template = bundle.grammar.primitives[primitive_id]
     seed_migration = _spline_seed_from_template(
         source_template, objective.curve.default_control_points
@@ -776,7 +1098,7 @@ def optimize_primitive_family_v4(
             checkpoint.project_id != bundle.project.id
             or checkpoint.stage != stage
             or checkpoint.inputs != input_hashes
-            or checkpoint.optimizer.backend != "inkgrammar-spline-alt-lsq"
+            or checkpoint.optimizer.backend != fit_backend
             or checkpoint.optimizer.seed != optimizer.seed
         ):
             raise ValueError("checkpoint inputs or optimizer configuration do not match")
@@ -824,9 +1146,17 @@ def optimize_primitive_family_v4(
             if not np.any(target_mask):
                 raise ValueError(f"no target ink for occurrence {item.key}")
             masks[item.key] = target_mask
+        prepared_targets = {
+            item.key: prepare_topology_target(
+                masks[item.key],
+                min_spur_length_px=objective.centerline.min_spur_length_px,
+            )
+            for item in raw_occurrences
+        }
         topology_diagnostics = {}
-        sample_count = objective.centerline.sample_schedule[-1]
-        previous_selected_edges = {}
+        sample_count = [objective.centerline.sample_schedule[-1]]
+        reference_selected_edges = {}
+        fallback_paths = {}
 
         def update(curve_template, current_states):
             targets = {}
@@ -836,48 +1166,62 @@ def optimize_primitive_family_v4(
                 candidate = sample_curve_by_arclength(
                     curve_template,
                     transform,
-                    max(32, min(256, sample_count)),
+                    max(32, min(256, sample_count[0])),
                 )
                 candidate_xy = _model_to_image(candidate.xy, item.prepared.anchor)
-                closed = np.linalg.norm(candidate_xy[0] - candidate_xy[-1]) <= max(
-                    1.0, 2.0 * bundle.fit_config.render.stroke_width_px
+                topology_result = evaluate_topology_path(
+                    prepared_targets[item.key],
+                    family_topology,
+                    candidate_xy,
+                    endpoint_tolerance_px=max(4.0, 2.0 * objective.assignment.sigma_px),
+                    cycle_penalty=optimizer.anneal_topology_penalty,
+                    no_path_penalty=optimizer.anneal_no_path_penalty,
                 )
-                expected_endpoints = None
-                if closed:
-                    path_kind = "loop"
-                    expected_cycles = 1
-                else:
-                    path_kind = (
-                        "open-with-loop"
-                        if _has_polyline_self_intersection(candidate_xy)
-                        else "open"
+                selected_path = topology_result.path
+                if selected_path is None:
+                    selected_path = fallback_paths.get(item.key)
+                if selected_path is None:
+                    raise NoTopologyPathError(
+                        f"no plausible topology path for occurrence {item.key}"
                     )
-                    expected_cycles = 1 if path_kind == "open-with-loop" else 0
+                fallback_paths.setdefault(item.key, selected_path)
+                path_kind = family_topology.path_kind
+                expected_endpoints = None
                 target, graph, path = extract_observed_curve(
                     masks[item.key],
                     min_spur_length_px=objective.centerline.min_spur_length_px,
+                    prepared_target=prepared_targets[item.key],
                     path_kind=path_kind,
-                    expected_cycles=expected_cycles,
+                    preselected_path=selected_path,
                     expected_endpoints=expected_endpoints,
                     candidate_xy=candidate_xy,
                     endpoint_tolerance_px=max(4.0, 2.0 * objective.assignment.sigma_px),
-                    sample_count=max(32, min(256, sample_count)),
+                    sample_count=max(32, min(256, sample_count[0])),
                 )
                 targets[item.key] = target
                 selected_edges = tuple(path.edge_ids)
-                previous_edges = previous_selected_edges.get(item.key)
-                path_changed = previous_edges is not None and previous_edges != selected_edges
-                previous_selected_edges[item.key] = selected_edges
-                expected_self_intersections = int(_has_polyline_self_intersection(candidate_xy))
+                reference_edges = reference_selected_edges.get(item.key)
+                if reference_edges is None:
+                    reference_selected_edges[item.key] = selected_edges
+                    path_changed = False
+                else:
+                    path_changed = reference_edges != selected_edges
+                candidate_self_intersections = int(_has_polyline_self_intersection(candidate_xy))
                 observed_self_intersections = int(_has_polyline_self_intersection(path.xy))
                 topology_diagnostics[item.key] = {
-                    "path_kind": path_kind,
+                    **topology_result.diagnostics,
+                    "topology_penalty": topology_result.topology_penalty,
+                    "topology_exact": topology_result.exact_match,
+                    "path_kind": family_topology.path_kind,
                     "expected_component_count": 1,
-                    "expected_endpoint_count": 0 if path_kind == "loop" else 2,
+                    "expected_endpoint_count": topology_result.diagnostics[
+                        "expected_endpoint_count"
+                    ],
                     "selected_endpoint_count": 0 if path.start_node == path.end_node else 2,
-                    "expected_cycles": expected_cycles,
+                    "expected_cycles": family_topology.expected_cycles,
                     "observed_cycles": graph.cycle_count,
-                    "expected_self_intersections": expected_self_intersections,
+                    "expected_self_intersections": family_topology.expected_self_intersections,
+                    "candidate_self_intersections": candidate_self_intersections,
                     "observed_self_intersections": observed_self_intersections,
                     "target_path_changed": path_changed,
                     "selected_cycles": path.cycle_count,
@@ -891,35 +1235,405 @@ def optimize_primitive_family_v4(
                 }
             return targets
 
-        return update, topology_diagnostics
+        def set_sample_count(value: int) -> None:
+            sample_count[0] = value
 
-    target_update, topology_diagnostics = target_builder(occurrences)
-    initial_targets = target_update(base_template, base_states)
-    spline_occurrences = [
-        SplineOccurrence(
-            key=item.key,
-            target=initial_targets[item.key],
-            state=states[item.key],
-            origin=item.prepared.anchor,
+        return update, topology_diagnostics, set_sample_count
+
+    target_update, topology_diagnostics, set_target_sample_count = target_builder(occurrences)
+    if optimizer.method in {
+        "spline-annealed-alt-lsq",
+        "dual-annealing+spline-alt-lsq",
+        "spline-random-restarts",
+        "differential-evolution+spline-alt-lsq",
+    }:
+        initial_targets = {}
+        spline_occurrences = []
+    else:
+        initial_targets = target_update(base_template, base_states)
+        spline_occurrences = [
+            SplineOccurrence(
+                key=item.key,
+                target=initial_targets[item.key],
+                state=states[item.key],
+                origin=item.prepared.anchor,
+            )
+            for item in occurrences
+        ]
+    annealing_metadata = None
+    search_energy_summary = None
+    search_evaluation_count = 0
+    if optimizer.method in {
+        "spline-annealed-alt-lsq",
+        "dual-annealing+spline-alt-lsq",
+        "spline-random-restarts",
+        "differential-evolution+spline-alt-lsq",
+    }:
+        base_controls = np.asarray(base_template.spline.control_points, dtype=float)
+        if len(base_controls) != 6:
+            raise ValueError("annealed v4 fitting currently requires six spline control points")
+        if (
+            base_template.spline.endpoint_policy.start != "locked"
+            or base_template.spline.endpoint_policy.end != "locked"
+        ):
+            raise ValueError("annealed v4 fitting requires locked spline endpoints")
+        seed_width = max(float(np.ptp(base_controls[:, 0])), 1e-6)
+        seed_height = max(float(np.ptp(base_controls[:, 1])), 1e-6)
+        displacement_bounds = np.tile([0.20 * seed_width, 0.25 * seed_height], 4)
+        curve_scale = max(float(np.linalg.norm(base_controls[-1] - base_controls[0])), 1.0)
+
+        def template_from_normalized(parameters: np.ndarray) -> PrimitiveTemplate:
+            normalized = np.asarray(parameters, dtype=float)
+            if normalized.shape != (8,) or not np.isfinite(normalized).all():
+                raise ValueError("annealed spline state must be a finite eight-dimensional vector")
+            if np.any(np.abs(normalized) > 1.0):
+                raise ValueError("annealed spline state must stay inside [-1, 1]")
+            controls = base_controls.copy()
+            controls[1:5] += (normalized * displacement_bounds).reshape(4, 2)
+            spline = base_template.spline.model_copy(
+                update={"control_points": [tuple(point) for point in controls]}
+            )
+            return base_template.model_copy(update={"spline": spline})
+
+        def refine_local(
+            start_template: PrimitiveTemplate,
+            start_states: dict[str, OccurrenceFitState],
+            *,
+            cycles: int,
+            sample_count: int,
+            transform_nfev: int,
+            irls_iterations: int,
+        ) -> tuple[SplineFamilyFit, dict[str, ObservedCurve], dict[str, dict[str, Any]]]:
+            set_target_sample_count(sample_count)
+            try:
+                targets = target_update(start_template, start_states)
+                local_occurrences = [
+                    SplineOccurrence(
+                        key=item.key,
+                        target=targets[item.key],
+                        state=start_states[item.key],
+                        origin=item.prepared.anchor,
+                    )
+                    for item in occurrences
+                ]
+                local_fit = fit_spline_family(
+                    start_template,
+                    local_occurrences,
+                    curve_config=objective.curve,
+                    correspondence_config=objective.correspondence,
+                    max_cycles=cycles,
+                    transform_max_nfev=transform_nfev,
+                    irls_iterations=irls_iterations,
+                    tolerance=optimizer.convergence_relative,
+                    target_updater=target_update,
+                    assignment_update_interval=1,
+                    seed_control_points=base_controls,
+                )
+                final_local_targets = target_update(local_fit.geometry, local_fit.states)
+                local_topology = dict(topology_diagnostics)
+                return local_fit, final_local_targets, local_topology
+            finally:
+                set_target_sample_count(objective.centerline.sample_schedule[-1])
+
+        def score_local_fit(
+            local_fit: SplineFamilyFit,
+            targets: dict[str, ObservedCurve],
+            local_topology: dict[str, dict[str, Any]],
+        ) -> FamilySearchEnergy:
+            geometry_values = []
+            endpoint_values = []
+            tangent_values = []
+            topology_values = []
+            saturation_values = []
+            for item in occurrences:
+                target = targets[item.key]
+                state = local_fit.states[item.key]
+                transform = compose_occurrence_transform(item.part.transform, state.delta)
+                candidate = sample_curve_by_arclength(
+                    local_fit.geometry,
+                    transform,
+                    max(128, len(target.xy)),
+                )
+                candidate_xy = _model_to_image(candidate.xy, item.prepared.anchor)
+                candidate_to_target, nearest = cKDTree(target.xy).query(candidate_xy)
+                target_to_candidate = cKDTree(candidate_xy).query(target.xy)[0]
+                geometry_values.append(
+                    0.5
+                    * (
+                        float(np.percentile(candidate_to_target, 95))
+                        + float(np.percentile(target_to_candidate, 95))
+                    )
+                )
+                if target.supervise_endpoints:
+                    endpoint_values.append(
+                        float(
+                            np.sqrt(
+                                np.mean(
+                                    [
+                                        np.linalg.norm(candidate_xy[0] - target.xy[0]) ** 2,
+                                        np.linalg.norm(candidate_xy[-1] - target.xy[-1]) ** 2,
+                                    ]
+                                )
+                            )
+                        )
+                    )
+                candidate_tangent = _unit_tangents(candidate_xy)
+                tangent_dot = np.sum(candidate_tangent * target.tangent[nearest], axis=1)
+                tangent_angles = np.arccos(np.clip(tangent_dot, -1.0, 1.0))
+                tangent_values.append(float(np.sqrt(np.mean(tangent_angles**2))))
+                topology_values.append(float(local_topology[item.key]["topology_penalty"]))
+                for name in state.free_parameters:
+                    lower, upper = getattr(state.bounds, name)
+                    if upper > lower:
+                        normalized = (
+                            2.0 * (getattr(state.delta, name) - lower) / (upper - lower) - 1.0
+                        )
+                        saturation_values.append(max(0.0, abs(normalized) - 0.85) ** 2 / 0.15**2)
+
+            control_points = np.asarray(local_fit.geometry.spline.control_points, dtype=float)
+            roughness = control_roughness_matrix(len(control_points), order=2) @ control_points
+            roughness_penalty = float(np.linalg.norm(roughness) ** 2 / curve_scale**2)
+            seed_distance_penalty = float(
+                np.sum((control_points - base_controls) ** 2) / curve_scale**2
+            )
+            path_change = float(
+                np.mean([item["target_path_changed"] for item in local_topology.values()])
+            )
+            assignment_entropy = float(
+                np.mean([match.mean_entropy for match in local_fit.correspondences.values()])
+            )
+            assignment_instability = float(
+                np.mean([local_fit.assignment_change, path_change, assignment_entropy])
+            )
+            no_path = any(item["no_path"] for item in local_topology.values())
+            return evaluate_family_search_energy(
+                geometry_values,
+                endpoint_values=endpoint_values,
+                tangent_values=tangent_values,
+                topology_values=topology_values,
+                saturation_values=saturation_values,
+                assignment_instability=assignment_instability,
+                roughness_penalty=roughness_penalty,
+                seed_distance_penalty=seed_distance_penalty,
+                family_worst_weight=objective.family.worst,
+                family_spread_weight=objective.family.spread,
+                saturation_weight=optimizer.anneal_transform_saturation_penalty,
+                invalid_candidate=no_path,
+            )
+
+        def refine_parameters(
+            parameters: np.ndarray,
+            *,
+            cycles: int,
+            sample_count: int,
+            transform_nfev: int,
+            irls_iterations: int,
+            start_fit: SplineFamilyFit | None = None,
+        ) -> dict[str, Any]:
+            start_template = (
+                template_from_normalized(parameters) if start_fit is None else start_fit.geometry
+            )
+            start_states = base_states if start_fit is None else start_fit.states
+            local_fit, local_targets, local_topology = refine_local(
+                start_template,
+                start_states,
+                cycles=cycles,
+                sample_count=sample_count,
+                transform_nfev=transform_nfev,
+                irls_iterations=irls_iterations,
+            )
+            return {
+                "parameters": np.asarray(parameters, dtype=float).copy(),
+                "fit": local_fit,
+                "targets": local_targets,
+                "topology": local_topology,
+                "energy": score_local_fit(local_fit, local_targets, local_topology),
+            }
+
+        coarse_records = []
+        coarse_cache = {}
+        coarse_fit_evaluations = 0
+
+        def coarse_objective(parameters: np.ndarray) -> float:
+            nonlocal coarse_fit_evaluations
+            key = tuple(float(value) for value in parameters)
+            record = coarse_cache.get(key)
+            if record is None:
+                try:
+                    record = refine_parameters(
+                        parameters,
+                        cycles=optimizer.anneal_coarse_cycles,
+                        sample_count=32,
+                        transform_nfev=min(30, optimizer.transform_max_nfev),
+                        irls_iterations=1,
+                    )
+                except NoTopologyPathError:
+                    record = {
+                        "parameters": np.asarray(parameters, dtype=float).copy(),
+                        "fit": None,
+                        "targets": {},
+                        "topology": {},
+                        "energy": evaluate_family_search_energy(
+                            [0.0],
+                            topology_values=[optimizer.anneal_no_path_penalty],
+                            invalid_candidate=True,
+                        ),
+                    }
+                coarse_cache[key] = record
+                coarse_fit_evaluations += 1
+            coarse_records.append(record)
+            return record["energy"].total
+        annealing_config = AnnealingConfig(
+            steps=optimizer.anneal_steps,
+            initial_samples=optimizer.anneal_initial_samples,
+            cooling=optimizer.anneal_cooling,
+            sigma_max=optimizer.anneal_sigma_max,
+            sigma_min=optimizer.anneal_sigma_min,
+            reheat_patience=optimizer.anneal_reheat_patience,
+            restart_patience=optimizer.anneal_restart_patience,
+            target_uphill_acceptance=optimizer.anneal_target_uphill_acceptance,
         )
-        for item in occurrences
-    ]
-    fit = fit_spline_family(
-        template,
-        spline_occurrences,
-        curve_config=objective.curve,
-        correspondence_config=objective.correspondence,
-        max_cycles=optimizer.max_cycles,
-        transform_max_nfev=optimizer.transform_max_nfev,
-        irls_iterations=optimizer.irls_iterations,
-        tolerance=optimizer.convergence_relative,
-        target_updater=target_update,
-        assignment_update_interval=optimizer.assignment_update_interval,
-        seed_control_points=np.asarray(base_template.spline.control_points),
-    )
-    template = fit.geometry
-    states = fit.states
-    final_targets = target_update(template, states)
+        evaluation_budget = optimizer.anneal_steps + optimizer.anneal_initial_samples + 1
+        if optimizer.method == "spline-annealed-alt-lsq":
+            annealing_result = simulated_annealing(
+                np.zeros(8),
+                [(-1.0, 1.0)] * 8,
+                coarse_objective,
+                config=annealing_config,
+                seed=optimizer.seed,
+            )
+            search_metadata = {
+                "method": "inkgrammar-simulated-annealing",
+                **annealing_result.trace_summary,
+            }
+        elif optimizer.method == "dual-annealing+spline-alt-lsq":
+            scipy_result = dual_annealing(
+                coarse_objective,
+                bounds=[(-1.0, 1.0)] * 8,
+                maxiter=optimizer.anneal_steps,
+                maxfun=evaluation_budget,
+                seed=optimizer.seed,
+                x0=np.zeros(8),
+                no_local_search=True,
+            )
+            search_metadata = {
+                "method": "scipy-dual-annealing",
+                "objective_evaluations": float(scipy_result.nfev),
+                "best_energy": float(scipy_result.fun),
+                "status": float(scipy_result.status),
+                "success": bool(scipy_result.success),
+                "message": str(scipy_result.message),
+            }
+        elif optimizer.method == "differential-evolution+spline-alt-lsq":
+            scipy_result = differential_evolution(
+                coarse_objective,
+                bounds=[(-1.0, 1.0)] * 8,
+                maxiter=max(0, evaluation_budget // 8 - 1),
+                popsize=1,
+                tol=0.0,
+                atol=0.0,
+                polish=False,
+                seed=optimizer.seed,
+                updating="immediate",
+                workers=1,
+                x0=np.zeros(8),
+            )
+            search_metadata = {
+                "method": "scipy-differential-evolution",
+                "objective_evaluations": float(scipy_result.nfev),
+                "best_energy": float(scipy_result.fun),
+                "success": bool(scipy_result.success),
+                "message": str(scipy_result.message),
+            }
+        else:
+            rng = np.random.default_rng(optimizer.seed)
+            random_parameters = [np.zeros(8)]
+            random_parameters.extend(rng.uniform(-1.0, 1.0, size=(evaluation_budget - 1, 8)))
+            for parameters in random_parameters:
+                coarse_objective(parameters)
+            search_metadata = {
+                "method": "inkgrammar-random-restarts",
+                "evaluations": float(len(random_parameters)),
+                "best_energy": float(
+                    min(record["energy"].total for record in coarse_records)
+                ),
+            }
+        search_metadata["coarse_fit_evaluations"] = float(coarse_fit_evaluations)
+        ranked_coarse = sorted(
+            (record for record in coarse_records if record["fit"] is not None),
+            key=lambda record: record["energy"].total,
+        )
+        if not ranked_coarse:
+            raise NoTopologyPathError("no topology path supports any annealed spline candidate")
+        unique_coarse = []
+        for record in ranked_coarse:
+            if not any(
+                np.linalg.norm(record["parameters"] - existing["parameters"]) < 1e-6
+                for existing in unique_coarse
+            ):
+                unique_coarse.append(record)
+            if len(unique_coarse) == optimizer.anneal_top_k:
+                break
+
+        medium_records = []
+        for record in unique_coarse:
+            medium_records.append(
+                refine_parameters(
+                    record["parameters"],
+                    cycles=optimizer.anneal_medium_cycles,
+                    sample_count=64,
+                    transform_nfev=min(60, optimizer.transform_max_nfev),
+                    irls_iterations=min(2, optimizer.irls_iterations),
+                    start_fit=record["fit"],
+                )
+            )
+        best_medium = min(medium_records, key=lambda record: record["energy"].total)
+        final_record = refine_parameters(
+            best_medium["parameters"],
+            cycles=optimizer.anneal_final_cycles,
+            sample_count=objective.centerline.sample_schedule[-1],
+            transform_nfev=optimizer.transform_max_nfev,
+            irls_iterations=optimizer.irls_iterations,
+            start_fit=best_medium["fit"],
+        )
+        fit = final_record["fit"]
+        template = fit.geometry
+        states = fit.states
+        final_targets = final_record["targets"]
+        topology_diagnostics = final_record["topology"]
+        best_coarse = ranked_coarse[0]
+        annealing_metadata = {
+            **search_metadata,
+            "top_k_refined": float(len(medium_records)),
+        }
+        search_evaluation_count = int(search_metadata["coarse_fit_evaluations"])
+        search_evaluation_count += len(medium_records) + 1
+        search_energy_summary = {
+            "initial": coarse_records[0]["energy"].as_dict(),
+            "best_coarse": best_coarse["energy"].as_dict(),
+            "final": final_record["energy"].as_dict(),
+        }
+    else:
+        fit = fit_spline_family(
+            template,
+            spline_occurrences,
+            curve_config=objective.curve,
+            correspondence_config=objective.correspondence,
+            max_cycles=optimizer.max_cycles,
+            transform_max_nfev=optimizer.transform_max_nfev,
+            irls_iterations=optimizer.irls_iterations,
+            tolerance=optimizer.convergence_relative,
+            target_updater=target_update,
+            assignment_update_interval=optimizer.assignment_update_interval,
+            seed_control_points=np.asarray(base_template.spline.control_points),
+        )
+        template = fit.geometry
+        states = fit.states
+        final_targets = target_update(template, states)
+    
+
+    if not initial_targets:
+        initial_targets = target_update(base_template, base_states)
 
     review_curves = {
         item.key: (final_targets[item.key].xy, final_targets[item.key].tangent)
@@ -1044,7 +1758,7 @@ def optimize_primitive_family_v4(
             }
         raw = _prepare_occurrences(bundle, family, samples)
         split_states = {item.key: item.state for item in raw}
-        update, split_topology = target_builder(raw)
+        update, split_topology, _set_split_sample_count = target_builder(raw)
         targets = update(template, split_states)
         review_curves.update(
             {item.key: (targets[item.key].xy, targets[item.key].tangent) for item in raw}
@@ -1125,9 +1839,22 @@ def optimize_primitive_family_v4(
     )
     topology_match = all(
         item["component_count"] == item["expected_component_count"]
-        and item["selected_cycles"] == item["expected_cycles"]
         and item["selected_endpoint_count"] == item["expected_endpoint_count"]
-        and item["observed_self_intersections"] == item["expected_self_intersections"]
+        and (
+            item["expected_cycles"] is None
+            or (
+                item["selected_cycles"] == item["expected_cycles"]
+                and item["observed_cycles"] == item["expected_cycles"]
+            )
+        )
+        and (
+            item["expected_self_intersections"] is None
+            or (
+                item["candidate_self_intersections"] == item["expected_self_intersections"]
+                and item["observed_self_intersections"] == item["expected_self_intersections"]
+            )
+        )
+        and item["topology_penalty"] == 0.0
         for item in topology_values
     )
     diagnostics = {
@@ -1171,6 +1898,13 @@ def optimize_primitive_family_v4(
                 item["observed_self_intersections"] for item in topology_values
             ],
             "matches": topology_match,
+            "topology_exact_evaluations": sum(
+                int(item["topology_exact"]) for item in topology_values
+            ),
+            "topology_penalized_evaluations": sum(
+                int(item["topology_penalty"] > 0.0) for item in topology_values
+            ),
+            "no_path_evaluations": sum(int(item["no_path"]) for item in topology_values),
             "occurrences": topology_diagnostics,
         },
         "dense_geometry": {
@@ -1197,6 +1931,13 @@ def optimize_primitive_family_v4(
             "interior_knot_count": len(spline.knots[4:-4]),
         },
         "seed_conversion": seed_migration.report,
+        "annealing": (
+            annealing_metadata
+            if optimizer.method in {"spline-annealed-alt-lsq", "dual-annealing+spline-alt-lsq"}
+            else None
+        ),
+        "seed_search": annealing_metadata,
+        "search_energy": search_energy_summary,
     }
 
     occurrence_deltas = {}
@@ -1244,7 +1985,9 @@ def optimize_primitive_family_v4(
     }
 
     final_parameters = parameter_map(template, states)
-    checkpoint_evaluations = fit.assignment_cycles * len(occurrences)
+    checkpoint_evaluations = (
+        search_evaluation_count + fit.assignment_cycles * len(occurrences)
+    )
     if checkpoint is None:
         checkpoint = FitCheckpoint(
             project_id=bundle.project.id,
@@ -1252,7 +1995,7 @@ def optimize_primitive_family_v4(
             created_by=CheckpointCreator(inkgrammar_version=__version__),
             inputs=input_hashes,
             optimizer=CheckpointOptimizer(
-                backend="inkgrammar-spline-alt-lsq",
+                backend=fit_backend,
                 seed=optimizer.seed,
                 objective_version=objective.version,
             ),
@@ -1279,7 +2022,7 @@ def optimize_primitive_family_v4(
             "inputs": input_hashes,
             "optimizer": checkpoint.optimizer.model_copy(
                 update={
-                    "backend": "inkgrammar-spline-alt-lsq",
+                    "backend": fit_backend,
                     "seed": optimizer.seed,
                     "objective_version": objective.version,
                 }
@@ -1296,6 +2039,45 @@ def optimize_primitive_family_v4(
                 ],
                 "assigned_coverage": diagnostics["assignment"]["mean_assigned_coverage"],
                 "topology_match": float(topology_match),
+                "topology_exact_evaluations": float(
+                    diagnostics["topology"]["topology_exact_evaluations"]
+                ),
+                "topology_penalized_evaluations": float(
+                    diagnostics["topology"]["topology_penalized_evaluations"]
+                ),
+                "topology_no_path_evaluations": float(
+                    diagnostics["topology"]["no_path_evaluations"]
+                ),
+                "seed_search_coarse_fit_evaluations": float(
+                    annealing_metadata.get("coarse_fit_evaluations", 0.0)
+                    if annealing_metadata is not None
+                    else 0.0
+                ),
+                "seed_search_initial_energy": float(
+                    search_energy_summary["initial"]["total"]
+                    if search_energy_summary is not None
+                    else 0.0
+                ),
+                "seed_search_best_coarse_energy": float(
+                    search_energy_summary["best_coarse"]["total"]
+                    if search_energy_summary is not None
+                    else 0.0
+                ),
+                "seed_search_final_energy": float(
+                    search_energy_summary["final"]["total"]
+                    if search_energy_summary is not None
+                    else 0.0
+                ),
+                "seed_search_steps": float(
+                    annealing_metadata.get("steps", 0.0)
+                    if annealing_metadata is not None
+                    else 0.0
+                ),
+                "seed_search_accepted_moves": float(
+                    annealing_metadata.get("accepted_moves", 0.0)
+                    if annealing_metadata is not None
+                    else 0.0
+                ),
             },
             "holdout_metrics": (
                 {"mean_objective": float(holdout_report["mean_objective"])}
@@ -1324,8 +2106,20 @@ def optimize_primitive_family_v4(
             "total": float(final_score),
         },
         "optimizer": {
-            "backend": "inkgrammar-spline-alt-lsq",
-            "strategy": "topology-aware alternating sparse spline fit",
+            "backend": fit_backend,
+            "strategy": {
+                "spline-alt-lsq": "topology-aware alternating sparse spline fit",
+                "spline-annealed-alt-lsq": (
+                    "topology-aware annealed basin search with alternating sparse spline refinement"
+                ),
+                "dual-annealing+spline-alt-lsq": (
+                    "SciPy dual-annealing seed search with alternating sparse spline refinement"
+                ),
+                "spline-random-restarts": "uniform random spline seed restarts",
+                "differential-evolution+spline-alt-lsq": (
+                    "SciPy differential-evolution seed search with spline refinement"
+                ),
+            }[optimizer.method],
             "success": True,
             "cycles": fit.cycles,
             "evaluations": checkpoint_evaluations,
@@ -1413,6 +2207,18 @@ def optimize_primitive_family_v4(
         "Visual review remains pending in the private work directory.",
         "",
     ]
+    if annealing_metadata is not None:
+        markdown.extend(
+            [
+                "## Global seed search",
+                "",
+                f"Method: {annealing_metadata['method']}",
+                f"Coarse fit evaluations: {annealing_metadata['coarse_fit_evaluations']}",
+                f"Initial energy: {search_energy_summary['initial']['total']:.6f}",
+                f"Final energy: {search_energy_summary['final']['total']:.6f}",
+                "",
+            ]
+        )
     markdown_report_path.write_text("\n".join(markdown), encoding="utf-8")
     return FitRunArtifacts(
         checkpoint_path=checkpoint_path,
