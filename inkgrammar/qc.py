@@ -5,7 +5,14 @@ from typing import Literal
 
 from .geometry import analyze_path
 from .model import compile_glyph
-from .models import ComponentPart, PathStrokeRecipe, TapStrokeRecipe, WritingModel
+from .models import (
+    ComponentPart,
+    PathStrokeRecipe,
+    RuntimeWritingModel,
+    TapStrokeRecipe,
+    WritingModel,
+    WritingModelV3,
+)
 
 Severity = Literal["error", "warning"]
 
@@ -52,7 +59,7 @@ def _unicode_sequence(text: str) -> list[str]:
     return [f"U+{ord(ch):04X}" for ch in text]
 
 
-def validate_model(model: WritingModel) -> QCReport:
+def _validate_writing_model_v2(model: WritingModel) -> QCReport:
     issues: list[Issue] = []
     source_ids = {source.id for source in model.sources}
 
@@ -350,3 +357,227 @@ def validate_model(model: WritingModel) -> QCReport:
         glyph_count=len(model.glyphs),
         component_count=len(model.components),
     )
+
+
+
+def validate_runtime_model_v3(model: WritingModelV3) -> QCReport:
+    issues: list[Issue] = []
+    source_ids = [source.id for source in model.sources]
+    if len(set(source_ids)) != len(source_ids):
+        issues.append(Issue("error", "source.duplicate-id", "source IDs must be unique", model.id))
+
+    if not (
+        model.metrics.descender
+        < model.metrics.baseline
+        < model.metrics.x_height
+        <= model.metrics.ascender
+    ):
+        issues.append(
+            Issue(
+                "error",
+                "metrics.vertical-order",
+                "expected descender < baseline < x_height <= ascender",
+                model.id,
+            )
+        )
+
+    variant_keys: set[tuple[str, str]] = set()
+    variant_ids: set[str] = set()
+    for character, glyph in model.glyphs.items():
+        if glyph.character != character:
+            issues.append(
+                Issue(
+                    "error",
+                    "glyph.key-mismatch",
+                    f"mapping key {character!r} != glyph.character {glyph.character!r}",
+                    model.id,
+                    character,
+                )
+            )
+        if glyph.unicode != _unicode_sequence(glyph.character):
+            issues.append(
+                Issue(
+                    "error",
+                    "glyph.unicode-mismatch",
+                    f"expected {_unicode_sequence(glyph.character)!r}",
+                    model.id,
+                    character,
+                )
+            )
+        if glyph.default_variant not in glyph.variants:
+            issues.append(
+                Issue(
+                    "error",
+                    "glyph.default-variant",
+                    f"default variant {glyph.default_variant!r} is missing",
+                    model.id,
+                    character,
+                )
+            )
+
+        for variant_key, variant in glyph.variants.items():
+            variant_keys.add((character, variant_key))
+            variant_ids.add(variant.id)
+            if variant_key != variant.id:
+                issues.append(
+                    Issue(
+                        "error",
+                        "glyph.variant-key-mismatch",
+                        f"mapping key {variant_key!r} != variant.id {variant.id!r}",
+                        model.id,
+                        character,
+                    )
+                )
+            if variant.character != glyph.character:
+                issues.append(
+                    Issue(
+                        "error",
+                        "glyph.variant-character-mismatch",
+                        f"variant {variant.id!r} has character {variant.character!r}",
+                        model.id,
+                        character,
+                    )
+                )
+            for stroke in variant.strokes:
+                if not isinstance(stroke, PathStrokeRecipe):
+                    continue
+                for part in stroke.parts:
+                    if isinstance(part, ComponentPart):
+                        issues.append(
+                            Issue(
+                                "error",
+                                "glyph.unresolved-component",
+                                f"{variant.id}/{stroke.id}: schema-v3 paths cannot "
+                                f"reference {part.component!r}",
+                                model.id,
+                                character,
+                            )
+                        )
+                        continue
+                    try:
+                        analyze_path(part.d)
+                    except Exception as exc:
+                        issues.append(
+                            Issue(
+                                "error",
+                                "glyph.invalid-path",
+                                f"{variant.id}/{stroke.id}: {exc}",
+                                model.id,
+                                character,
+                            )
+                        )
+            for side, anchor in (("entry", variant.entry), ("exit", variant.exit)):
+                if anchor is not None and anchor.class_ not in model.connection_classes:
+                    issues.append(
+                        Issue(
+                            "error",
+                            "connection.unknown-class",
+                            f"{variant.id}/{side}: unknown class {anchor.class_!r}",
+                            model.id,
+                            character,
+                        )
+                    )
+
+    if model.id == "sas-1968":
+        from .coverage import SAS_SYMBOLS
+
+        missing = set(SAS_SYMBOLS) - set(model.glyphs)
+        extra = set(model.glyphs) - set(SAS_SYMBOLS)
+        if missing or extra:
+            severity: Severity = "warning" if missing and not extra else "error"
+            issues.append(
+                Issue(
+                    severity,
+                    "sas.glyph-coverage",
+                    f"incomplete runtime glyph set: {len(missing)} missing, "
+                    f"{len(extra)} unexpected",
+                    model.id,
+                )
+            )
+
+    context_ids = [rule.id for rule in model.context_rules]
+    if len(set(context_ids)) != len(context_ids):
+        issues.append(
+            Issue("error", "context.duplicate-id", "context rule IDs must be unique", model.id)
+        )
+    for rule in model.context_rules:
+        if (rule.character, rule.variant) not in variant_keys:
+            issues.append(
+                Issue(
+                    "error",
+                    "context.unknown-variant",
+                    f"{rule.id}: unknown variant {rule.character!r}/{rule.variant!r}",
+                    model.id,
+                    rule.character,
+                )
+            )
+        for character in (*rule.prev_characters, *rule.next_characters):
+            if character not in model.glyphs:
+                issues.append(
+                    Issue(
+                        "error",
+                        "context.unknown-character",
+                        f"{rule.id}: unknown neighboring character {character!r}",
+                        model.id,
+                        rule.character,
+                    )
+                )
+        for class_ in (*rule.prev_exit_classes, *rule.next_entry_classes):
+            if class_ not in model.connection_classes:
+                issues.append(
+                    Issue(
+                        "error",
+                        "context.unknown-class",
+                        f"{rule.id}: unknown connection class {class_!r}",
+                        model.id,
+                        rule.character,
+                    )
+                )
+
+    connection_ids = [rule.id for rule in model.connection_rules]
+    if len(set(connection_ids)) != len(connection_ids):
+        issues.append(
+            Issue(
+                "error",
+                "connection.duplicate-id",
+                "connection rule IDs must be unique",
+                model.id,
+            )
+        )
+    for rule in model.connection_rules:
+        for class_ in (rule.from_class, rule.to_class):
+            if class_ not in model.connection_classes:
+                issues.append(
+                    Issue(
+                        "error",
+                        "connection.unknown-class",
+                        f"{rule.id}: unknown connection class {class_!r}",
+                        model.id,
+                    )
+                )
+        for variant_id in (
+            rule.required_variant_left,
+            rule.required_variant_right,
+            rule.ligature_variant,
+        ):
+            if variant_id is not None and variant_id not in variant_ids:
+                issues.append(
+                    Issue(
+                        "error",
+                        "connection.unknown-variant",
+                        f"{rule.id}: unknown variant {variant_id!r}",
+                        model.id,
+                    )
+                )
+
+    return QCReport(
+        issues=tuple(issues),
+        glyph_count=len(model.glyphs),
+        component_count=0,
+    )
+
+
+def validate_model(model: RuntimeWritingModel) -> QCReport:
+    if isinstance(model, WritingModelV3):
+        return validate_runtime_model_v3(model)
+    return _validate_writing_model_v2(model)

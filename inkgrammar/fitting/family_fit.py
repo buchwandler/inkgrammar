@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -600,6 +601,28 @@ def refresh_primitive_artifact_hashes(
     return inputs
 
 
+def validate_fit_report_inputs(
+    bundle: FitProjectBundle, primitive_id: str, report: Mapping[str, Any]
+) -> None:
+    family = next(
+        (family for family in bundle.families.families if family.primitive == primitive_id),
+        None,
+    )
+    if family is None:
+        raise ValueError(f"unknown fitting family for primitive: {primitive_id}")
+    training_ids = set(family.fit)
+    training = [sample for sample in bundle.corpus.samples if sample.id in training_ids]
+    if not training:
+        raise ValueError(f"primitive family has no fit samples: {primitive_id}")
+    try:
+        actual = CheckpointInputs.model_validate(report.get("input_hashes"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"fit report has invalid input hashes: {primitive_id}") from exc
+    expected = _input_hashes(bundle, training)
+    if actual != expected:
+        raise ValueError(f"fit report for {primitive_id} is stale: input hashes do not match")
+
+
 def _optimizer_backend(method: str) -> str:
     return {
         "powell": "scipy-powell",
@@ -612,6 +635,10 @@ def _optimizer_backend(method: str) -> str:
         "spline-random-restarts": "inkgrammar-random-restart-spline-seed",
         "differential-evolution+spline-alt-lsq": "scipy-differential-evolution-spline-seed",
     }[method]
+
+
+def optimizer_backend_for_method(method: str) -> str:
+    return _optimizer_backend(method)
 
 
 def _report_markdown(report: dict[str, Any]) -> str:

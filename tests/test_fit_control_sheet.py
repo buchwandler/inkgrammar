@@ -9,10 +9,12 @@ from inkgrammar.cli import app
 from inkgrammar.fitting.control_sheet import (
     DEFAULT_CHARACTERS,
     _fit_templates,
+    render_glyph_grid,
     write_connection_control_sheet,
     write_context_control_sheet,
     write_control_sheet,
 )
+from inkgrammar.fitting.models import PrimitiveTemplate
 from inkgrammar.fitting.workspace import load_fit_project
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -143,6 +145,32 @@ def test_control_sheet_uses_only_promoted_report_templates(monkeypatch, status, 
         assert templates[primitive_id].model_dump(mode="json") == candidate
     else:
         assert templates[primitive_id] == canonical
+
+
+def test_explicit_template_grid_records_geometry_source(tmp_path):
+    bundle = load_fit_project(PROJECT)
+    templates, reports = _fit_templates(bundle)
+    primitive_id = "sas-open-oval-01"
+    candidate_data = templates[primitive_id].model_dump(mode="json")
+    candidate_data["segments"][0]["c1"][1] += 0.05
+    templates[primitive_id] = PrimitiveTemplate.model_validate(candidate_data)
+    template_sources = {key: "seed-fallback" for key in templates}
+    template_sources[primitive_id] = "latest-candidate"
+
+    output = tmp_path / "candidate-grid.png"
+    result = render_glyph_grid(
+        bundle,
+        templates=templates,
+        template_sources=template_sources,
+        characters="a",
+        output_path=output,
+        reports=reports,
+    )
+
+    assert output.is_file()
+    assert result["target_count"] == 1
+    assert result["glyphs"][0]["geometry_sources"] == ["latest-candidate"]
+    assert result["template_sources"][primitive_id] == "latest-candidate"
 
 
 def test_control_sheet_cli_writes_png_and_json_with_optional_digits(tmp_path):

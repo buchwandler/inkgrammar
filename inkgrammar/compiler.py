@@ -257,12 +257,9 @@ def _as_v2(model: WritingModelV3) -> WritingModelV2:
     )
 
 
-def compile_fit_project(
-    bundle: FitProjectBundle,
-    *,
-    require_promoted: bool = True,
-) -> CompileResult:
-    """Compile promoted fit geometry and topology into a source-free runtime model."""
+def _select_fit_templates(
+    bundle: FitProjectBundle, *, require_promoted: bool
+) -> tuple[dict[str, PrimitiveTemplate], dict[str, str]]:
     reports = {report["primitive_id"]: report for report in load_fit_reports(bundle)}
     templates: dict[str, PrimitiveTemplate] = {}
     promotion: dict[str, str] = {}
@@ -293,7 +290,14 @@ def compile_fit_project(
         else:
             templates[primitive_id] = bundle.grammar.primitives[primitive_id]
             promotion[primitive_id] = "seed-fallback"
+    return templates, promotion
 
+
+def _compile_fit_model(
+    bundle: FitProjectBundle,
+    templates: dict[str, PrimitiveTemplate],
+    promotion: dict[str, str],
+) -> CompileResult:
     glyphs: dict[str, RuntimeGlyph] = {}
     source_paths: list[str] = []
     for character, topology_glyph in bundle.topology.glyphs.items():
@@ -380,9 +384,21 @@ def compile_fit_project(
             ],
         ],
     }
-
     compiled_model = _as_v2(model) if bundle.project.compile.runtime_schema_version == 2 else model
     diagnostics["schema_version"] = compiled_model.schema_version
+    return CompileResult(model=compiled_model, diagnostics=diagnostics)
+
+
+def compile_fit_project(
+    bundle: FitProjectBundle,
+    *,
+    require_promoted: bool = True,
+) -> CompileResult:
+    """Compile promoted fit geometry and topology into a source-free runtime model."""
+    templates, promotion = _select_fit_templates(bundle, require_promoted=require_promoted)
+    result = _compile_fit_model(bundle, templates, promotion)
+    compiled_model = result.model
+    diagnostics = dict(result.diagnostics)
     output = (bundle.project_dir / bundle.project.compile.output).resolve()
     if output.is_symlink():
         raise ValueError("compiled runtime output must not be a symlink")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+from collections.abc import Mapping
 from dataclasses import replace
 from pathlib import Path
 from typing import Literal
@@ -125,35 +126,39 @@ def _paste_coverage(panel: Image.Image, coverage: np.ndarray, color: tuple[int, 
     panel.paste(color, (0, 0), mask)
 
 
-def write_control_sheet(
+def render_glyph_grid(
     bundle: FitProjectBundle,
-    output_path: str | Path,
     *,
-    include_digits: bool = False,
+    templates: Mapping[str, PrimitiveTemplate],
+    template_sources: Mapping[str, str],
+    characters: str,
+    output_path: str | Path,
+    geometry_label: str | None = None,
+    reports: Mapping[str, dict] | None = None,
     occurrence_deltas: bool = False,
 ) -> dict:
-    characters = DEFAULT_CHARACTERS + (DIGITS if include_digits else "")
-    templates, reports = _fit_templates(bundle)
+    fit_reports = dict(reports or {})
+    template_map = dict(templates)
     font = ImageFont.load_default()
     cell_count = len(characters)
     rows = (cell_count + GRID_COLUMNS - 1) // GRID_COLUMNS
     sheet = Image.new(
         "RGB",
-        (GRID_COLUMNS * CELL_WIDTH, rows * CELL_HEIGHT + 28),
+        (GRID_COLUMNS * CELL_WIDTH, rows * CELL_HEIGHT + 28 + (24 if geometry_label else 0)),
         "white",
     )
     glyph_rows = []
 
     for index, character in enumerate(characters):
         column, row = index % GRID_COLUMNS, index // GRID_COLUMNS
-        left, top = column * CELL_WIDTH, row * CELL_HEIGHT
+        left, top = column * CELL_WIDTH, row * CELL_HEIGHT + (24 if geometry_label else 0)
         panel = Image.new("RGB", (CELL_WIDTH, CELL_HEIGHT), "white")
         panel_draw = ImageDraw.Draw(panel)
         panel_draw.line((0, BASELINE_Y, CELL_WIDTH - 1, BASELINE_Y), fill=(190, 190, 190), width=1)
         panel_draw.text((4, 3), character, font=font, fill=(20, 20, 20))
 
         glyph = bundle.topology.glyphs.get(character)
-        status: Status = "missing" if glyph is None else _status(glyph, templates, reports)
+        status: Status = "missing" if glyph is None else _status(glyph, template_map, fit_reports)
         rendered = False
         if glyph is not None:
             try:
@@ -164,16 +169,16 @@ def write_control_sheet(
                         if sample.text == character and sample.split == "fit"
                     ]
                     for sample in samples:
-                        deltas = _sample_deltas(sample, glyph, reports)
+                        deltas = _sample_deltas(sample, glyph, fit_reports)
                         if deltas:
                             _paste_coverage(
                                 panel,
-                                _coverage(_glyph_paths(glyph, templates, deltas), bundle),
+                                _coverage(_glyph_paths(glyph, template_map, deltas), bundle),
                                 (130, 185, 210),
                             )
                 _paste_coverage(
                     panel,
-                    _coverage(_glyph_paths(glyph, templates), bundle),
+                    _coverage(_glyph_paths(glyph, template_map), bundle),
                     (20, 20, 20),
                 )
                 rendered = True
@@ -188,11 +193,23 @@ def write_control_sheet(
             color = (25, 110, 55) if status == "modeled" else (150, 95, 20)
             panel_draw.text((4, CELL_HEIGHT - 14), status, font=font, fill=color)
         sheet.paste(panel, (left, top))
+        glyph_sources = (
+            sorted(
+                {
+                    template_sources.get(part.primitive, "unknown")
+                    for stroke in glyph.strokes
+                    for part in stroke.parts
+                }
+            )
+            if glyph is not None
+            else []
+        )
         glyph_rows.append(
             {
                 "character": character,
                 "status": status,
                 "rendered": rendered,
+                "geometry_sources": glyph_sources,
                 "instances": (
                     [part.instance for stroke in glyph.strokes for part in stroke.parts]
                     if glyph is not None
@@ -201,8 +218,10 @@ def write_control_sheet(
             }
         )
 
-    legend_y = rows * CELL_HEIGHT + 8
+    legend_y = rows * CELL_HEIGHT + (24 if geometry_label else 0) + 8
     draw = ImageDraw.Draw(sheet)
+    if geometry_label:
+        draw.text((6, 6), geometry_label, font=font, fill=(20, 20, 20))
     draw.text(
         (6, legend_y),
         "Gray line: baseline   Green: modeled   Amber: provisional   "
@@ -219,6 +238,7 @@ def write_control_sheet(
         "format": "inkgrammar-fit-control-sheet",
         "format_version": 1,
         "project_id": bundle.project.id,
+        "geometry_label": geometry_label,
         "target_count": len(characters),
         "rendered_count": sum(row["rendered"] for row in glyph_rows),
         "missing": [row["character"] for row in glyph_rows if row["status"] == "missing"],
@@ -231,6 +251,7 @@ def write_control_sheet(
         "baseline_px": BASELINE_Y,
         "cell_size": [CELL_WIDTH, CELL_HEIGHT],
         "grid_columns": GRID_COLUMNS,
+        "template_sources": dict(sorted(template_sources.items())),
         "glyphs": glyph_rows,
     }
     json_path.write_text(
@@ -238,6 +259,30 @@ def write_control_sheet(
         encoding="utf-8",
     )
     return payload
+
+
+def write_control_sheet(
+    bundle: FitProjectBundle,
+    output_path: str | Path,
+    *,
+    include_digits: bool = False,
+    occurrence_deltas: bool = False,
+) -> dict:
+    characters = DEFAULT_CHARACTERS + (DIGITS if include_digits else "")
+    templates, reports = _fit_templates(bundle)
+    template_sources = {primitive_id: "seed-fallback" for primitive_id in templates}
+    for primitive_id, report in reports.items():
+        if report.get("visual_review", {}).get("status") == "promoted":
+            template_sources[primitive_id] = "promoted"
+    return render_glyph_grid(
+        bundle,
+        templates=templates,
+        template_sources=template_sources,
+        characters=characters,
+        output_path=output_path,
+        reports=reports,
+        occurrence_deltas=occurrence_deltas,
+    )
 
 
 def _preview_model(bundle: FitProjectBundle):

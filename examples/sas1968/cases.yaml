@@ -1,0 +1,25 @@
+schema_version: 1
+
+alphabet:
+  uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  lowercase: "abcdefghijklmnopqrstuvwxyzß"
+  digits: "0123456789"
+
+words:
+  - text: "minimum"
+    purpose: "repeated hump and underturn structures"
+  - text: "banana"
+    purpose: "open-oval and ascender-loop components with repeated transitions"
+  - text: "Cabin"
+    purpose: "capital C plus currently modeled lowercase forms"
+  - text: "buch"
+    purpose: "b, underturn, open oval, ascender-loop/hump composition"
+  - text: "whim"
+    purpose: "w, h, i, m family stress case"
+  - text: "calcium"
+    purpose: "mixed supported glyph sequence across all currently reviewed primitive families"
+
+future_words:
+  - "Schule"
+  - "schreiben"
+  - "Alphabet"

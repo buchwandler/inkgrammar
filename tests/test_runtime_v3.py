@@ -7,6 +7,7 @@ import yaml
 
 from inkgrammar.io import load_model
 from inkgrammar.models import WritingModelV3
+from inkgrammar.qc import validate_model
 
 
 def model_payload() -> dict:
@@ -93,3 +94,20 @@ def test_load_model_rejects_unknown_schema_version(tmp_path):
 
     with pytest.raises(ValueError, match="unsupported writing model schema version"):
         load_model(path)
+
+
+
+def test_runtime_qc_dispatches_sas_v3_and_reports_incomplete_coverage():
+    model_path = Path(__file__).parents[1] / "data/models/sas-1968.yaml"
+    model = load_model(model_path)
+
+    assert isinstance(model, WritingModelV3)
+    report = validate_model(model)
+
+    assert report.errors == 0
+    assert report.warnings == 1
+    assert report.glyph_count == 12
+    assert report.component_count == 0
+    coverage_issue = next(issue for issue in report.issues if issue.code == "sas.glyph-coverage")
+    assert coverage_issue.severity == "warning"
+    assert "51 missing" in coverage_issue.message

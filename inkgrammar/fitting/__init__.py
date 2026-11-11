@@ -5,7 +5,9 @@ from .family_fit import (
     FitRunArtifacts,
     load_fit_reports,
     optimize_primitive_family,
+    optimizer_backend_for_method,
     primitive_path,
+    validate_fit_report_inputs,
 )
 from .glyph_fit import GlyphFitArtifacts, fit_compositional_glyphs
 from .models import (
@@ -103,6 +105,8 @@ __all__ = [
     "load_fit_reports",
     "optimize_primitive_family",
     "primitive_path",
+    "optimizer_backend_for_method",
+    "validate_fit_report_inputs",
     "SeedMigrationResult",
     "migrate_legacy_seed",
     "write_seed_migration_report",
