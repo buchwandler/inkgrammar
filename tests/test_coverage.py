@@ -1,12 +1,14 @@
 import json
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
 from inkgrammar.cli import app
-from inkgrammar.coverage import coverage_markdown, model_coverage
+from inkgrammar.coverage import coverage_markdown, model_coverage, runtime_model_coverage
 from inkgrammar.io import load_model
+from inkgrammar.observations import ObservationManifest
 from inkgrammar.regression import RegressionManifest
 
 
@@ -73,6 +75,21 @@ def test_coverage_cli_formats():
     assert result.exit_code == 0
     assert "# Coverage: demo-looped" in result.output
 
+    sas_result = runner.invoke(
+        app,
+        [
+            "model",
+            "coverage",
+            "data/models/sas-1968.yaml",
+            "--fit-project",
+            "data/training/sas-1968/project.yaml",
+        ],
+    )
+    assert sas_result.exit_code == 0, sas_result.output
+    sas_report = json.loads(sas_result.output)
+    assert sas_report["connection_coverage"]["fit_project_observation_count"] == 0
+    assert sas_report["font_ready"] is False
+
 
 @pytest.mark.parametrize(
     "problem,code",
@@ -106,3 +123,23 @@ def test_explicit_unused_component_is_allowed():
     component.unused_reason = "Reserved for documented family member not yet fitted."
     model.components["unused"] = component
     assert "component.unused" not in {issue.code for issue in validate_model(model).issues}
+
+
+def test_v3_sas_coverage_reports_stages_without_inventing_connection_evidence():
+    model = load_model("data/models/sas-1968.yaml")
+    observations = ObservationManifest.model_validate_json(
+        Path("data/observations/sas-1968/manifest.json").read_text(encoding="utf-8")
+    )
+
+    report = runtime_model_coverage(model, observations=observations)
+
+    assert report["schema_version"] == 3
+    assert report["glyph_coverage"]["expected"] == 63
+    assert report["glyph_coverage"]["modeled"] == 12
+    assert report["connection_coverage"]["source_observation_count"] == 0
+    assert report["connection_coverage"]["fit_project_observation_count"] == 0
+    assert report["connection_coverage"]["class_pair_evidence_status"].startswith("unassessed")
+    assert not report["complete"]
+    assert not report["font_ready"]
+    assert report["primitive_promotion_counts"]["seed-fallback"] > 0
+    assert any("rights review" in blocker for blocker in report["rights_blockers"])

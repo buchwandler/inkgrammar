@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import json
+import tempfile
+from dataclasses import replace
 from pathlib import Path
 from typing import Literal
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+from ..compiler import compile_fit_project
 from ..geometry import analyze_path, translate_path
+from ..models import RuntimeContextRule
+from ..raster import render_text_frame
+from .connection_fit import connection_observation_coverage
 from .family_fit import load_fit_reports, primitive_path
 from .models import (
     FitSample,
@@ -232,3 +238,227 @@ def write_control_sheet(
         encoding="utf-8",
     )
     return payload
+
+
+def _preview_model(bundle: FitProjectBundle):
+    with tempfile.TemporaryDirectory(prefix=".inkgrammar-preview-", dir=bundle.project_dir) as temp:
+        output = (Path(temp) / "preview.yaml").relative_to(bundle.project_dir)
+        compile_config = bundle.project.compile.model_copy(update={"output": str(output)})
+        project = bundle.project.model_copy(update={"compile": compile_config})
+        preview_bundle = replace(bundle, project=project)
+        return compile_fit_project(preview_bundle, require_promoted=False)
+
+
+def _write_debug_grid(rows: list[dict], output_path: str | Path, title: str) -> dict:
+    columns = 4
+    cell_width, cell_height = 240, 156
+    visible_rows = rows or [
+        {"title": "No configured examples", "message": "No evidence synthesized."}
+    ]
+    row_count = (len(visible_rows) + columns - 1) // columns
+    sheet = Image.new("RGB", (columns * cell_width, row_count * cell_height + 30), "white")
+    draw = ImageDraw.Draw(sheet)
+    font = ImageFont.load_default()
+    for index, row in enumerate(visible_rows):
+        column, y_index = index % columns, index // columns
+        left, top = column * cell_width, y_index * cell_height
+        draw.rectangle(
+            (left, top, left + cell_width - 1, top + cell_height - 1),
+            outline=(190, 190, 190),
+        )
+        draw.text((left + 6, top + 5), str(row.get("title", ""))[:34], font=font, fill=(20, 20, 20))
+        draw.text(
+            (left + 6, top + 19),
+            str(row.get("detail", ""))[:38],
+            font=font,
+            fill=(55, 55, 55),
+        )
+        preview = row.get("preview")
+        if isinstance(preview, Image.Image):
+            image = preview.convert("RGB")
+            image.thumbnail((cell_width - 16, 108), Image.Resampling.LANCZOS)
+            sheet.paste(image, (left + (cell_width - image.width) // 2, top + 40))
+        elif row.get("message"):
+            draw.text((left + 6, top + 56), str(row["message"])[:38], font=font, fill=(140, 70, 30))
+    draw.text((6, row_count * cell_height + 8), title, font=font, fill=(35, 35, 35))
+    image_path = Path(output_path)
+    image_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(image_path, format="PNG", optimize=False, compress_level=9)
+    payload = {
+        "format": "inkgrammar-fit-debug-control-sheet",
+        "format_version": 1,
+        "source_free": True,
+        "case_count": len(rows),
+        "cases": [
+            {key: value for key, value in row.items() if key not in {"preview", "message"}}
+            for row in rows
+        ],
+    }
+    image_path.with_suffix(".json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return payload
+
+
+def _render_pair_preview(
+    model, left_character: str, left_variant: str, right_character: str, right_variant: str, rule
+):
+    text = left_character + right_character
+    preview_model = model.model_copy(
+        update={
+            "context_rules": [
+                RuntimeContextRule(
+                    id="control-left",
+                    character=left_character,
+                    variant=left_variant,
+                    next_characters=[right_character],
+                    positions=["initial"],
+                    priority=100000,
+                ),
+                RuntimeContextRule(
+                    id="control-right",
+                    character=right_character,
+                    variant=right_variant,
+                    prev_characters=[left_character],
+                    positions=["final"],
+                    priority=100000,
+                ),
+            ],
+            "connection_rules": [rule],
+        }
+    )
+    return render_text_frame(preview_model, text, scale=0.35).image
+
+
+def write_connection_control_sheet(
+    bundle: FitProjectBundle,
+    output_path: str | Path,
+) -> dict:
+    compiled = _preview_model(bundle)
+    model = compiled.model
+    observations = bundle.grammar.connection_observations
+    rows = []
+    for rule in model.connection_rules:
+        left_candidates = [
+            (character, variant.id)
+            for character, glyph in sorted(model.glyphs.items())
+            for variant in sorted(glyph.variants.values(), key=lambda item: item.id)
+            if variant.exit is not None
+            and variant.exit.class_ == rule.from_class
+            and (rule.required_variant_left is None or variant.id == rule.required_variant_left)
+        ]
+        right_candidates = [
+            (character, variant.id)
+            for character, glyph in sorted(model.glyphs.items())
+            for variant in sorted(glyph.variants.values(), key=lambda item: item.id)
+            if variant.entry is not None
+            and variant.entry.class_ == rule.to_class
+            and (rule.required_variant_right is None or variant.id == rule.required_variant_right)
+        ]
+        pair = (
+            (left_candidates[0], right_candidates[0])
+            if left_candidates and right_candidates
+            else None
+        )
+        matched = [
+            item
+            for item in observations
+            if pair is not None
+            and (item.from_character, item.to_character) == (pair[0][0], pair[1][0])
+        ]
+        preview = None
+        message = None
+        if pair is None:
+            message = "No matching endpoint variants"
+        else:
+            try:
+                preview = _render_pair_preview(
+                    model, pair[0][0], pair[0][1], pair[1][0], pair[1][1], rule
+                )
+            except ValueError as error:
+                message = str(error)
+        rows.append(
+            {
+                "title": rule.id,
+                "detail": f"{rule.from_class} -> {rule.to_class} | {rule.mode}",
+                "rule_id": rule.id,
+                "from_class": rule.from_class,
+                "to_class": rule.to_class,
+                "mode": rule.mode,
+                "status": rule.status,
+                "left_variant": pair[0][1] if pair else None,
+                "right_variant": pair[1][1] if pair else None,
+                "observation_splits": {
+                    split: sum(item.split == split for item in matched)
+                    for split in ("fit", "validation", "hold-out")
+                },
+                "preview": preview,
+                "message": message,
+            }
+        )
+    coverage = connection_observation_coverage(observations)
+    report = _write_debug_grid(
+        rows,
+        output_path,
+        f"Connection rules: {len(rows)} | observations by split: {coverage['split_counts']}",
+    )
+    report["observation_coverage"] = coverage
+    report["seed_fallback_primitives"] = compiled.diagnostics["seed_fallback_primitives"]
+    report["promoted_primitives"] = compiled.diagnostics["promoted_primitives"]
+    image_path = Path(output_path)
+    image_path.with_suffix(".json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
+def write_context_control_sheet(
+    bundle: FitProjectBundle,
+    output_path: str | Path,
+) -> dict:
+    compiled = _preview_model(bundle)
+    model = compiled.model
+    rows = []
+    for character, glyph in sorted(model.glyphs.items()):
+        for index, variant in enumerate(sorted(glyph.variants.values(), key=lambda item: item.id)):
+            preview_model = model.model_copy(
+                update={
+                    "context_rules": [
+                        RuntimeContextRule(
+                            id=f"control-variant-{index}",
+                            character=character,
+                            variant=variant.id,
+                            positions=["isolated"],
+                            priority=100000,
+                        )
+                    ],
+                    "connection_rules": [],
+                }
+            )
+            rows.append(
+                {
+                    "title": f"{character} | {variant.id}",
+                    "detail": f"default: {glyph.default_variant == variant.id}",
+                    "character": character,
+                    "variant_id": variant.id,
+                    "is_default": glyph.default_variant == variant.id,
+                    "entry_class": variant.entry.class_ if variant.entry else None,
+                    "exit_class": variant.exit.class_ if variant.exit else None,
+                    "preview": render_text_frame(preview_model, character, scale=0.35).image,
+                }
+            )
+    report = _write_debug_grid(
+        rows,
+        output_path,
+        f"Context variants: {len(rows)} | stage: development geometry",
+    )
+    report["seed_fallback_primitives"] = compiled.diagnostics["seed_fallback_primitives"]
+    report["promoted_primitives"] = compiled.diagnostics["promoted_primitives"]
+    image_path = Path(output_path)
+    image_path.with_suffix(".json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return report

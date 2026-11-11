@@ -219,6 +219,187 @@ class WritingModel(StrictModel):
         return value
 
 
+WritingModelV2 = WritingModel
+
+
+class RuntimeAnchor(StrictModel):
+    x: float
+    y: float
+    tangent_x: float
+    tangent_y: float
+    class_: str = Field(alias="class")
+    width: float | None = None
+
+
+class RuntimeGlyphVariant(StrictModel):
+    id: str
+    character: str = Field(min_length=1)
+    advance_width: float = Field(gt=0)
+    strokes: list[PathStrokeRecipe | TapStrokeRecipe] = Field(min_length=1)
+    entry: RuntimeAnchor | None = None
+    exit: RuntimeAnchor | None = None
+
+
+class RuntimeGlyph(StrictModel):
+    character: str = Field(min_length=1)
+    unicode: list[str] = Field(default_factory=list)
+    default_variant: str
+    variants: dict[str, RuntimeGlyphVariant]
+    provenance: dict[str, object] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_variants(self) -> RuntimeGlyph:
+        if self.default_variant not in self.variants:
+            raise ValueError(f"default variant is missing: {self.default_variant}")
+        for key, variant in self.variants.items():
+            if key != variant.id:
+                raise ValueError(f"variant key does not match id: {key}")
+            if variant.character != self.character:
+                raise ValueError(f"variant character mismatch: {variant.id}")
+        return self
+
+
+class RuntimeContextRule(StrictModel):
+    id: str
+    character: str = Field(min_length=1)
+    variant: str
+    prev_characters: list[str] = Field(default_factory=list)
+    next_characters: list[str] = Field(default_factory=list)
+    prev_exit_classes: list[str] = Field(default_factory=list)
+    next_entry_classes: list[str] = Field(default_factory=list)
+    positions: list[str] = Field(default_factory=list)
+    required: bool = True
+    priority: int = 0
+    evidence: list[str] = Field(default_factory=list)
+
+
+class GlyphContext(StrictModel):
+    prev_character: str | None = None
+    next_character: str | None = None
+    prev_exit_class: str | None = None
+    next_entry_class: str | None = None
+    position: Literal["isolated", "initial", "medial", "final"] | None = None
+
+
+class RuntimeConnectionRule(StrictModel):
+    id: str
+    from_class: str
+    to_class: str
+    mode: Literal[
+        "cursive-anchor",
+        "direct",
+        "attached",
+        "ligature",
+        "none",
+        "synthetic-bridge",
+    ]
+    x_adjust: float = 0.0
+    y_adjust: float = 0.0
+    pair_spacing: float = 0.0
+    required_variant_left: str | None = None
+    required_variant_right: str | None = None
+    ligature_variant: str | None = None
+    evidence: list[str] = Field(default_factory=list)
+    status: Literal["inferred", "reviewed", "verified"] = "inferred"
+
+
+class ConnectionClass(StrictModel):
+    id: str
+    nominal_height: Literal["baseline", "mid", "upper", "attached", "other"]
+    pen_state: Literal["continuous", "lift_before", "lift_after", "detached"]
+    notes: str | None = None
+
+
+class WritingModelV3(StrictModel):
+    schema_version: Literal[3]
+    id: str
+    name: dict[str, str]
+    script: str
+    languages: list[str] = Field(default_factory=list)
+    regions: list[str] = Field(default_factory=list)
+    status: Literal["experimental", "documented", "verified"]
+    license: str
+    description: dict[str, str] = Field(default_factory=dict)
+    metrics: Metrics
+    sources: list[SourceRecord] = Field(default_factory=list)
+    glyphs: dict[str, RuntimeGlyph]
+    connection_classes: dict[str, ConnectionClass] = Field(default_factory=dict)
+    connection_rules: list[RuntimeConnectionRule] = Field(default_factory=list)
+    context_rules: list[RuntimeContextRule] = Field(default_factory=list)
+    provenance: dict[str, object] = Field(default_factory=dict)
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, value: str) -> str:
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", value):
+            raise ValueError("model id must be lowercase kebab-case")
+        return value
+
+    @field_validator("script")
+    @classmethod
+    def validate_script(cls, value: str) -> str:
+        if not re.fullmatch(r"[A-Z][a-z]{3}", value):
+            raise ValueError("script must look like an ISO 15924 code, e.g. Latn")
+        return value
+
+    @model_validator(mode="after")
+    def validate_references(self) -> WritingModelV3:
+        for key, glyph in self.glyphs.items():
+            if key != glyph.character:
+                raise ValueError(f"glyph key does not match character: {key}")
+        glyph_variants = {
+            (character, variant_id)
+            for character, glyph in self.glyphs.items()
+            for variant_id in glyph.variants
+        }
+        for rule in self.context_rules:
+            if rule.character not in self.glyphs:
+                raise ValueError(f"context rule references unknown character: {rule.character}")
+            if (rule.character, rule.variant) not in glyph_variants:
+                raise ValueError(f"context rule references unknown variant: {rule.variant}")
+        for key, connection_class in self.connection_classes.items():
+            if key != connection_class.id:
+                raise ValueError(f"connection class key does not match id: {key}")
+        context_rule_ids = [rule.id for rule in self.context_rules]
+        if len(set(context_rule_ids)) != len(context_rule_ids):
+            raise ValueError("duplicate context rule id")
+        for rule in self.context_rules:
+            if rule.character not in self.glyphs:
+                raise ValueError(f"context rule references unknown character: {rule.character}")
+            if (rule.character, rule.variant) not in glyph_variants:
+                raise ValueError(f"context rule references unknown variant: {rule.variant}")
+            if set(rule.positions) - {"isolated", "initial", "medial", "final"}:
+                raise ValueError(f"context rule has an unknown position: {rule.id}")
+        connection_rule_ids = [rule.id for rule in self.connection_rules]
+        if len(set(connection_rule_ids)) != len(connection_rule_ids):
+            raise ValueError("duplicate connection rule id")
+        for glyph in self.glyphs.values():
+            for variant in glyph.variants.values():
+                for anchor in (variant.entry, variant.exit):
+                    if anchor is not None and anchor.class_ not in self.connection_classes:
+                        raise ValueError(f"glyph anchor references unknown class: {anchor.class_}")
+        for rule in self.connection_rules:
+            if rule.from_class not in self.connection_classes:
+                raise ValueError(f"connection rule references unknown class: {rule.from_class}")
+            if rule.to_class not in self.connection_classes:
+                raise ValueError(f"connection rule references unknown class: {rule.to_class}")
+            for variant_id in (
+                rule.required_variant_left,
+                rule.required_variant_right,
+                rule.ligature_variant,
+            ):
+                if variant_id is not None and not any(
+                    variant_id in glyph.variants for glyph in self.glyphs.values()
+                ):
+                    raise ValueError(f"connection rule references unknown variant: {variant_id}")
+            if rule.mode == "ligature" and rule.ligature_variant is None:
+                raise ValueError("ligature connection rule requires ligature_variant")
+        return self
+
+
+RuntimeWritingModel = WritingModelV2 | WritingModelV3
+
+
 class LayoutRow(StrictModel):
     id: str
     y: tuple[float, float]

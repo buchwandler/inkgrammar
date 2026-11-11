@@ -26,6 +26,10 @@ The project includes:
 - raster regression and connection fitting against labelled samples;
 - separate provenance for observed shapes and claimed pen movement;
 - deterministic JSON releases for non-Python consumers.
+- schema-v3 contextual shaping with schema-v2 compatibility;
+- deterministic SVG and raster rendering from shaped output;
+- adaptive stroke outlines and FontTools-based TTF export with GSUB/GPOS features;
+- staged glyph, connection, rights, and font-readiness reports.
 
 ## Install
 
@@ -98,6 +102,27 @@ inkgrammar build-release data/models/demo-looped.yaml \
 
 This creates a consumer release with JSON models, schemas, QC reports, checksums, and a ZIP.
 Schreibatlas can consume that release without Python.
+
+## Contextual shaping and font export
+
+Render through the shared runtime shaper, or inspect font planning and staged SAS coverage:
+
+```bash
+inkgrammar model render-svg data/models/sas-1968.yaml "ab" --output work/ab.svg
+inkgrammar font plan data/models/sas-1968.yaml
+inkgrammar model coverage data/models/sas-1968.yaml \
+  --fit-project data/training/sas-1968/project.yaml
+```
+
+Build and validate a schema-v3 runtime font:
+
+```bash
+inkgrammar font build model-v3.yaml --output dist/model.ttf
+inkgrammar font validate dist/model.ttf --model model-v3.yaml
+inkgrammar font compare-runtime model-v3.yaml dist/model.ttf "ab"
+```
+
+The HarfBuzz comparison runs when the optional `uharfbuzz` package is installed. Source-derived font builds require rights clearance and promoted geometry by default. Development overrides produce explicitly unready artifacts and do not bypass release gates. The current SAS model remains incomplete, uses seed-fallback geometry, and has unresolved rights, so it is not font-ready.
 
 ## Important evidence rule
 

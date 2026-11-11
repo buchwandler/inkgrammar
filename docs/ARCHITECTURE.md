@@ -76,3 +76,13 @@ For a mature historical writing model:
 
 This lets the same model serve Schreibatlas, worksheet generators, font compilation, animation,
 or handwriting-comparison software.
+
+## v5 shared shaping and output pipeline
+
+The v5 runtime adds schema version 3 while preserving schema-v2 loading and rendering. Fitting projects compile to a source-free runtime model. Promoted reports are required by default; seed geometry is available only through an explicit development option.
+
+The runtime shaper resolves contextual variants and connection rules into a `ShapedText` plan. Raster and SVG renderers consume that plan. OpenType export uses the same runtime variants, anchor data, and adaptive outline expansion, then encodes representable required substitutions in GSUB `rclt` and cursive attachment in GPOS `curs`. Optional context alternates use `calt`; exceptional ligatures use `rlig`.
+
+The outline stage adaptively samples curves, expands strokes and taps into closed contours, and records bounds. TTF glyph contours are stored as quadratic TrueType outlines. The standalone cubic-to-quadratic helper uses FontTools `cu2qu`; the current stroke expander first produces polygon contours, so the exporter represents their edges as exact quadratic line segments within font-unit rounding tolerance.
+
+`inkgrammar font plan`, `build`, `build-fit`, `validate`, and `compare-runtime` expose planning and export. HarfBuzz parity is optional when `uharfbuzz` is installed. A structurally valid TTF is not automatically font-ready: rights, promotion, glyph and connection coverage, unsupported context rules, and corpus parity remain separate gates. Runtime schema validity and visual output do not establish historical verification.

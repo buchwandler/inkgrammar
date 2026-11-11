@@ -187,6 +187,25 @@ def _safe_artifact_id(value: str) -> None:
         raise ValueError(f"unsafe fitting artifact identifier: {value!r}")
 
 
+def _validate_connection_observations(connections, observations_by_id, samples) -> None:
+    sample_splits: dict[str, set[str]] = {}
+    for sample in samples:
+        sample_splits.setdefault(sample.observation_id, set()).add(sample.split)
+    for connection in connections:
+        _safe_artifact_id(connection.id)
+        _safe_artifact_id(connection.observation_id)
+        observation = observations_by_id.get(connection.observation_id)
+        if observation is None:
+            raise ValueError(f"unknown connection observation: {connection.observation_id}")
+        if observation.kind != "connection":
+            raise ValueError(
+                "connection evidence must reference a connection observation: "
+                f"{connection.observation_id}"
+            )
+        if sample_splits.get(connection.observation_id, {connection.split}) != {connection.split}:
+            raise ValueError(f"connection observation split mismatch: {connection.id}")
+
+
 def load_fit_project(
     project_path: str | Path,
     *,
@@ -255,6 +274,11 @@ def load_fit_project(
             raise ValueError(f"unknown observation: {sample.observation_id}")
         if sample.kind == "glyph" and observation.label != sample.text:
             raise ValueError(f"sample text does not match observation label: {sample.id}")
+    _validate_connection_observations(
+        grammar.connection_observations,
+        observations_by_id,
+        corpus.samples,
+    )
 
     for family in families.families:
         if family.primitive not in grammar.primitives and family.review_status != "uncertain":

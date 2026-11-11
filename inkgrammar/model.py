@@ -14,9 +14,13 @@ from .models import (
     GlyphForm,
     PathStrokeRecipe,
     RawPathPart,
+    RuntimeAnchor,
+    RuntimeWritingModel,
     TapStrokeRecipe,
     WritingModel,
+    WritingModelV3,
 )
+from .shaping import shape_glyph, shape_text
 
 
 @dataclass(frozen=True)
@@ -33,8 +37,8 @@ class CompiledGlyph:
     form_name: str
     advance_width: float
     strokes: tuple[CompiledStroke, ...]
-    entry: tuple[str, str, str] | None
-    exit: tuple[str, str, str] | None
+    entry: tuple[str, str, str] | RuntimeAnchor | None
+    exit: tuple[str, str, str] | RuntimeAnchor | None
 
 
 @dataclass(frozen=True)
@@ -102,10 +106,27 @@ def _compile_path_recipe(model: WritingModel, recipe: PathStrokeRecipe) -> str:
 
 
 def compile_glyph(
-    model: WritingModel,
+    model: RuntimeWritingModel,
     character: str,
     form_name: str = "isolated",
 ) -> CompiledGlyph:
+    if isinstance(model, WritingModelV3):
+        if character not in model.glyphs:
+            raise KeyError(f"unknown glyph: {character!r}")
+        glyph = model.glyphs[character]
+        variant_id = form_name if form_name in glyph.variants else glyph.default_variant
+        shaped = shape_glyph(model, character, variant_id)
+        return CompiledGlyph(
+            character=character,
+            form_name=variant_id,
+            advance_width=shaped.advance,
+            strokes=tuple(
+                CompiledStroke(stroke.id, stroke.role, d=stroke.d, tap=stroke.tap)
+                for stroke in shaped.strokes
+            ),
+            entry=shaped.entry,
+            exit=shaped.exit,
+        )
     if character not in model.glyphs:
         raise KeyError(f"unknown glyph: {character!r}")
     selected_name, form = _select_form(model, character, form_name)
@@ -159,12 +180,25 @@ def _stroke_by_id(glyph: CompiledGlyph, stroke_id: str) -> CompiledStroke:
 
 
 def compile_text(
-    model: WritingModel,
+    model: RuntimeWritingModel,
     text: str,
     *,
     gap_override: float | None = None,
     tension_override: float | None = None,
 ) -> CompiledText:
+    if isinstance(model, WritingModelV3):
+        if gap_override is not None or tension_override is not None:
+            raise ValueError("schema v3 spacing is controlled by connection rules")
+        shaped = shape_text(model, text, allow_synthetic_bridges=True)
+        return CompiledText(
+            strokes=tuple(
+                CompiledStroke(stroke.id, stroke.role, d=stroke.d, tap=stroke.tap)
+                for glyph in shaped.glyphs
+                for stroke in glyph.strokes
+            ),
+            width=shaped.width,
+            characters=tuple(glyph.character for glyph in shaped.glyphs),
+        )
     characters = tuple(character for character in text if character in model.glyphs)
     if not characters:
         return CompiledText(strokes=(), width=0, characters=())

@@ -60,3 +60,18 @@ inkgrammar model fit-join data/models/my-model.yaml "ma" refs/ma.png \
 The result is a proposed override. It still requires review before being merged into the model.
 
 Future versions should optimize richer parameters and support whole-word fitting.
+
+## Schema-v3 runtime and OpenType connections
+
+Schema v3 keeps connection classes and rules explicit. Runtime modes include `cursive-anchor`, `direct`, `attached`, `ligature`, `none`, and compatibility-only `synthetic-bridge`. Normal connected forms should use contextual variants plus matching entry and exit anchors. The font builder emits required contextual substitutions as GSUB `rclt` and uses class-filtered GPOS `curs` positioning for declared cursive/direct class pairs. Exceptional constructions may use `rlig`.
+
+A rule requiring `synthetic-bridge` is not font-compatible. Context rules that depend on unsupported glyph-position conditions are reported as font blockers rather than silently changed. Build a TTF only from a schema-v3 runtime model; `font build-fit` compiles the fit project first and requires promoted primitive reports unless `--allow-unpromoted` is explicitly selected for development.
+
+Inspect staged evidence without inferring connection classes from character pairs:
+
+```bash
+inkgrammar model coverage data/models/sas-1968.yaml \
+  --fit-project data/training/sas-1968/project.yaml
+```
+
+The report separates source connection observations, fit-project observations by split, runtime class rules, and font readiness. Character-pair coverage does not prove class-pair coverage. Missing observations remain missing.

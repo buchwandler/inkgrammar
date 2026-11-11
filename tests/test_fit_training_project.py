@@ -38,7 +38,7 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     optimizer = OptimizerConfig.model_validate(fit_config["optimizer"])
 
     assert project.runtime_model_id == "sas-1968"
-    assert project.compile.runtime_schema_version == 2
+    assert project.compile.runtime_schema_version == 3
     assert (PROJECT_DIR / project.private_work_dir).resolve() == (ROOT / "work" / "sas-1968")
     assert (PROJECT_DIR / project.compile.output).resolve() == (
         ROOT / "data" / "models" / "sas-1968.yaml"

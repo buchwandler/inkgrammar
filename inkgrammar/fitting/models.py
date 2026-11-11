@@ -209,14 +209,134 @@ class GlyphEndpoint(StrictModel):
     instance: str
     endpoint: Literal["start", "end"]
     class_: str = Field(alias="class")
+    direction: Literal["forward", "reverse"] = "forward"
 
 
-class GlyphRecipe(StrictModel):
+class GlyphVariantRecipe(StrictModel):
+    id: str
     character: str = Field(min_length=1)
     advance_width: float = Field(gt=0)
     strokes: list[GlyphStroke] = Field(min_length=1)
     entry: GlyphEndpoint | None = None
     exit: GlyphEndpoint | None = None
+    provenance: PrimitiveProvenance = Field(default_factory=PrimitiveProvenance)
+
+
+class GlyphRecipe(StrictModel):
+    character: str = Field(min_length=1)
+    default_variant: str
+    variants: dict[str, GlyphVariantRecipe]
+
+    @model_validator(mode="after")
+    def validate_variants(self) -> GlyphRecipe:
+        if self.default_variant not in self.variants:
+            raise ValueError(f"default variant is missing: {self.default_variant}")
+        for key, variant in self.variants.items():
+            if key != variant.id:
+                raise ValueError(f"variant key does not match id: {key}")
+            if variant.character != self.character:
+                raise ValueError(f"variant character mismatch: {variant.id}")
+        return self
+
+
+class ConnectionClass(StrictModel):
+    id: str
+    nominal_height: Literal["baseline", "mid", "upper", "attached", "other"]
+    pen_state: Literal["continuous", "lift_before", "lift_after", "detached"]
+    notes: str | None = None
+
+
+class GlyphContext(StrictModel):
+    prev_character: str | None = None
+    next_character: str | None = None
+    prev_exit_class: str | None = None
+    next_entry_class: str | None = None
+    position: Literal["isolated", "initial", "medial", "final"] | None = None
+
+
+class ContextRule(StrictModel):
+    id: str
+    character: str
+    variant: str
+    prev_characters: list[str] = Field(default_factory=list)
+    next_characters: list[str] = Field(default_factory=list)
+    prev_exit_classes: list[str] = Field(default_factory=list)
+    next_entry_classes: list[str] = Field(default_factory=list)
+    positions: list[str] = Field(default_factory=list)
+    required: bool = True
+    priority: int = 0
+    evidence: list[str] = Field(default_factory=list)
+
+
+class GrammarConnectionRule(StrictModel):
+    id: str
+    from_class: str
+    to_class: str
+    mode: Literal[
+        "cursive-anchor",
+        "direct",
+        "attached",
+        "ligature",
+        "none",
+        "synthetic-bridge",
+    ]
+    x_adjust: float = 0.0
+    y_adjust: float = 0.0
+    pair_spacing: float = 0.0
+    required_variant_left: str | None = None
+    required_variant_right: str | None = None
+    ligature_variant: str | None = None
+    evidence: list[str] = Field(default_factory=list)
+    status: Literal["inferred", "reviewed", "verified"] = "inferred"
+
+    @model_validator(mode="after")
+    def validate_ligature(self) -> GrammarConnectionRule:
+        if self.mode == "ligature" and self.ligature_variant is None:
+            raise ValueError("ligature connection rule requires ligature_variant")
+        return self
+
+
+class ConnectionGeometryTarget(StrictModel):
+    """Source-free measured geometry for one observed connection boundary."""
+
+    anchor_delta: tuple[float, float]
+    exit_tangent: tuple[float, float] | None = None
+    entry_tangent: tuple[float, float] | None = None
+    exit_width: float | None = Field(default=None, ge=0)
+    entry_width: float | None = Field(default=None, ge=0)
+    centerline: list[tuple[float, float]] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_geometry(self) -> ConnectionGeometryTarget:
+        if self.centerline and len(self.centerline) < 2:
+            raise ValueError("connection centerline requires at least two points")
+        for tangent in (self.exit_tangent, self.entry_tangent):
+            if tangent is not None and tangent == (0.0, 0.0):
+                raise ValueError("connection target tangents must be nonzero")
+        return self
+
+
+class ConnectionObservation(StrictModel):
+    id: str
+    text: str = Field(min_length=2)
+    boundary_index: int = Field(ge=1)
+    observation_id: str
+    split: Literal["fit", "validation", "hold-out"]
+    from_character: str = Field(min_length=1)
+    to_character: str = Field(min_length=1)
+    expected_class: str | None = None
+    weight: float = Field(default=1.0, gt=0)
+    target_geometry: ConnectionGeometryTarget | None = None
+
+    @model_validator(mode="after")
+    def validate_boundary(self) -> ConnectionObservation:
+        if self.boundary_index >= len(self.text):
+            raise ValueError("connection observation boundary is outside its text")
+        if self.text[self.boundary_index - 1] != self.from_character:
+            raise ValueError("connection observation from_character does not match boundary")
+        if self.text[self.boundary_index] != self.to_character:
+            raise ValueError("connection observation to_character does not match boundary")
+        return self
 
 
 class FitAnchors(StrictModel):
@@ -275,7 +395,7 @@ class FitCorpus(StrictModel):
 
 class FitCompileConfig(StrictModel):
     output: str
-    runtime_schema_version: Literal[2] = 2
+    runtime_schema_version: Literal[2, 3] = 2
 
 
 class FitProject(StrictModel):
@@ -301,6 +421,10 @@ class ScriptGrammar(StrictModel):
     primitives: dict[str, PrimitiveTemplate] = Field(default_factory=dict)
     glyphs: dict[str, GlyphRecipe] = Field(default_factory=dict)
     instances: dict[str, PrimitiveInstance] = Field(default_factory=dict)
+    connection_classes: dict[str, ConnectionClass] = Field(default_factory=dict)
+    connection_rules: list[GrammarConnectionRule] = Field(default_factory=list)
+    context_rules: list[ContextRule] = Field(default_factory=list)
+    connection_observations: list[ConnectionObservation] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_references(self) -> ScriptGrammar:
@@ -315,16 +439,68 @@ class ScriptGrammar(StrictModel):
         for key, glyph in self.glyphs.items():
             if key != glyph.character:
                 raise ValueError(f"glyph key does not match character: {key}")
-            for stroke in glyph.strokes:
-                for occurrence in stroke.parts:
-                    if occurrence.instance not in self.instances:
+            for variant in glyph.variants.values():
+                for stroke in variant.strokes:
+                    for occurrence in stroke.parts:
+                        if occurrence.instance not in self.instances:
+                            raise ValueError(
+                                f"glyph references unknown instance: {occurrence.instance}"
+                            )
+                        if self.instances[occurrence.instance].primitive != occurrence.primitive:
+                            raise ValueError(
+                                f"glyph instance primitive mismatch: {occurrence.instance}"
+                            )
+                for endpoint in (variant.entry, variant.exit):
+                    if endpoint is not None and endpoint.instance not in self.instances:
                         raise ValueError(
-                            f"glyph references unknown instance: {occurrence.instance}"
+                            f"glyph endpoint references unknown instance: {endpoint.instance}"
                         )
-                    if self.instances[occurrence.instance].primitive != occurrence.primitive:
+                    if endpoint is not None and endpoint.class_ not in self.connection_classes:
                         raise ValueError(
-                            f"glyph instance primitive mismatch: {occurrence.instance}"
+                            f"glyph endpoint references unknown class: {endpoint.class_}"
                         )
+        for key, connection_class in self.connection_classes.items():
+            if key != connection_class.id:
+                raise ValueError(f"connection class key does not match id: {key}")
+        variant_ids = {
+            variant.id for glyph in self.glyphs.values() for variant in glyph.variants.values()
+        }
+        context_rule_ids = [rule.id for rule in self.context_rules]
+        if len(set(context_rule_ids)) != len(context_rule_ids):
+            raise ValueError("duplicate context rule id")
+        for rule in self.context_rules:
+            if rule.character not in self.glyphs:
+                raise ValueError(f"context rule references unknown character: {rule.character}")
+            if rule.variant not in self.glyphs[rule.character].variants:
+                raise ValueError(f"context rule references unknown variant: {rule.variant}")
+            if set(rule.positions) - {"isolated", "initial", "medial", "final"}:
+                raise ValueError(f"context rule has an unknown position: {rule.id}")
+        connection_rule_ids = [rule.id for rule in self.connection_rules]
+        if len(set(connection_rule_ids)) != len(connection_rule_ids):
+            raise ValueError("duplicate connection rule id")
+        for rule in self.connection_rules:
+            if rule.from_class not in self.connection_classes:
+                raise ValueError(f"connection rule references unknown class: {rule.from_class}")
+            if rule.to_class not in self.connection_classes:
+                raise ValueError(f"connection rule references unknown class: {rule.to_class}")
+            for variant_id in (
+                rule.required_variant_left,
+                rule.required_variant_right,
+                rule.ligature_variant,
+            ):
+                if variant_id is not None and variant_id not in variant_ids:
+                    raise ValueError(f"connection rule references unknown variant: {variant_id}")
+        observation_ids = [item.id for item in self.connection_observations]
+        if len(set(observation_ids)) != len(observation_ids):
+            raise ValueError("duplicate connection observation id")
+        for observation in self.connection_observations:
+            if (
+                observation.expected_class is not None
+                and observation.expected_class not in self.connection_classes
+            ):
+                raise ValueError(
+                    f"connection observation references unknown class: {observation.expected_class}"
+                )
         return self
 
 

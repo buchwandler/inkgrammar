@@ -13,4 +13,4 @@ seed_grammar: seed-grammar.yaml
 private_work_dir: ../../../work/sas-1968
 compile:
   output: ../../models/sas-1968.yaml
-  runtime_schema_version: 2
+  runtime_schema_version: 3

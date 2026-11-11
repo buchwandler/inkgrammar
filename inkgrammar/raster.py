@@ -9,7 +9,8 @@ from PIL import Image, ImageDraw
 
 from .geometry import sample_path
 from .model import compile_text
-from .models import WritingModel
+from .models import RuntimeWritingModel, WritingModelV3
+from .shaping import shape_text
 
 
 def threshold_image(image: Image.Image) -> np.ndarray:
@@ -155,19 +156,24 @@ class RasterFrame:
 
 
 def render_text_frame(
-    model: WritingModel,
+    model: RuntimeWritingModel,
     text: str,
     *,
     gap_override: float | None = None,
     tension_override: float | None = None,
     scale: float = 0.7,
 ) -> RasterFrame:
-    plan = compile_text(
-        model,
-        text,
-        gap_override=gap_override,
-        tension_override=tension_override,
-    )
+    if isinstance(model, WritingModelV3):
+        if gap_override is not None or tension_override is not None:
+            raise ValueError("schema v3 spacing is controlled by connection rules")
+        plan = shape_text(model, text, allow_synthetic_bridges=True)
+    else:
+        plan = compile_text(
+            model,
+            text,
+            gap_override=gap_override,
+            tension_override=tension_override,
+        )
     metrics = model.metrics
     if scale <= 0:
         raise ValueError("render scale must be positive")
@@ -213,7 +219,7 @@ def render_text_frame(
 
 
 def render_text_mask(
-    model: WritingModel,
+    model: RuntimeWritingModel,
     text: str,
     *,
     gap_override: float | None = None,
@@ -226,7 +232,7 @@ def render_text_mask(
 
 
 def compare_text_to_image(
-    model: WritingModel,
+    model: RuntimeWritingModel,
     text: str,
     reference_path: str | Path,
     *,

@@ -1,5 +1,11 @@
 # Roadmap
 
+## v5: shared shaping and OpenType export
+
+The current development branch implements schema-v3 runtime models, contextual variant selection, shared shaped output for raster/SVG rendering, adaptive stroke outlines, connection fitting/control sheets, and deterministic TTF planning/building with GSUB/GPOS features. Schema-v2 models remain loadable.
+
+The exporter and `font` CLI are development capabilities, not a release-readiness claim. Source-derived fonts remain blocked by unresolved rights, unpromoted geometry, incomplete glyph/connection evidence, unsupported rules, or missing shaping parity. SAS coverage is reported in stages; no glyph or connection observations are synthesized to make the coverage appear complete.
+
 ## v0.2 — this MVP
 
 - writing-model schema;
@@ -33,13 +39,12 @@
 - fit component parameters jointly across multiple glyphs;
 - cross-validation so one sample is not overfit.
 
-## v0.5 — font outputs
+## v0.5: font outputs (partially superseded by v5)
 
-- round-pen stroke expansion;
-- outline cleanup;
-- TTF/WOFF2 generation;
-- contextual OpenType substitutions/positioning;
-- render-regression tests against the same observation corpus.
+- adaptive round-pen expansion and deterministic TTF generation are available;
+- WOFF2 and general overlap cleanup are not implemented;
+- representable v3 contextual substitutions and cursive positioning compile to OpenType;
+- HarfBuzz parity is optional, and full corpus parity is not yet established.
 
 ## Non-goal
 

@@ -9,6 +9,8 @@ from inkgrammar.cli import app
 from inkgrammar.fitting.control_sheet import (
     DEFAULT_CHARACTERS,
     _fit_templates,
+    write_connection_control_sheet,
+    write_context_control_sheet,
     write_control_sheet,
 )
 from inkgrammar.fitting.workspace import load_fit_project
@@ -72,6 +74,32 @@ def test_control_sheet_does_not_read_private_source_images(monkeypatch, tmp_path
     assert report["rendered_count"] == 12
 
 
+def test_connection_and_context_sheets_are_source_free_and_staged(monkeypatch, tmp_path):
+    bundle = load_fit_project(PROJECT)
+
+    def reject_image_open(*args, **kwargs):
+        raise AssertionError("control-sheet generation must not open source images")
+
+    monkeypatch.setattr(Image, "open", reject_image_open)
+    connection_path = tmp_path / "connections.png"
+    context_path = tmp_path / "contexts.png"
+
+    connections = write_connection_control_sheet(bundle, connection_path)
+    contexts = write_context_control_sheet(bundle, context_path)
+
+    assert connections["case_count"] == 0
+    assert connections["observation_coverage"]["split_counts"] == {
+        "fit": 0,
+        "validation": 0,
+        "hold-out": 0,
+    }
+    assert connections["source_free"] is True
+    assert contexts["case_count"] == 12
+    assert contexts["source_free"] is True
+    assert connection_path.is_file() and context_path.is_file()
+    assert "source_id" not in connection_path.with_suffix(".json").read_text()
+
+
 def test_control_sheet_uses_model_state_by_default_and_occurrence_deltas_only_on_request(tmp_path):
     bundle = load_fit_project(PROJECT)
     default_path = tmp_path / "default.png"
@@ -129,3 +157,26 @@ def test_control_sheet_cli_writes_png_and_json_with_optional_digits(tmp_path):
     payload = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
     assert payload["target_count"] == 63
     assert "Rendered 12 of 63 target glyphs" in result.output
+
+
+def test_connection_coverage_cli_reports_staged_splits():
+    result = CliRunner().invoke(app, ["fit", "connection-coverage", str(PROJECT)])
+
+    assert result.exit_code == 0, result.output
+    report = json.loads(result.output)
+    assert report["split_counts"] == {"fit": 0, "validation": 0, "hold-out": 0}
+    assert report["source_free"] is True
+
+
+def test_connection_control_sheet_cli_writes_source_free_outputs(tmp_path):
+    output = tmp_path / "connections.png"
+    result = CliRunner().invoke(
+        app,
+        ["fit", "connection-control-sheet", str(PROJECT), "--output", str(output)],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert output.is_file()
+    report = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
+    assert report["source_free"] is True
+    assert report["observation_coverage"]["observation_count"] == 0
