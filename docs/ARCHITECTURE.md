@@ -86,3 +86,61 @@ The runtime shaper resolves contextual variants and connection rules into a `Sha
 The outline stage adaptively samples curves, expands strokes and taps into closed contours, and records bounds. TTF glyph contours are stored as quadratic TrueType outlines. The standalone cubic-to-quadratic helper uses FontTools `cu2qu`; the current stroke expander first produces polygon contours, so the exporter represents their edges as exact quadratic line segments within font-unit rounding tolerance.
 
 `inkgrammar font plan`, `build`, `build-fit`, `validate`, and `compare-runtime` expose planning and export. HarfBuzz parity is optional when `uharfbuzz` is installed. A structurally valid TTF is not automatically font-ready: rights, promotion, glyph and connection coverage, unsupported context rules, and corpus parity remain separate gates. Runtime schema validity and visual output do not establish historical verification.
+
+
+# Evidence layers and trajectory model
+
+## Four evidence layers
+
+The SAS pipeline separates four layers and never lets one overwrite another:
+
+1. **Source evidence** - immutable facts about a source image (hash, size,
+   rights status).
+2. **Extracted observations** - deterministic extractions (crop locator,
+   source bbox, extraction recipe and artifact hashes).
+3. **Reviewed interpretation** - semantic claims with per-field provenance
+   (`source-explicit`, `source-layout`, `inferred-reviewed`,
+   `automatic-candidate`, ...).
+4. **Fitted model** - numerical parameters learned from reviewed evidence;
+   replaceable and always carrying provenance hashes.
+
+## Curvature trajectory model
+
+InkGrammar stores how the pen moves; SVG Beziers, raster pixels, and font
+outlines are compiled representations of that movement. A pen-down stroke is
+a start pose, a normalized length, and a heading-rate profile
+`q(u) = d(theta_deg)/du` over normalized progress `u in [0, 1]`:
+
+```text
+theta(u) = theta0 + integral_0^u q(v) dv
+dx/du = L cos(theta(u)),  dy/du = L sin(theta(u))
+```
+
+`q(u)` is scale-invariant: a small and a large letter share one profile and
+differ only in the similarity transform (uniform scale, rotation, dx, dy).
+Change locations are percentages of drawn stroke length, strictly ordered
+with minimum spacing; interpolation is piecewise-linear or shape-preserving
+cubic Hermite. The canonical primitive starts at `(0, 0)`; placement belongs
+to the occurrence transform. Compilation integrates the trajectory and
+approximates it with cubic Beziers before the existing runtime consumes it,
+with geometric parity checked in x-height-normalized units.
+
+Fitting takes an ordered centerline (from the dataset index, never ad-hoc
+image paths): observed heading and heading-rate estimation, deterministic
+event initialization, then bounded robust least squares over the
+low-dimensional trajectory parameters with per-occurrence similarity
+transforms. Position, tangent, endpoint, total-turn and profile residuals
+dominate; raster overlap is only a secondary check.
+
+## Explicit unit conversion
+
+Glyph design units are x-height normalized (`baseline = 0`, `x_height = 1`,
+y up). Runtime/font units are reached only through named conversions:
+
+```python
+glyph_units_to_runtime(xy, *, x_height_units)
+runtime_units_to_glyph(xy, *, x_height_units)
+```
+
+Pixel frames and font units never mix implicitly; every fit report records
+the units it used.

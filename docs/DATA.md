@@ -83,3 +83,54 @@ explicit compatibility range and `git_commit` through `build_release`.
 
 Rights notices are not a rights clearance. Do not publish a reconstructed SAS
 model while its model-data license or derivation rights remain unresolved.
+
+
+## SAS-1968 dataset pipeline
+
+The private SAS workspace is organized as a four-layer evidence chain (source
+evidence, extracted observations, reviewed interpretation, fitted model). The
+dataset pipeline materializes the first two layers deterministically from a
+source-free recipe plus authorized private scans:
+
+```sh
+inkgrammar dataset verify-sources data/datasets/sas-1968.yaml
+inkgrammar dataset materialize data/datasets/sas-1968.yaml
+inkgrammar dataset review-sheet data/datasets/sas-1968.yaml --output work/sas-1968/dataset/review
+inkgrammar dataset validate data/datasets/sas-1968.yaml
+inkgrammar dataset status data/datasets/sas-1968.yaml
+inkgrammar dataset validate-sas-private data/datasets/sas-1968.yaml   # one-shot local run
+```
+
+The recipe `data/datasets/sas-1968.yaml` contains no scan bytes; private
+scans live under `work/sas-1968/sources/` and are verified by SHA-256 and
+dimensions. Materialized output goes to `work/sas-1968/dataset/` (crops,
+raw/clean masks with cleanup records, normalized previews, derived
+skeleton/centerline/topology artifacts with algorithm versions, and a
+canonical `index.json`). Two clean runs produce byte-identical semantic
+artifacts.
+
+### Annotation and review-patch policy
+
+Reviewed semantic annotations and review patches live in the private tree
+`work/sas-1968/annotations/sas-1968/` until source rights are reviewed. Review
+patches carry the input hashes they were reviewed against; stale patches are
+reported and never silently applied to new crops. Automatic outputs are
+candidates (`review_status: candidate` / `automatic-candidate`) and no dataset
+or primitive is promoted without human review.
+
+### Source-free CI
+
+Public CI runs without the historical scans: schema validation, layout
+parsing, ID/relation checks, synthetic materialization, trajectory synthetic
+tests, and compiler tests. Source hashes, real materialization, SAS review
+outputs, and real fits run only as authorized local validation
+(`validate-sas-private`). Missing private source images must not make ordinary
+package CI unusable.
+
+### Trajectory fit outputs
+
+Trajectory experiments write to `work/sas-1968/trajectory/<label>/` (see
+`docs/ARCHITECTURE.md` for the trajectory model). Every fit report records
+provenance hashes (dataset project, observation manifest, annotation,
+materialized artifact, fit config, fit project, optimizer version); a fit is
+invalidated when reviewed evidence changes.

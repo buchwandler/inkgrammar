@@ -1,0 +1,32 @@
+# Source-free dataset recipe for the five supplied SAS-1968 pages.
+# Contains no scan bytes. Private source images live under private_root and
+# must never be committed. Paths resolve relative to this file.
+schema_version: 1
+id: sas-1968
+
+observation_manifest:
+  path: ../observations/sas-1968/manifest.json
+
+sources:
+  private_root: ../../work/sas-1968/sources
+
+pages:
+  - source_id: sas-1968-alphabet
+    layout: ../../examples/layouts/sas-1968-alphabet.yaml
+    extractor: labeled-rows-v1
+
+  - source_id: sas-1968-components
+    layout: ../../examples/layouts/sas-1968-component-families.yaml
+    extractor: region-layout-v1
+
+  - source_id: sas-1968-stroke-order
+    layout: ../../examples/layouts/sas-1968-stroke-order.yaml
+    extractor: annotated-region-v1
+
+  - source_id: sas-1968-connections-numbered
+    layout: ../../examples/layouts/sas-1968-connections-numbered.yaml
+    extractor: region-layout-v1
+
+  - source_id: sas-1968-connection-categories
+    layout: ../../examples/layouts/sas-1968-connection-categories.yaml
+    extractor: region-layout-v1

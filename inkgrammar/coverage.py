@@ -41,7 +41,9 @@ def model_coverage(
     results = regressions.results if regressions else []
     fixtures = regressions.fixtures if regressions else []
     examples = (
-        [item for item in observations.items if item.kind == "connection"] if observations else []
+        [item for item in observations.items if item.kind == "connection-pair"]
+        if observations
+        else []
     )
     missing = sorted(expected - covered)
     missing_results = sorted(
@@ -152,7 +154,9 @@ def runtime_model_coverage(
         lambda item: item.review_status == "accepted" and item.fitting_status == "usable",
     )
     source_connections = [
-        item for item in (observations.items if observations else []) if item.kind == "connection"
+        item
+        for item in (observations.items if observations else [])
+        if item.kind == "connection-pair"
     ]
     fit_connections = connection_observations or []
     fit_splits = Counter(item.split for item in fit_connections)

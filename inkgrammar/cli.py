@@ -8,12 +8,14 @@ import yaml
 
 from . import __version__
 from .data_cli import app as data_app
+from .dataset_cli import app as dataset_app
 from .fit import fit_join
 from .io import load_layout, load_model
 from .page import extract_labeled_page
 from .qc import validate_model
 from .raster import compare_text_to_image, render_text_mask
 from .release import build_release
+from .trajectory_cli import register_trajectory_commands
 
 app = typer.Typer(no_args_is_help=True, help="InkGrammar writing-model tools.")
 page_app = typer.Typer(no_args_is_help=True, help="Scan-page extraction tools.")
@@ -23,7 +25,9 @@ font_app = typer.Typer(no_args_is_help=True, help="OpenType font export tools.")
 app.add_typer(page_app, name="page")
 app.add_typer(model_app, name="model")
 app.add_typer(data_app, name="data")
+app.add_typer(dataset_app, name="dataset")
 app.add_typer(fit_app, name="fit")
+register_trajectory_commands(fit_app)
 app.add_typer(font_app, name="font")
 CONTROL_SHEET_OUTPUT = Path("work/sas-1968/control/alphabet.png")
 

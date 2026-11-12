@@ -220,7 +220,7 @@ def _validate_connection_observations(connections, observations_by_id, samples) 
         observation = observations_by_id.get(connection.observation_id)
         if observation is None:
             raise ValueError(f"unknown connection observation: {connection.observation_id}")
-        if observation.kind != "connection":
+        if observation.kind != "connection-pair":
             raise ValueError(
                 "connection evidence must reference a connection observation: "
                 f"{connection.observation_id}"

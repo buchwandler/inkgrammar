@@ -1,0 +1,189 @@
+# Layout for the supplied SAS-1968 stroke-order and special-forms page
+# (source: sas-1968-stroke-order, 541x285 px).
+#
+# Two kinds of data per the brief's section 19:
+#   1. numbered stroke-order demonstrations (kind: stroke-order-demonstration)
+#      with the printed numbers/arrows kept out of the target ink region;
+#   2. special-form glyph observations (kind: glyph-isolated).
+#
+# `sequence` lists the declared stroke numbers visible on the page. Where the
+# source numbering unambiguously gives the order, the stroke evidence is
+# source-explicit (recorded in review notes; annotation evidence is set when
+# stroke annotations are created). The printed caption at the bottom
+# ("Grundsätzlich kann festgestellt werden:") is page furniture and is not an
+# observation. Labels were transcribed visually and require human review.
+schema_version: 1
+id: sas-1968-stroke-order
+description: >
+  Stroke-order demonstrations with separated annotation marks, plus
+  special-form glyph regions.
+regions:
+  - id: stroke-order-T
+    kind: stroke-order-demonstration
+    label: T
+    bbox: [0.0591, 0.0316, 0.1423, 0.2632]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.0591, 0.0877, 0.1423, 0.2632]
+      annotation-1: [0.0795, 0.0561, 0.1275, 0.0877]
+      annotation-2: [0.085, 0.0316, 0.098, 0.0632]
+      annotation-3: [0.0961, 0.1474, 0.1128, 0.2105]
+      annotation-4: [0.1201, 0.1719, 0.1312, 0.193]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-F
+    kind: stroke-order-demonstration
+    label: F
+    bbox: [0.2274, 0.0316, 0.3142, 0.2596]
+    sequence: ["1", "2", "3"]
+    subregions:
+      ink: [0.2495, 0.0842, 0.3142, 0.2596]
+      annotation-1: [0.2274, 0.1439, 0.2458, 0.207]
+      annotation-2: [0.2274, 0.1544, 0.2348, 0.1789]
+      annotation-3: [0.2643, 0.0316, 0.2994, 0.0842]
+      annotation-4: [0.2643, 0.1789, 0.2902, 0.2035]
+      annotation-5: [0.2643, 0.207, 0.2791, 0.2386]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-H
+    kind: stroke-order-demonstration
+    label: H
+    bbox: [0.3974, 0.0877, 0.4935, 0.2561]
+    sequence: ["1", "2", "3"]
+    subregions:
+      ink: [0.3993, 0.0877, 0.4843, 0.2561]
+      annotation-1: [0.3974, 0.1193, 0.4085, 0.1474]
+      annotation-2: [0.4251, 0.186, 0.4399, 0.2246]
+      annotation-3: [0.4806, 0.1333, 0.4935, 0.1614]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-K
+    kind: stroke-order-demonstration
+    label: K
+    bbox: [0.5675, 0.0842, 0.6506, 0.2491]
+    sequence: ["1", "2", "3"]
+    subregions:
+      ink: [0.573, 0.0842, 0.6506, 0.2491]
+      annotation-1: [0.5675, 0.1509, 0.5767, 0.1754]
+    notes: >
+      Source numbering visible above and beside the letter (evidence:
+      source-explicit); some number marks are attached to the letter ink in
+      extraction and require isolation review.
+
+  - id: stroke-order-X-01
+    kind: stroke-order-demonstration
+    label: X
+    bbox: [0.7283, 0.0772, 0.8152, 0.2456]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.7283, 0.0772, 0.8152, 0.2456]
+      annotation-1: [0.8041, 0.1158, 0.8115, 0.1368]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-X-02
+    kind: stroke-order-demonstration
+    label: X
+    bbox: [0.8983, 0.1333, 0.9612, 0.2456]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.8983, 0.1333, 0.9612, 0.2456]
+      annotation-1: [0.9464, 0.2105, 0.9556, 0.2316]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-P
+    kind: stroke-order-demonstration
+    label: P
+    bbox: [0.0591, 0.6596, 0.1479, 0.8386]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.0665, 0.6596, 0.1331, 0.8386]
+      annotation-1: [0.0591, 0.7263, 0.0684, 0.7474]
+      annotation-2: [0.1349, 0.6702, 0.1479, 0.6982]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-B
+    kind: stroke-order-demonstration
+    label: B
+    bbox: [0.2015, 0.6526, 0.2957, 0.8386]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.207, 0.6526, 0.2791, 0.8386]
+      annotation-1: [0.2015, 0.7193, 0.2107, 0.7333]
+      annotation-2: [0.2828, 0.7088, 0.2957, 0.7404]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-R
+    kind: stroke-order-demonstration
+    label: R
+    bbox: [0.3235, 0.6596, 0.4177, 0.8386]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.3401, 0.6596, 0.4067, 0.8386]
+      annotation-1: [0.3235, 0.7193, 0.3327, 0.7368]
+      annotation-2: [0.329, 0.7193, 0.3438, 0.7614]
+      annotation-3: [0.4048, 0.7333, 0.4177, 0.7614]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: stroke-order-D
+    kind: stroke-order-demonstration
+    label: D
+    bbox: [0.4436, 0.6421, 0.5545, 0.8351]
+    sequence: ["1", "2"]
+    subregions:
+      ink: [0.4713, 0.6421, 0.5416, 0.8351]
+      annotation-1: [0.4436, 0.7298, 0.4547, 0.7474]
+      annotation-2: [0.4566, 0.7333, 0.4713, 0.7719]
+      annotation-3: [0.5416, 0.7333, 0.5545, 0.7649]
+    notes: "Source numbering gives stroke order explicitly (evidence: source-explicit)."
+
+  - id: special-form-C
+    kind: glyph-isolated
+    label: C
+    bbox: [0.0536, 0.3649, 0.1664, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-Z
+    kind: glyph-isolated
+    label: Z
+    bbox: [0.2144, 0.3649, 0.2994, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-z
+    kind: glyph-isolated
+    label: z
+    bbox: [0.3549, 0.3649, 0.4214, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-J
+    kind: glyph-isolated
+    label: J
+    bbox: [0.6506, 0.3649, 0.7135, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-S
+    kind: glyph-isolated
+    label: S
+    bbox: [0.7653, 0.3649, 0.8263, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-s
+    kind: glyph-isolated
+    label: s
+    bbox: [0.8965, 0.3649, 0.9575, 0.5544]
+    notes: Special-form glyph shown on the stroke-order page; label requires review.
+
+  - id: special-form-sharp-s
+    kind: glyph-isolated
+    label: "ß"
+    bbox: [0.7116, 0.6491, 0.8152, 0.9263]
+    notes: >
+      Sharp-s special form drawn with a descender loop; transcription uncertain
+      (may be a beta-like variant), requires label review.
+
+  - id: special-form-E
+    kind: glyph-isolated
+    label: E
+    bbox: [0.902, 0.6491, 0.9556, 0.8281]
+    notes: >
+      Special form drawn like an epsilon; transcribed as E, requires label
+      review.

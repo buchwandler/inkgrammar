@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,8 +13,8 @@ from .models import RuntimeWritingModel, WritingModelV3
 from .shaping import shape_text
 
 
-def threshold_image(image: Image.Image) -> np.ndarray:
-    gray = np.asarray(image.convert("L"), dtype=np.uint8)
+def otsu_mask(gray: np.ndarray) -> np.ndarray:
+    """Binarize a grayscale array with a 256-level Otsu threshold."""
     histogram = np.bincount(gray.ravel(), minlength=256).astype(np.float64)
     total = gray.size
     sum_total = np.dot(np.arange(256), histogram)
@@ -40,6 +39,11 @@ def threshold_image(image: Image.Image) -> np.ndarray:
             threshold = level
 
     return gray <= threshold
+
+
+def threshold_image(image: Image.Image) -> np.ndarray:
+    gray = np.asarray(image.convert("L"), dtype=np.uint8)
+    return otsu_mask(gray)
 
 
 def crop_to_ink(mask: np.ndarray, pad: int = 2) -> np.ndarray:

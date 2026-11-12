@@ -1,0 +1,54 @@
+# Layout for the supplied SAS-1968 connection-categories page
+# (source: sas-1968-connection-categories, 538x544 px).
+#
+# Each numbered heading is a first-class connection-category entity (the
+# brief's sections 21 and 94). The exact German source terminology is kept in
+# `label`; English internal identifiers live in the region ids. Member labels
+# are the example pairs as written on the page. Mapping source categories to
+# runtime connection classes is a separate reviewed step and is not done here
+# (section 65). The page number "30" at the bottom is page furniture and is
+# not an observation.
+schema_version: 1
+id: sas-1968-connection-categories
+description: >
+  Connection categories with source-language headings and declared member
+  example pairs.
+regions:
+  - id: connection-category-baseline
+    kind: connection-category
+    label: "Die einzügige Verbindung von der Grundlinie aus"
+    bbox: [0.0297, 0.0441, 0.9387, 0.267]
+    members: [nu, na, ne, nl, Gu, Ga, Ge, Gl, Ku, Ka, Ke, Kl, Lu, La, Le]
+    subregions:
+      heading: [0.0297, 0.0441, 0.9387, 0.0974]
+      examples-row-1: [0.0558, 0.1213, 0.9294, 0.1949]
+      examples-row-2: [0.0558, 0.1985, 0.79, 0.267]
+    notes: >
+      Source heading numbered 1 ("Die einzügige Verbindung von der Grundlinie
+      aus"); internal shorthand baseline-origin. Runtime mapping pending review.
+
+  - id: connection-category-midline
+    kind: connection-category
+    label: "Die einzügige Verbindung von der Mittellinie aus"
+    bbox: [0.0297, 0.3327, 0.9257, 0.542]
+    members: [ru, ra, re, bu, ba, be, bl, Au, Aa, Ae, Al]
+    subregions:
+      heading: [0.0297, 0.3327, 0.9257, 0.3934]
+      examples-row-1: [0.0558, 0.4081, 0.9294, 0.4669]
+      examples-row-2: [0.0558, 0.4853, 0.5204, 0.542]
+    notes: >
+      Source heading numbered 2 ("Die einzügige Verbindung von der Mittellinie
+      aus"); internal shorthand midline-origin. Runtime mapping pending review.
+
+  - id: connection-category-attached
+    kind: connection-category
+    label: "Die angesetzte Verbindung"
+    bbox: [0.0297, 0.5625, 0.9312, 0.855]
+    members: [Pu, Pa, Pe, Pl, Wu, Wa, We, Wl, Su, Sa, Se, Sl]
+    subregions:
+      heading: [0.0297, 0.5625, 0.6134, 0.6176]
+      examples-row-1: [0.0465, 0.6324, 0.9294, 0.6985]
+      examples-row-2: [0.0465, 0.7096, 0.4368, 0.855]
+    notes: >
+      Source heading numbered 3 ("Die angesetzte Verbindung"); internal
+      shorthand attached-connection. Runtime mapping pending review.

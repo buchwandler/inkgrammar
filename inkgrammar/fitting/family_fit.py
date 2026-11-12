@@ -22,6 +22,7 @@ from .checkpoint import (
     load_checkpoint,
     save_checkpoint,
 )
+from .curvature import curvature_to_cubic_segments
 from .models import (
     FitSample,
     OccurrenceDelta,
@@ -80,6 +81,11 @@ def primitive_path(template: PrimitiveTemplate, transform: TopologyTransform) ->
             raise ValueError("bspline-centerline primitive has no spline geometry")
         start_point = tuple(template.spline.control_points[0])
         segments = spline_to_cubic_segments(template.spline)
+    elif template.kind == "curvature-profile":
+        if template.curvature_stroke is None:
+            raise ValueError("curvature-profile primitive has no curvature_stroke geometry")
+        start_point = (0.0, 0.0)
+        segments = curvature_to_cubic_segments(template.curvature_stroke)
     else:
         start_point = template.frame.start
         segments = template.segments

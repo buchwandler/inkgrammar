@@ -1,0 +1,71 @@
+# Layout for the supplied SAS-1968 component-families page (source: sas-1968-components).
+# Each row demonstrates one movement family and lists associated letter examples.
+# Region identity comes from this declared layout; member labels were transcribed
+# visually from the scan and are review_status=pending until human label review.
+# Coordinates are normalized to source image dimensions (568x469 px).
+schema_version: 1
+id: sas-1968-component-families
+description: >
+  Component-family rows: demonstrated movement, separator arrow, and the
+  declared example sequence per family.
+regions:
+  - id: family-01
+    kind: component-family
+    label: family-01
+    bbox: [0.065, 0.0661, 0.72, 0.1983]
+    members: [A, M, N, A]
+    subregions:
+      demonstration: [0.0722, 0.0661, 0.2042, 0.1983]
+      separator-arrow: [0.2447, 0.1, 0.2746, 0.17]
+      example-sequence: [0.3222, 0.0661, 0.6954, 0.1983]
+    notes: >
+      Hump-like repeated movement demonstrated at left; examples read A M N A
+      (final glyph transcribed as A, may be a variant; requires label review).
+
+  - id: family-02
+    kind: component-family
+    label: family-02
+    bbox: [0.065, 0.2281, 0.9, 0.3902]
+    members: [U, V, W, Y, i, n, v, w, y]
+    subregions:
+      demonstration: [0.0775, 0.2281, 0.2077, 0.3902]
+      separator-arrow: [0.2465, 0.27, 0.2764, 0.35]
+      example-sequence: [0.3345, 0.2281, 0.8768, 0.3902]
+    notes: >
+      Underturn movement demonstrated at left; examples read U V W Y i n v w y.
+
+  - id: family-03
+    kind: component-family
+    label: family-03
+    bbox: [0.065, 0.4328, 0.68, 0.5864]
+    members: [r, p, m, n, h]
+    subregions:
+      demonstration: [0.0775, 0.4328, 0.2113, 0.5864]
+      separator-arrow: [0.2482, 0.47, 0.2764, 0.55]
+      example-sequence: [0.3556, 0.4328, 0.662, 0.5864]
+    notes: Hump movement demonstrated at left; examples read r p m n h.
+
+  - id: family-04
+    kind: component-family
+    label: family-04
+    bbox: [0.07, 0.6333, 0.96, 0.7825]
+    members: [G, J, Y, j, y, g, b, f, h, k, l, e]
+    subregions:
+      demonstration: [0.0827, 0.6333, 0.2306, 0.7825]
+      separator-arrow: [0.2518, 0.67, 0.2835, 0.75]
+      example-sequence: [0.3627, 0.6333, 0.9542, 0.7825]
+    notes: >
+      Loop/descender movement demonstrated at left; example transcription is
+      uncertain (read G J Y j y g b f h k l e) and requires label review.
+
+  - id: family-05
+    kind: component-family
+    label: family-05
+    bbox: [0.07, 0.8124, 0.95, 0.936]
+    members: [a, c, d, g, o, q, C, G, O, Q]
+    subregions:
+      demonstration: [0.0863, 0.8124, 0.2289, 0.936]
+      separator-arrow: [0.2535, 0.845, 0.2852, 0.905]
+      example-sequence: [0.3574, 0.8124, 0.9419, 0.936]
+    notes: >
+      Open-oval movement demonstrated at left; examples read a c d g o q C G O Q.

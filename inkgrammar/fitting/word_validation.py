@@ -151,6 +151,29 @@ def _word_paths(bundle: FitProjectBundle, sample, templates, glyph_sources):
     return paths, checks, source_ids
 
 
+def _word_coverage(sample, paths: dict[str, str], connection_checks: list[dict[str, Any]]) -> dict:
+    """Coverage fields per the brief's section 66.
+
+    A word composed from available glyphs without fitted boundary rules is
+    ``renderable_unjoined``; it is never reported as connected-writing
+    validation until every required boundary has a fitted/reviewed rule.
+    """
+    glyph_coverage = all(
+        any(key.startswith(f"{index}:") for key in paths)
+        for index in range(len(sample.text))
+    )
+    connection_coverage = bool(connection_checks) and all(
+        check["status"] == "pass" for check in connection_checks
+    )
+    connected_writing = glyph_coverage and connection_coverage
+    return {
+        "glyph_coverage": glyph_coverage,
+        "connection_coverage": connection_coverage,
+        "connected_writing": connected_writing,
+        "status": "connected-writing-validation" if connected_writing else "renderable_unjoined",
+    }
+
+
 def validate_composed_words(
     bundle: FitProjectBundle,
     *,
@@ -231,6 +254,7 @@ def validate_composed_words(
                     reference, rendered.coverage, target_distance_field=target_distance
                 ),
             },
+            **_word_coverage(sample, paths, connection_checks),
             "connection_checks": connection_checks,
             "overlay": overlay_path.name,
         }

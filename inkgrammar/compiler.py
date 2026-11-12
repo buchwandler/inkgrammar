@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+import numpy as np
 import yaml
 
 from .fitting.family_fit import load_fit_reports, primitive_path
@@ -34,6 +35,24 @@ from .models import (
     WritingModelV2,
     WritingModelV3,
 )
+
+
+def glyph_units_to_runtime(xy, *, x_height_units: float) -> np.ndarray:
+    """Map x-height-normalized glyph units to runtime/font units.
+
+    The conversion is a named, explicit step: glyph units never implicitly
+    mix with runtime metrics.
+    """
+    if x_height_units <= 0:
+        raise ValueError("x_height_units must be positive")
+    return np.asarray(xy, dtype=float) * x_height_units
+
+
+def runtime_units_to_glyph(xy, *, x_height_units: float) -> np.ndarray:
+    """Map runtime/font units back to x-height-normalized glyph units."""
+    if x_height_units <= 0:
+        raise ValueError("x_height_units must be positive")
+    return np.asarray(xy, dtype=float) / x_height_units
 
 
 @dataclass(frozen=True)

@@ -17,6 +17,7 @@ from ..raster import render_text_frame
 from .connection_fit import connection_observation_coverage
 from .family_fit import load_fit_reports, primitive_path
 from .models import (
+    CurvatureStrokeGeometry,
     FitSample,
     OccurrenceDelta,
     PrimitiveTemplate,
@@ -507,3 +508,92 @@ def write_context_control_sheet(
         encoding="utf-8",
     )
     return report
+
+
+
+def render_trajectory_diagnostic(
+    geometry: CurvatureStrokeGeometry,
+    *,
+    size: int = 256,
+    direction_arrow_fraction: float = 0.12,
+) -> Image.Image:
+    """Trajectory diagnostic panel (the brief's section 20.7).
+
+    Shows the integrated centerline with direction arrows, start/end markers
+    with tangent arrows, and numbered curvature-change markers, so the writing
+    direction and the turning program are directly inspectable.
+    """
+    from .curvature import evaluate_curvature_stroke, evaluate_stroke_at
+
+    sample = evaluate_curvature_stroke(geometry, count=257)
+    points = sample.xy
+    low = points.min(axis=0)
+    high = points.max(axis=0)
+    span = np.maximum(high - low, 1e-9)
+    scale = (size * 0.72) / float(span.max())
+    center = (low + high) / 2.0
+
+    def to_pixels(values: np.ndarray) -> list[tuple[float, float]]:
+        values = np.asarray(values, dtype=float)
+        mapped = (values - center) * scale
+        return [(size / 2 + float(x), size / 2 - float(y)) for x, y in mapped]
+
+    panel = Image.new("RGB", (size, size), (255, 255, 255))
+    draw = ImageDraw.Draw(panel)
+
+    polyline = to_pixels(points)
+    draw.line(polyline, fill=(20, 20, 20), width=2)
+
+    def draw_arrow(origin: tuple[float, float], direction: np.ndarray, color) -> None:
+        direction = direction / np.linalg.norm(direction)
+        tip = (origin[0] + float(direction[0]) * 18, origin[1] - float(direction[1]) * 18)
+        draw.line([origin, tip], fill=color, width=2)
+        back = (tip[0] - float(direction[0]) * 6, tip[1] + float(direction[1]) * 6)
+        perpendicular = (-direction[1], direction[0])
+        draw.line(
+            [tip, (back[0] + float(perpendicular[0]) * 4, back[1] - float(perpendicular[1]) * 4)],
+            fill=color,
+            width=2,
+        )
+        draw.line(
+            [tip, (back[0] - float(perpendicular[0]) * 4, back[1] + float(perpendicular[1]) * 4)],
+            fill=color,
+            width=2,
+        )
+
+    start_px, end_px = polyline[0], polyline[-1]
+    draw.rectangle(
+        (start_px[0] - 4, start_px[1] - 4, start_px[0] + 4, start_px[1] + 4),
+        outline=(0, 160, 0),
+        width=2,
+    )
+    draw.rectangle(
+        (end_px[0] - 4, end_px[1] - 4, end_px[0] + 4, end_px[1] + 4),
+        outline=(0, 0, 220),
+        width=2,
+    )
+    draw_arrow(start_px, sample.tangent[0], (0, 160, 0))
+    draw_arrow(end_px, sample.tangent[-1], (0, 0, 220))
+
+    change_positions = [change.at for change in geometry.curvature.changes]
+    if change_positions:
+        change_xy, _ = evaluate_stroke_at(geometry, np.asarray(change_positions))
+        for number, point in enumerate(to_pixels(change_xy), start=1):
+            draw.ellipse(
+                (point[0] - 6, point[1] - 6, point[0] + 6, point[1] + 6),
+                outline=(220, 0, 0),
+                width=2,
+            )
+            draw.text((point[0] + 7, point[1] - 6), str(number), fill=(220, 0, 0))
+
+    step = max(1, int(round(1.0 / max(direction_arrow_fraction, 0.01))))
+    direction_u = np.linspace(0.0, 1.0, step + 1)[1:-1]
+    if direction_u.size:
+        arrow_xy, _ = evaluate_stroke_at(geometry, direction_u)
+        for index, point in enumerate(to_pixels(arrow_xy)):
+            tangent = sample.tangent[
+                int(np.argmin(np.abs(sample.u - direction_u[index])))
+            ]
+            draw_arrow(point, tangent, (120, 120, 120))
+
+    return panel

@@ -1,0 +1,74 @@
+# Layout for the supplied SAS-1968 numbered connection-examples page
+# (source: sas-1968-connections-numbered, 273x223 px).
+#
+# Each example is kept intact as a connection-pair observation (the brief's
+# section 20: the pair image itself is the evidence; do not cut pairs into
+# independent glyphs first). The source numbers group the examples ("2.",
+# "3." at the left margin) and are used in the stable observation IDs.
+# Small arrow marks below the group-3 pairs are printed annotation marks and
+# are excluded from the pair regions. The group numbering may correspond to
+# the numbered categories on the connection-categories page; that mapping is a
+# reviewed step and is left pending here.
+schema_version: 1
+id: sas-1968-connections-numbered
+description: Numbered connection-pair examples kept intact as pair observations.
+regions:
+  - id: connection-example-02-ba
+    kind: connection-pair
+    label: ba
+    bbox: [0.1429, 0.1525, 0.3919, 0.3812]
+    sequence: [b, a]
+    notes: Example group 2 as numbered on the page; category mapping pending review.
+
+  - id: connection-example-02-be
+    kind: connection-pair
+    label: be
+    bbox: [0.4432, 0.1525, 0.652, 0.3812]
+    sequence: [b, e]
+    notes: Example group 2 as numbered on the page; category mapping pending review.
+
+  - id: connection-example-02-He
+    kind: connection-pair
+    label: He
+    bbox: [0.6996, 0.157, 0.9048, 0.3812]
+    sequence: [H, e]
+    notes: Example group 2 as numbered on the page; category mapping pending review.
+
+  - id: connection-example-03-Do
+    kind: connection-pair
+    label: Do
+    bbox: [0.1538, 0.6233, 0.4176, 0.8565]
+    sequence: [D, o]
+    notes: >
+      Example group 3 as numbered on the page; the arrow mark below the pair
+      is a printed annotation mark and is excluded from the region.
+
+  - id: connection-example-03-Jg
+    kind: connection-pair
+    label: Jg
+    bbox: [0.4322, 0.6278, 0.6593, 0.9462]
+    sequence: [J, g]
+    notes: >
+      Example group 3 as numbered on the page; the arrow mark below the pair
+      is a printed annotation mark and is excluded from the region.
+
+  - id: connection-example-03-Be
+    kind: connection-pair
+    label: Be
+    bbox: [0.7289, 0.6278, 0.8791, 0.8655]
+    sequence: [B, e]
+    notes: >
+      Example group 3 as numbered on the page; the arrow mark below the pair
+      is a printed annotation mark and is excluded from the region.
+
+
+  - id: word-03-do
+    kind: word
+    label: Do
+    bbox: [0.1538, 0.6233, 0.4176, 0.8565]
+    sequence: [D, o]
+    notes: >
+      Real German word used as the W1 word/sequence observation (the brief's
+      section 67): transcribed text "Do" with one connection boundary between
+      D and o. Same source region as connection-example-03-Do; the word-level
+      record carries the sequence and boundary semantics.

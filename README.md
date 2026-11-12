@@ -124,6 +124,30 @@ inkgrammar font compare-runtime model-v3.yaml dist/model.ttf "ab"
 
 The HarfBuzz comparison runs when the optional `uharfbuzz` package is installed. Source-derived font builds require rights clearance and promoted geometry by default. Development overrides produce explicitly unready artifacts and do not bypass release gates. The current SAS model remains incomplete, uses seed-fallback geometry, and has unresolved rights, so it is not font-ready.
 
+## Dataset and trajectory tooling
+
+Materialize the private SAS dataset from the source-free recipe and authorized
+scans (see `docs/DATA.md`):
+
+```bash
+inkgrammar dataset validate-sas-private data/datasets/sas-1968.yaml
+inkgrammar dataset status data/datasets/sas-1968.yaml
+```
+
+Fit curvature trajectories from dataset observation IDs (see
+`docs/ARCHITECTURE.md`):
+
+```bash
+inkgrammar fit trajectory data/training/sas-1968/project.yaml \
+  --observation sas1968-alphabet-U+0065 --curvature-changes 5
+inkgrammar fit trajectory-preview data/training/sas-1968/project.yaml \
+  --observation sas1968-alphabet-U+0065 --scales 0.5,1,2
+inkgrammar fit trajectory-report work/sas-1968/trajectory/e/parameters.yaml
+```
+
+Fit outputs carry provenance hashes and measured gates. Nothing is promoted
+without human review.
+
 ## Important evidence rule
 
 A scan can establish an observed shape. It does not automatically establish stroke order,

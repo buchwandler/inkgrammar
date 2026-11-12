@@ -117,6 +117,67 @@ class BSplineGeometry(StrictModel):
         return self
 
 
+#: Minimum spacing between adjacent curvature change locations (normalized
+#: progress along the drawn stroke length).
+MIN_CHANGE_SPACING = 0.02
+
+#: Generous finite bound on heading rates (deg per normalized stroke) so
+#: corrupted fitting cannot generate explosive spinning.
+MAX_RATE_DEG = 36000.0
+
+
+class CurvatureChange(StrictModel):
+    """One heading-rate control point at normalized stroke progress ``at``."""
+
+    at: float = Field(gt=0.0, lt=1.0)
+    rate_deg: float = Field(allow_inf_nan=False, ge=-MAX_RATE_DEG, le=MAX_RATE_DEG)
+
+
+class CurvatureProfile(StrictModel):
+    """Normalized heading-rate profile q(u) = d(theta_deg)/du.
+
+    ``changes`` are control locations for the smooth turning profile, not
+    sharp geometric corners. Positions are percentages of drawn stroke length.
+    """
+
+    interpolation: Literal["linear", "cubic-hermite"] = "cubic-hermite"
+    start_rate_deg: float = Field(allow_inf_nan=False, ge=-MAX_RATE_DEG, le=MAX_RATE_DEG)
+    changes: list[CurvatureChange] = Field(default_factory=list)
+    end_rate_deg: float = Field(allow_inf_nan=False, ge=-MAX_RATE_DEG, le=MAX_RATE_DEG)
+
+    @model_validator(mode="after")
+    def validate_ordered_changes(self) -> CurvatureProfile:
+        positions = [change.at for change in self.changes]
+        for previous, current in zip(positions, positions[1:], strict=False):
+            if current - previous < MIN_CHANGE_SPACING - 1e-9:
+                raise ValueError(
+                    f"curvature changes must be strictly ordered with "
+                    f"spacing >= {MIN_CHANGE_SPACING}"
+                )
+        return self
+
+
+class CurvatureStrokeGeometry(StrictModel):
+    """Canonical curvature stroke starting at (0, 0).
+
+    Placement and scale of an instance belong to the occurrence transform, so
+    the canonical primitive carries no start point.
+    """
+
+    length: float = Field(default=1.0, gt=0.0, allow_inf_nan=False)
+    start_angle_deg: float = Field(allow_inf_nan=False)
+    curvature: CurvatureProfile
+
+
+class TrajectoryTransform(StrictModel):
+    """Similarity-only occurrence transform: uniform scale, rotation, dx, dy."""
+
+    scale: float = Field(default=1.0, gt=0.0, allow_inf_nan=False)
+    rotation_deg: float = Field(default=0.0, allow_inf_nan=False)
+    dx: float = Field(default=0.0, allow_inf_nan=False)
+    dy: float = Field(default=0.0, allow_inf_nan=False)
+
+
 class PrimitiveFrame(StrictModel):
     start: Point
     nominal_end: Point
@@ -129,10 +190,11 @@ class PrimitiveProvenance(StrictModel):
 
 class PrimitiveTemplate(StrictModel):
     id: str
-    kind: Literal["cubic-chain", "bspline-centerline"] = "cubic-chain"
+    kind: Literal["cubic-chain", "bspline-centerline", "curvature-profile"] = "cubic-chain"
     frame: PrimitiveFrame
     segments: list[CubicSegment] | None = None
     spline: BSplineGeometry | None = None
+    curvature_stroke: CurvatureStrokeGeometry | None = None
     free_parameters: list[str] = Field(default_factory=list)
     locked_parameters: list[str] = Field(default_factory=list)
     bounds: dict[str, tuple[float, float]] = Field(default_factory=dict)
@@ -145,7 +207,7 @@ class PrimitiveTemplate(StrictModel):
                 raise ValueError("cubic-chain primitives require at least one segment")
             if self.spline is not None:
                 raise ValueError("cubic-chain primitives must not contain spline geometry")
-        else:
+        elif self.kind == "bspline-centerline":
             if self.spline is None:
                 raise ValueError("bspline-centerline primitives require spline geometry")
             if self.segments is not None:
@@ -155,6 +217,13 @@ class PrimitiveTemplate(StrictModel):
                 for path in [*self.free_parameters, *self.locked_parameters, *self.bounds]
             ):
                 raise ValueError("legacy parameterization must not address spline geometry")
+        else:
+            if self.curvature_stroke is None:
+                raise ValueError("curvature-profile primitives require curvature_stroke geometry")
+            if self.segments is not None or self.spline is not None:
+                raise ValueError(
+                    "curvature-profile primitives must not contain segments or spline"
+                )
 
         free = self.free_parameters
         locked = self.locked_parameters

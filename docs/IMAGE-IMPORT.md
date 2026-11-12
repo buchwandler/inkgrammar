@@ -48,3 +48,29 @@ The supplied SAS-1968 layout includes reviewed centers for this reason.
 
 An OCR classifier can later propose labels for arbitrary pages, but its output should be stored
 as a hypothesis with confidence and human review. It should not silently become canonical data.
+
+
+## Dataset extraction strategies
+
+Page extraction is split into reusable pieces (`threshold_source`,
+`crop_region`, `tighten_to_ink`, `segment_row`, `render_review`,
+`write_detection_manifest`) with three strategy extractors:
+
+- `labeled-rows-v1`: declared label rows (`PageLayout` v1) segmented into
+  cells; identity always comes from the declared sequence.
+- `region-layout-v1`: declared region records (`RegionLayout`, normalized
+  coordinates) extracted intact, never cut into glyphs.
+- `annotated-region-v1`: like `region-layout-v1` but keeps declared `ink`
+  subregions separate from printed annotation marks (numbers, arrows), so
+  those marks never enter the target ink.
+
+## Isolation stage
+
+Raw crops are candidates, not fitting truth. For each labeled cell the
+materializer proposes a target-ink isolation: the connected component nearest
+the reviewed layout center, rejecting components that sit closer to a
+neighboring label center (cursive letters touch). A cell-ownership fence at
+the midpoint to adjacent label centers keeps crossing ink out of the target
+mask. Every rejected component is recorded with its reason in an isolation
+proposal and a review overlay; the result stays `isolation_status: pending`
+until human review accepts it.
