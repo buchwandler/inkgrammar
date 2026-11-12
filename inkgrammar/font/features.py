@@ -136,56 +136,68 @@ def generate_feature_source(model: WritingModelV3, plan: FontPlan) -> tuple[str,
         ligature_name = _variant_name(plan, ligature_character, ligature.id)
         ligature_rules.append(f"sub {left_name} {right_name} by {ligature_name};")
 
-    cursive_lookup_rules: list[str] = []
-    cursive_feature_rules: list[str] = []
-    cursive_classes: list[str] = []
     anchored_variants = [
         (character, variant)
         for character, glyph in sorted(model.glyphs.items())
         for variant in sorted(glyph.variants.values(), key=lambda item: item.id)
         if variant.entry is not None or variant.exit is not None
     ]
-    for character, variant in anchored_variants:
-        name = _variant_name(plan, character, variant.id)
-        cursive_lookup_rules.append(
-            f"pos cursive {name} {_anchor(variant.entry)} {_anchor(variant.exit)};"
-        )
 
-    for index, rule in enumerate(sorted(model.connection_rules, key=lambda item: item.id)):
+    cursive_lookup_rules = [
+        f"pos cursive {_variant_name(plan, character, variant.id)} "
+        f"{_anchor(variant.entry)} {_anchor(variant.exit)};"
+        for character, variant in anchored_variants
+    ]
+    exit_variants = [
+        (character, variant)
+        for character, glyph in sorted(model.glyphs.items())
+        for variant in sorted(glyph.variants.values(), key=lambda item: item.id)
+        if variant.exit is not None
+    ]
+    entry_variants = [
+        (character, variant)
+        for character, glyph in sorted(model.glyphs.items())
+        for variant in sorted(glyph.variants.values(), key=lambda item: item.id)
+        if variant.entry is not None
+    ]
+    possible_pairs = {
+        (
+            _variant_name(plan, left_character, left.id),
+            _variant_name(plan, right_character, right.id),
+        )
+        for left_character, left in exit_variants
+        for right_character, right in entry_variants
+    }
+    allowed_pairs = set()
+    for rule in sorted(model.connection_rules, key=lambda item: item.id):
+        if rule.mode == "synthetic-bridge":
+            issues.append(f"connection rule {rule.id!r} requires a synthetic bridge")
         if rule.mode not in {"cursive-anchor", "direct"}:
             continue
-        left_names = sorted(
-            _variant_name(plan, character, variant.id)
-            for character, glyph in model.glyphs.items()
-            for variant in glyph.variants.values()
-            if variant.exit is not None
-            and variant.exit.class_ == rule.from_class
+        left_matches = [
+            (character, variant)
+            for character, variant in exit_variants
+            if variant.exit.class_ == rule.from_class
             and (rule.required_variant_left is None or variant.id == rule.required_variant_left)
-        )
-        right_names = sorted(
-            _variant_name(plan, character, variant.id)
-            for character, glyph in model.glyphs.items()
-            for variant in glyph.variants.values()
-            if variant.entry is not None
-            and variant.entry.class_ == rule.to_class
+        ]
+        right_matches = [
+            (character, variant)
+            for character, variant in entry_variants
+            if variant.entry.class_ == rule.to_class
             and (rule.required_variant_right is None or variant.id == rule.required_variant_right)
-        )
-        if not left_names or not right_names:
+        ]
+        if not left_matches or not right_matches:
             issues.append(f"connection rule {rule.id!r} has no matching cursive anchors")
             continue
+        allowed_pairs.update(
+            (
+                _variant_name(plan, left_character, left.id),
+                _variant_name(plan, right_character, right.id),
+            )
+            for left_character, left in left_matches
+            for right_character, right in right_matches
+        )
 
-        def group(names: list[str], side: str, rule_index: int) -> str:
-            if len(names) == 1:
-                return names[0]
-            name = f"@IG{side}{rule_index}"
-            cursive_classes.append(f"{name} = [{' '.join(names)}];")
-            return name
-
-        left = group(left_names, "Left", index)
-        right = group(right_names, "Right", index)
-        cursive_feature_rules.append(f"pos {left}' lookup IG_Cursive {right}';")
-
-    cursive_feature_rules = sorted(set(cursive_feature_rules))
     source = ["languagesystem DFLT dflt;", "languagesystem latn dflt;"]
     if required_rules:
         source.extend(("", *required_classes, _feature_block("rclt", required_rules)))
@@ -193,18 +205,18 @@ def generate_feature_source(model: WritingModelV3, plan: FontPlan) -> tuple[str,
         source.extend(("", *optional_classes, _feature_block("calt", optional_rules)))
     if ligature_rules:
         source.extend(("", _feature_block("rlig", ligature_rules)))
-    if cursive_feature_rules:
-        lookup = (
-            "lookup IG_Cursive {\n"
-            + "\n".join(f"    {line}" for line in cursive_lookup_rules)
-            + "\n} IG_Cursive;"
-        )
-        source.extend(
-            (
-                "",
-                *cursive_classes,
-                lookup,
-                _feature_block("curs", cursive_feature_rules),
+
+    if allowed_pairs:
+        if possible_pairs <= allowed_pairs:
+            lookup = (
+                "lookup IG_Cursive {\n"
+                + "\n".join(f"    {line}" for line in cursive_lookup_rules)
+                + "\n} IG_Cursive;"
             )
-        )
+            source.extend(("", lookup, _feature_block("curs", ["lookup IG_Cursive;"])))
+        else:
+            issues.append(
+                "cursive positioning cannot represent pair-specific connection rules "
+                "for all anchored glyph variants"
+            )
     return "\n".join(source).rstrip() + "\n", tuple(sorted(set(issues)))

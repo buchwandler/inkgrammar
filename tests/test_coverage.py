@@ -87,7 +87,7 @@ def test_coverage_cli_formats():
     )
     assert sas_result.exit_code == 0, sas_result.output
     sas_report = json.loads(sas_result.output)
-    assert sas_report["connection_coverage"]["fit_project_observation_count"] == 0
+    assert sas_report["connection_coverage"]["fit_project_observation_count"] == 6
     assert sas_report["font_ready"] is False
 
 
@@ -136,7 +136,7 @@ def test_v3_sas_coverage_reports_stages_without_inventing_connection_evidence():
     assert report["schema_version"] == 3
     assert report["glyph_coverage"]["expected"] == 63
     assert report["glyph_coverage"]["modeled"] == 12
-    assert report["connection_coverage"]["source_observation_count"] == 0
+    assert report["connection_coverage"]["source_observation_count"] == 6
     assert report["connection_coverage"]["fit_project_observation_count"] == 0
     assert report["connection_coverage"]["class_pair_evidence_status"].startswith("unassessed")
     assert not report["complete"]

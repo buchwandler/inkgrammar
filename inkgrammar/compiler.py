@@ -15,7 +15,13 @@ from .fitting.models import (
     TopologyTransform,
 )
 from .fitting.workspace import FitProjectBundle
-from .geometry import analyze_path, path_without_initial_move, sample_path, translate_path
+from .geometry import (
+    analyze_path,
+    path_without_initial_move,
+    sample_path,
+    transform_path,
+    translate_path,
+)
 from .models import (
     ConnectionClass as RuntimeConnectionClass,
 )
@@ -32,27 +38,73 @@ from .models import (
     RuntimeContextRule,
     RuntimeGlyph,
     RuntimeGlyphVariant,
+    Transform,
     WritingModelV2,
     WritingModelV3,
 )
+from .raster import scale_sanity
+
+
+def _validate_units(value: float, name: str) -> None:
+    if not np.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be positive and finite")
+
+
+def _validate_coordinates(xy) -> np.ndarray:
+    coordinates = np.asarray(xy, dtype=float)
+    if not np.isfinite(coordinates).all():
+        raise ValueError("coordinates must be finite")
+    return coordinates
+
+
+def fit_units_to_glyph(xy, *, fit_x_height_units: float) -> np.ndarray:
+    """Map fit-space coordinates to x-height-normalized glyph units."""
+    _validate_units(fit_x_height_units, "fit_x_height_units")
+    return _validate_coordinates(xy) / fit_x_height_units
+
+
+def glyph_units_to_fit(xy, *, fit_x_height_units: float) -> np.ndarray:
+    """Map x-height-normalized glyph coordinates to fit-space units."""
+    _validate_units(fit_x_height_units, "fit_x_height_units")
+    return _validate_coordinates(xy) * fit_x_height_units
 
 
 def glyph_units_to_runtime(xy, *, x_height_units: float) -> np.ndarray:
-    """Map x-height-normalized glyph units to runtime/font units.
-
-    The conversion is a named, explicit step: glyph units never implicitly
-    mix with runtime metrics.
-    """
-    if x_height_units <= 0:
-        raise ValueError("x_height_units must be positive")
-    return np.asarray(xy, dtype=float) * x_height_units
+    """Map x-height-normalized glyph units to runtime/font units."""
+    _validate_units(x_height_units, "x_height_units")
+    return _validate_coordinates(xy) * x_height_units
 
 
 def runtime_units_to_glyph(xy, *, x_height_units: float) -> np.ndarray:
     """Map runtime/font units back to x-height-normalized glyph units."""
-    if x_height_units <= 0:
-        raise ValueError("x_height_units must be positive")
-    return np.asarray(xy, dtype=float) / x_height_units
+    _validate_units(x_height_units, "x_height_units")
+    return _validate_coordinates(xy) / x_height_units
+
+
+def fit_units_to_runtime(
+    xy, *, fit_x_height_units: float, x_height_units: float
+) -> np.ndarray:
+    """Map fit-space coordinates through normalized glyph units to runtime units."""
+    glyph = fit_units_to_glyph(xy, fit_x_height_units=fit_x_height_units)
+    return glyph_units_to_runtime(glyph, x_height_units=x_height_units)
+
+
+def runtime_units_to_fit(
+    xy, *, fit_x_height_units: float, x_height_units: float
+) -> np.ndarray:
+    """Map runtime coordinates back through normalized glyph units to fit space."""
+    glyph = runtime_units_to_glyph(xy, x_height_units=x_height_units)
+    return glyph_units_to_fit(glyph, fit_x_height_units=fit_x_height_units)
+
+
+def _fit_to_runtime_scale(*, fit_x_height_units: float, x_height_units: float) -> float:
+    return float(
+        fit_units_to_runtime(
+            1.0,
+            fit_x_height_units=fit_x_height_units,
+            x_height_units=x_height_units,
+        )
+    )
 
 
 @dataclass(frozen=True)
@@ -71,7 +123,13 @@ def _occurrence_transform(instance: PrimitiveInstance) -> TopologyTransform:
     )
 
 
-def _compile_strokes(strokes, templates: dict[str, PrimitiveTemplate], instances=None):
+def _compile_strokes(
+    strokes,
+    templates: dict[str, PrimitiveTemplate],
+    instances=None,
+    *,
+    coordinate_scale: float,
+):
     compiled: list[PathStrokeRecipe] = []
     instance_paths: dict[str, str] = {}
     source_paths: list[str] = []
@@ -100,7 +158,10 @@ def _compile_strokes(strokes, templates: dict[str, PrimitiveTemplate], instances
                 if instances is None
                 else _occurrence_transform(instances[occurrence.instance])
             )
-            path = primitive_path(template, transform)
+            path = transform_path(
+                primitive_path(template, transform),
+                Transform(scale_x=coordinate_scale, scale_y=coordinate_scale),
+            )
             info = analyze_path(path)
             if current_parts and not occurrence.attach:
                 finish()
@@ -153,14 +214,29 @@ def _compile_variant(
     templates: dict[str, PrimitiveTemplate],
     instances: dict[str, PrimitiveInstance],
     stroke_width: float,
+    *,
+    fit_x_height_units: float,
+    x_height_units: float,
 ) -> tuple[RuntimeGlyphVariant, list[str]]:
     strokes, instance_paths, source_paths = _compile_strokes(
-        variant.strokes, templates, instances=instances
+        variant.strokes,
+        templates,
+        instances=instances,
+        coordinate_scale=_fit_to_runtime_scale(
+            fit_x_height_units=fit_x_height_units,
+            x_height_units=x_height_units,
+        ),
     )
     runtime = RuntimeGlyphVariant(
         id=variant.id,
         character=variant.character,
-        advance_width=variant.advance_width,
+        advance_width=float(
+            fit_units_to_runtime(
+                variant.advance_width,
+                fit_x_height_units=fit_x_height_units,
+                x_height_units=x_height_units,
+            )
+        ),
         strokes=strokes,
         entry=_compile_anchor(variant.entry, instance_paths, stroke_width),
         exit=_compile_anchor(variant.exit, instance_paths, stroke_width),
@@ -168,13 +244,32 @@ def _compile_variant(
     return runtime, source_paths
 
 
-def _compile_topology_glyph(glyph, templates: dict[str, PrimitiveTemplate]):
-    strokes, _, source_paths = _compile_strokes(glyph.strokes, templates)
+def _compile_topology_glyph(
+    glyph,
+    templates: dict[str, PrimitiveTemplate],
+    *,
+    fit_x_height_units: float,
+    x_height_units: float,
+):
+    strokes, _, source_paths = _compile_strokes(
+        glyph.strokes,
+        templates,
+        coordinate_scale=_fit_to_runtime_scale(
+            fit_x_height_units=fit_x_height_units,
+            x_height_units=x_height_units,
+        ),
+    )
     variant_id = f"{glyph.character}.default"
     variant = RuntimeGlyphVariant(
         id=variant_id,
         character=glyph.character,
-        advance_width=glyph.advance_width,
+        advance_width=float(
+            fit_units_to_runtime(
+                glyph.advance_width,
+                fit_x_height_units=fit_x_height_units,
+                x_height_units=x_height_units,
+            )
+        ),
         strokes=strokes,
     )
     return RuntimeGlyph(
@@ -215,6 +310,59 @@ def _geometry_parity(source_paths: list[str], model: WritingModelV3) -> float:
     if maximum > 1e-6:
         raise ValueError(f"compiled geometry parity exceeded tolerance: {maximum}")
     return maximum
+
+
+
+def _compile_connection_rule(
+    rule,
+    *,
+    fit_x_height_units: float,
+    x_height_units: float,
+) -> RuntimeConnectionRule:
+    values = rule.model_dump()
+    for coordinate in ("x_adjust", "y_adjust", "pair_spacing"):
+        values[coordinate] = float(
+            fit_units_to_runtime(
+                values[coordinate],
+                fit_x_height_units=fit_x_height_units,
+                x_height_units=x_height_units,
+            )
+        )
+    return RuntimeConnectionRule.model_validate(values)
+
+
+
+def _runtime_scale_diagnostics(model: WritingModelV3) -> dict[str, dict[str, dict[str, Any]]]:
+    diagnostics: dict[str, dict[str, dict[str, Any]]] = {}
+    for character, glyph in model.glyphs.items():
+        for variant_id, variant in glyph.variants.items():
+            boxes = [
+                analyze_path(part.d).bbox
+                for stroke in variant.strokes
+                if getattr(stroke, "role", "body") not in {"dot", "diacritic"}
+                for part in getattr(stroke, "parts", [])
+                if getattr(part, "d", None)
+            ]
+            if not boxes:
+                continue
+            ink_height = max(box[3] for box in boxes) - min(box[1] for box in boxes)
+            report = scale_sanity(
+                ink_bbox_height=ink_height,
+                x_height=model.metrics.x_height,
+                stroke_width=model.metrics.default_stroke_width,
+            )
+            if report.pathological:
+                raise ValueError(
+                    f"runtime scale sanity failed for glyph {character!r} "
+                    f"variant {variant_id!r}: {', '.join(report.flags)}"
+                )
+            diagnostics.setdefault(character, {})[variant_id] = {
+                "ink_bbox_height": report.ink_bbox_height,
+                "ink_bbox_height_over_x_height": report.ink_bbox_height_over_x_height,
+                "stroke_width_over_ink_bbox_height": report.stroke_width_over_ink_bbox_height,
+                "flags": list(report.flags),
+            }
+    return diagnostics
 
 
 def _as_v2(model: WritingModelV3) -> WritingModelV2:
@@ -296,6 +444,7 @@ def _select_fit_templates(
         for occurrence in stroke.parts
     )
 
+
     for primitive_id in sorted(referenced):
         report = reports.get(primitive_id)
         status = report.get("visual_review", {}).get("status") if report else None
@@ -317,12 +466,28 @@ def _compile_fit_model(
     templates: dict[str, PrimitiveTemplate],
     promotion: dict[str, str],
 ) -> CompileResult:
+    ductus = bundle.grammar.ductus
+    fit_x_height_units = bundle.project.compile.fit_x_height_units
+    x_height_units = ductus.x_height
+    coordinate_conversion = {
+        "fit_x_height_units": fit_x_height_units,
+        "runtime_x_height_units": x_height_units,
+        "runtime_units_per_fit_unit": _fit_to_runtime_scale(
+            fit_x_height_units=fit_x_height_units,
+            x_height_units=x_height_units,
+        ),
+    }
     glyphs: dict[str, RuntimeGlyph] = {}
     source_paths: list[str] = []
     for character, topology_glyph in bundle.topology.glyphs.items():
         if character in bundle.grammar.glyphs:
             continue
-        glyph, paths = _compile_topology_glyph(topology_glyph, templates)
+        glyph, paths = _compile_topology_glyph(
+            topology_glyph,
+            templates,
+            fit_x_height_units=fit_x_height_units,
+            x_height_units=x_height_units,
+        )
         glyphs[character] = glyph
         source_paths.extend(paths)
 
@@ -333,7 +498,9 @@ def _compile_fit_model(
                 variant_recipe,
                 templates,
                 bundle.grammar.instances,
-                bundle.grammar.ductus.stroke_width,
+                ductus.stroke_width,
+                fit_x_height_units=fit_x_height_units,
+                x_height_units=x_height_units,
             )
             variants[variant_id] = variant
             source_paths.extend(paths)
@@ -345,7 +512,6 @@ def _compile_fit_model(
             provenance={"source": "script-grammar"},
         )
 
-    ductus = bundle.grammar.ductus
     model = WritingModelV3(
         schema_version=3,
         id=bundle.project.runtime_model_id,
@@ -369,7 +535,11 @@ def _compile_fit_model(
             for key, value in bundle.grammar.connection_classes.items()
         },
         connection_rules=[
-            RuntimeConnectionRule.model_validate(rule.model_dump())
+            _compile_connection_rule(
+                rule,
+                fit_x_height_units=fit_x_height_units,
+                x_height_units=x_height_units,
+            )
             for rule in bundle.grammar.connection_rules
         ],
         context_rules=[
@@ -380,12 +550,16 @@ def _compile_fit_model(
             "fit_project_id": bundle.project.id,
             "primitive_promotion": promotion,
             "occurrence_deltas_compiled": False,
+            "coordinate_conversion": coordinate_conversion,
         },
     )
+    scale_diagnostics = _runtime_scale_diagnostics(model)
     max_deviation = _geometry_parity(source_paths, model)
     diagnostics = {
         "glyph_count": len(model.glyphs),
         "variant_count": sum(len(glyph.variants) for glyph in model.glyphs.values()),
+        "coordinate_conversion": coordinate_conversion,
+        "scale_sanity": scale_diagnostics,
         "promoted_primitives": sorted(
             primitive_id for primitive_id, status in promotion.items() if status == "promoted"
         ),

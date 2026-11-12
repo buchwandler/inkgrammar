@@ -11,6 +11,7 @@ families:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+0069
+    validation:
       - sas1968-alphabet-U+0075
     hold_out:
       - sas1968-alphabet-U+0077
@@ -27,6 +28,7 @@ families:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+0063
+    validation:
       - sas1968-alphabet-U+0061
     hold_out:
       - sas1968-alphabet-U+0043
@@ -43,6 +45,7 @@ families:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+006C
+    validation:
       - sas1968-alphabet-U+0062
     hold_out:
       - sas1968-alphabet-U+006B
@@ -60,6 +63,7 @@ families:
       free: [dx, dy, log_scale_x, log_scale_y]
     fit:
       - sas1968-alphabet-U+006E
+    validation:
       - sas1968-alphabet-U+006D
     hold_out:
       - sas1968-alphabet-U+0068
@@ -70,6 +74,7 @@ families:
     primitive: sas-capital-substrokes-01
     fit:
       - sas1968-alphabet-U+0041
+    validation:
       - sas1968-alphabet-U+004D
     hold_out:
       - sas1968-alphabet-U+004E

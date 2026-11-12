@@ -279,7 +279,11 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
         "fit_config": "fit-config.yaml",
         "seed_grammar": "seed-grammar.yaml",
         "private_work_dir": "../../../work/toy",
-        "compile": {"output": "../../models/toy.yaml", "runtime_schema_version": 2},
+        "compile": {
+            "output": "../../models/toy.yaml",
+            "runtime_schema_version": 2,
+            "fit_x_height_units": 40.0,
+        },
     }
     project_path = project_dir / "project.yaml"
     _write_yaml(project_path, project)
@@ -885,9 +889,7 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path, 
     assert (diagnostics["annealing"] is not None) == (
         optimizer_method in {"spline-annealed-alt-lsq", "dual-annealing+spline-alt-lsq"}
     )
-    assert (diagnostics["search_energy"] is not None) == (
-        optimizer_method != "spline-alt-lsq"
-    )
+    assert (diagnostics["search_energy"] is not None) == (optimizer_method != "spline-alt-lsq")
     assert (diagnostics["seed_search"] is not None) == (optimizer_method != "spline-alt-lsq")
     if optimizer_method != "spline-alt-lsq":
         assert diagnostics["seed_search"]["top_k_refined"] == 2.0
@@ -948,9 +950,7 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path, 
         ["fit", "report", str(project_path), "--format", "markdown"],
     )
     assert report_result.exit_code == 0, report_result.output
-    assert ("Global seed search" in report_result.output) == (
-        optimizer_method != "spline-alt-lsq"
-    )
+    assert ("Global seed search" in report_result.output) == (optimizer_method != "spline-alt-lsq")
     if optimizer_method != "spline-alt-lsq":
         holdout_mask = np.zeros((64, 64), dtype=np.uint8)
         holdout_mask[31:34, 12:52] = 255
@@ -960,9 +960,9 @@ def test_v4_dispatch_converts_seed_and_writes_source_free_diagnostics(tmp_path, 
             optimize=False,
         )
         holdout_distance = distance_transform_edt(holdout_mask == 0).astype(np.float32)
-        with (
-            bundle.private_work_dir / "materialized" / "distance-fields" / "sample-C.npy"
-        ).open("wb") as stream:
+        with (bundle.private_work_dir / "materialized" / "distance-fields" / "sample-C.npy").open(
+            "wb"
+        ) as stream:
             np.save(stream, holdout_distance, allow_pickle=False)
         holdout_changed = optimize_primitive_family(bundle, PRIMITIVE_ID)
         assert holdout_changed.report["parameters"] == pytest.approx(

@@ -1,0 +1,113 @@
+format: inkgrammar-sas1968-target-inventory
+format_version: 1
+source_observations:
+  manifest: ../../observations/sas-1968/manifest.json
+  source_id: sas-1968-alphabet
+  item_kind: glyph-isolated
+  label_status: accepted
+  fitting_status: recorded-per-observation
+  target_sets:
+    uppercase: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    lowercase: abcdefghijklmnopqrstuvwxyz
+    extended: "ß"
+    digits: "0123456789"
+runtime_status:
+  modeled_incomplete:
+    - C
+    - a
+    - b
+    - c
+    - h
+    - i
+    - k
+    - l
+    - m
+    - n
+    - u
+    - w
+  unsupported:
+    needs_crop_isolation: [O, P, Q, o, p, q]
+    no_runtime_trajectory:
+      - A
+      - B
+      - D
+      - E
+      - F
+      - G
+      - H
+      - I
+      - J
+      - K
+      - L
+      - M
+      - N
+      - R
+      - S
+      - T
+      - U
+      - V
+      - W
+      - X
+      - Y
+      - Z
+      - d
+      - e
+      - f
+      - g
+      - j
+      - r
+      - s
+      - t
+      - v
+      - x
+      - y
+      - z
+      - "ß"
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+    reasons:
+      needs_crop_isolation: >-
+        The source observation is marked needs-isolation; there is no runtime
+        glyph trajectory.
+      no_runtime_trajectory: >-
+        The source label and crop are inventoried, but no runtime glyph
+        trajectory is modeled.
+      modeled_incomplete: >-
+        A provisional runtime glyph exists, but its topology is incomplete and
+        has no reviewed full trajectory.
+special_forms:
+  source_id: sas-1968-stroke-order
+  layout: ../../../examples/layouts/sas-1968-stroke-order.yaml
+  status: pending-review
+  observations:
+    - {region_id: special-form-C, label: C, status: alternate-form-not-modeled}
+    - {region_id: special-form-Z, label: Z, status: not-modeled}
+    - {region_id: special-form-z, label: z, status: not-modeled}
+    - {region_id: special-form-J, label: J, status: not-modeled}
+    - {region_id: special-form-S, label: S, status: not-modeled}
+    - {region_id: special-form-s, label: s, status: not-modeled}
+    - {region_id: special-form-sharp-s, label: "ß", status: transcription-uncertain}
+    - {region_id: special-form-E, label: E, status: transcription-pending}
+stroke_order_observations:
+  source_id: sas-1968-stroke-order
+  layout: ../../../examples/layouts/sas-1968-stroke-order.yaml
+  path_status: not-traced
+  examples:
+    - {region_id: stroke-order-T, label: T, sequence: [1, 2]}
+    - {region_id: stroke-order-F, label: F, sequence: [1, 2, 3]}
+    - {region_id: stroke-order-H, label: H, sequence: [1, 2, 3]}
+    - {region_id: stroke-order-K, label: K, sequence: [1, 2, 3], annotation_isolation: pending}
+    - {region_id: stroke-order-X-01, label: X, sequence: [1, 2]}
+    - {region_id: stroke-order-X-02, label: X, sequence: [1, 2]}
+    - {region_id: stroke-order-P, label: P, sequence: [1, 2]}
+    - {region_id: stroke-order-B, label: B, sequence: [1, 2]}
+    - {region_id: stroke-order-R, label: R, sequence: [1, 2]}
+    - {region_id: stroke-order-D, label: D, sequence: [1, 2]}

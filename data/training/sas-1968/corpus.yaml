@@ -23,7 +23,7 @@ samples:
       - id: u-underturn-b
         instances: [u-underturn-b]
         bbox_source: [24, 0, 53, 41]
-    split: fit
+    split: validation
   - id: sas1968-alphabet-U+0077
     kind: glyph
     text: "w"
@@ -46,7 +46,7 @@ samples:
     kind: glyph
     text: "M"
     observation_id: sas1968-alphabet-U+004D
-    split: fit
+    split: validation
   - id: sas1968-alphabet-U+004E
     kind: glyph
     text: "N"
@@ -67,7 +67,7 @@ samples:
     text: "a"
     active_instances: [a-oval]
     observation_id: sas1968-alphabet-U+0061
-    split: fit
+    split: validation
     loss_regions:
       - id: open-oval-core
         instances: [a-oval]
@@ -97,7 +97,7 @@ samples:
     text: "b"
     active_instances: [b-loop]
     observation_id: sas1968-alphabet-U+0062
-    split: fit
+    split: validation
     loss_regions:
       - id: ascender-loop
         instances: [b-loop]
@@ -127,7 +127,7 @@ samples:
     text: "m"
     active_instances: [m-hump-a, m-hump-b]
     observation_id: sas1968-alphabet-U+006D
-    split: fit
+    split: validation
     loss_regions:
       - id: first-hump
         instances: [m-hump-a]

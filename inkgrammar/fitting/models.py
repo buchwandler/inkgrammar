@@ -408,6 +408,27 @@ class ConnectionObservation(StrictModel):
         return self
 
 
+
+class ConnectionCategoryBehavior(StrictModel):
+    continuity: Literal["one-stroke", "multi-stroke", "not-recorded"] = "not-recorded"
+    left_terminal_modification: str = "not-recorded"
+    right_entry_modification: str = "not-recorded"
+    pen_lift: Literal["present", "absent", "not-recorded"] = "not-recorded"
+    attachment_point: str = "not-recorded"
+    exit_tangent: str = "not-recorded"
+    entry_tangent: str = "not-recorded"
+
+
+class ConnectionCategoryEvidence(StrictModel):
+    id: str
+    source_id: str
+    layout_region_id: str
+    source_label: str
+    origin_level: Literal["baseline", "midline", "attached"]
+    example_pairs: list[str] = Field(min_length=1)
+    behavior: ConnectionCategoryBehavior
+    runtime_mapping_status: Literal["pending-review", "reviewed"] = "pending-review"
+
 class FitAnchors(StrictModel):
     baseline_y: float | None = None
     origin_x: float | None = None
@@ -465,6 +486,7 @@ class FitCorpus(StrictModel):
 class FitCompileConfig(StrictModel):
     output: str
     runtime_schema_version: Literal[2, 3] = 2
+    fit_x_height_units: float = Field(gt=0, allow_inf_nan=False)
 
 
 class FitProject(StrictModel):
@@ -494,6 +516,7 @@ class ScriptGrammar(StrictModel):
     connection_rules: list[GrammarConnectionRule] = Field(default_factory=list)
     context_rules: list[ContextRule] = Field(default_factory=list)
     connection_observations: list[ConnectionObservation] = Field(default_factory=list)
+    connection_categories: list[ConnectionCategoryEvidence] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_references(self) -> ScriptGrammar:
@@ -569,6 +592,14 @@ class ScriptGrammar(StrictModel):
             ):
                 raise ValueError(
                     f"connection observation references unknown class: {observation.expected_class}"
+                )
+        category_ids = [category.id for category in self.connection_categories]
+        if len(set(category_ids)) != len(category_ids):
+            raise ValueError("duplicate connection category id")
+        for category in self.connection_categories:
+            if any(len(pair) != 2 for pair in category.example_pairs):
+                raise ValueError(
+                    f"connection category examples must be character pairs: {category.id}"
                 )
         return self
 
@@ -754,6 +785,12 @@ class TopologyGlyph(StrictModel):
     strokes: list[TopologyStroke] = Field(min_length=1)
     review_status: Literal["pending", "provisional", "reviewed", "uncertain"] = "provisional"
     notes: str | None = None
+    trajectory_status: Literal["incomplete", "provisional", "reviewed"] = "incomplete"
+    source_observation_id: str | None = None
+    stroke_order_status: Literal["unannotated", "source-explicit"] = "unannotated"
+    known_gaps: list[str] = Field(default_factory=list)
+    composition_status: Literal["unrecorded", "provisional", "reviewed"] = "unrecorded"
+    composition_constraints: list[str] = Field(default_factory=list)
 
 
 class FitTopologyFile(StrictModel):

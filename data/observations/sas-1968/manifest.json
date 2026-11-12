@@ -863,6 +863,132 @@
       "review_status": "accepted",
       "fitting_status": "pending",
       "notes": "Label visually checked against the page review. Crop acceptance for fitting is separate."
+    },
+    {
+      "id": "sas1968-connection-example-02-ba",
+      "kind": "connection-pair",
+      "label": "ba",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [39, 34, 107, 85],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-02-ba.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "b", "right_label": "a", "sequence_text": "ba"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-02-ba"
+      },
+      "notes": "Example group 2 as numbered on the page; category mapping pending review."
+    },
+    {
+      "id": "sas1968-connection-example-02-be",
+      "kind": "connection-pair",
+      "label": "be",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [121, 34, 178, 85],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-02-be.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "b", "right_label": "e", "sequence_text": "be"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-02-be"
+      },
+      "notes": "Example group 2 as numbered on the page; category mapping pending review."
+    },
+    {
+      "id": "sas1968-connection-example-02-He",
+      "kind": "connection-pair",
+      "label": "He",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [191, 35, 247, 85],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-02-He.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "H", "right_label": "e", "sequence_text": "He"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-02-He"
+      },
+      "notes": "Example group 2 as numbered on the page; category mapping pending review."
+    },
+    {
+      "id": "sas1968-connection-example-03-Do",
+      "kind": "connection-pair",
+      "label": "Do",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [42, 139, 114, 191],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-03-Do.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "D", "right_label": "o", "sequence_text": "Do"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-03-Do"
+      },
+      "notes": "Example group 3; the printed arrow below the pair is outside the region. Category mapping pending review."
+    },
+    {
+      "id": "sas1968-connection-example-03-Jg",
+      "kind": "connection-pair",
+      "label": "Jg",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [118, 140, 180, 211],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-03-Jg.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "J", "right_label": "g", "sequence_text": "Jg"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-03-Jg"
+      },
+      "notes": "Example group 3; the printed arrow below the pair is outside the region. Category mapping pending review."
+    },
+    {
+      "id": "sas1968-connection-example-03-Be",
+      "kind": "connection-pair",
+      "label": "Be",
+      "unicode": [],
+      "source_id": "sas-1968-connections-numbered",
+      "source_bbox": [199, 140, 240, 193],
+      "crop_locator": "local-only:connections-numbered/crops/connection-example-03-Be.png",
+      "label_source": "declared-layout-region",
+      "review_status": "pending",
+      "fitting_status": "pending",
+      "relations": {"left_label": "B", "right_label": "e", "sequence_text": "Be"},
+      "extraction": {
+        "extractor": "region-layout-v1",
+        "extractor_version": 1,
+        "source_bbox_policy": "declared",
+        "layout_id": "sas-1968-connections-numbered",
+        "layout_region_id": "connection-example-03-Be"
+      },
+      "notes": "Example group 3; the printed arrow below the pair is outside the region. Category mapping pending review."
     }
   ]
 }

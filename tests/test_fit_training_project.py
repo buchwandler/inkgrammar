@@ -72,6 +72,10 @@ def test_source_lock_splits_and_anchors_match_release_safe_observation_metadata(
         (ROOT / "data" / "observations" / "sas-1968" / "sources.json").read_text(encoding="utf-8")
     )
     samples = {sample.id: sample for sample in corpus.samples}
+    assert {
+        split: sum(sample.split == split for sample in corpus.samples)
+        for split in ("fit", "validation", "hold-out")
+    } == {"fit": 5, "validation": 5, "hold-out": 5}
     observations_by_id = {item.id: item for item in observations.items}
     sources_by_id = {source["id"]: source for source in source_manifest}
 
@@ -128,6 +132,15 @@ def test_compositional_families_isolate_w_h_k_and_local_responsibility():
     grammar = ScriptGrammar.model_validate(read_yaml(PROJECT_DIR / "seed-grammar.yaml"))
     samples = {sample.text: sample for sample in corpus.samples}
     family_by_id = {family.id: family for family in families.families}
+    assert {
+        family.id: family.validation for family in families.families
+    } == {
+        "sas-underturn-01": ["sas1968-alphabet-U+0075"],
+        "sas-open-oval-01": ["sas1968-alphabet-U+0061"],
+        "sas-ascender-loop-01": ["sas1968-alphabet-U+0062"],
+        "sas-hump-01": ["sas1968-alphabet-U+006D"],
+        "sas-pointed-capital-01": ["sas1968-alphabet-U+004D"],
+    }
 
     def primitive_ids(character):
         glyph = topology.glyphs[character]
@@ -156,10 +169,7 @@ def test_compositional_families_isolate_w_h_k_and_local_responsibility():
         for primitive in primitive_ids(character)
     )
 
-    assert family_by_id["sas-underturn-01"].fit == [
-        "sas1968-alphabet-U+0069",
-        "sas1968-alphabet-U+0075",
-    ]
+    assert family_by_id["sas-underturn-01"].fit == ["sas1968-alphabet-U+0069"]
     assert family_by_id["sas-underturn-01"].hold_out == [
         "sas1968-alphabet-U+0077",
     ]

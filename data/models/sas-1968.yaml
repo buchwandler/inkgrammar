@@ -9,367 +9,358 @@ glyphs:
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0043
+    - U+0043
     variants:
       C.default:
-        advance_width: 52.0
+        advance_width: 608.0645161290323
         character: C
         entry: null
         exit: null
         id: C.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 48 39.57444 C 27.243264 60 0 25.53192 1.297296 12.76596 C 3.891888
-                  0 28.54056 6.38298 40.216224 16.59576
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 561.29 462.766 C 318.57 701.613 0 298.559 15.17 149.279 C 45.51 0
+              333.74 74.6397 470.27 194.063
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   a:
     character: a
     default_variant: a.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0061
+    - U+0061
     variants:
       a.default:
-        advance_width: 52.0
+        advance_width: 608.0645161290323
         character: a
         entry: null
         exit: null
         id: a.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 51 23.08509 C 31.54056 35 6 14.89362 7.216215 7.44681 C 9.648645
-                  0 32.756775 3.723405 43.70271 9.68086
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 596.371 269.947 C 368.821 409.274 70.1613 174.159 84.3832 87.0796
+              C 112.827 0 383.043 43.5398 511.04 113.204
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   b:
     character: b
     default_variant: b.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0062
+    - U+0062
     variants:
       b.default:
-        advance_width: 52.0
+        advance_width: 608.0645161290323
         character: b
         entry: null
         exit: null
         id: b.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 0 0 C 13.902452 10.64514 34.292682 40.806425 35.219502 46.12905 C
-                  38 55 25.951226 47.90324 20.39023 33.709665 C 14.829272 19.516145 7.414636
-                  0 14.829272 0 C 23.5793 0 28.5793 16.2 26.0793 25.2 C 36.0793 32.4 39.8293
-                  14.4 39.8293 0
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 0 0 C 162.569 124.479 401.003 477.172 411.841 539.412 C 444.355 643.145
+              303.462 560.159 238.434 394.186 C 173.407 228.213 86.7034 0 173.407
+              0 C 275.726 0 334.193 189.435 304.959 294.677 C 421.895 378.871 465.746
+              168.387 465.746 0
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   c:
     character: c
     default_variant: c.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0063
+    - U+0063
     variants:
       c.default:
-        advance_width: 46.0
+        advance_width: 537.9032258064516
         character: c
         entry: null
         exit: null
         id: c.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 45 23.08509 C 25.54056 35 0 14.89362 1.216215 7.44681 C 3.648645
-                  0 26.756775 3.723405 37.70271 9.68086
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 526.21 269.947 C 298.66 409.274 0 174.159 14.2219 87.0796 C 42.6656
+              0 312.882 43.5398 440.878 113.204
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   h:
     character: h
     default_variant: h.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0068
+    - U+0068
     variants:
       h.default:
-        advance_width: 52.0
+        advance_width: 608.0645161290323
         character: h
         entry: null
         exit: null
         id: h.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 0 0 C 10.97562 10.64514 27.07317 40.806425 27.80487 46.12905 C 30
-                  55 20.48781 47.90324 16.09755 33.709665 C 11.70732 19.516145 5.85366
-                  0 11.70732 0 C 19.4493 9.75 27.1912 23.5625 33.9654 24.375 C 41.7073
-                  26 35.9009 9.75 31.0621 0 C 34.9621 -3 40.1621 -9.6 44.0621 -12
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 0 0 C 128.344 124.479 316.581 477.172 325.138 539.412 C 350.806 643.145
+              239.575 560.159 188.237 394.186 C 136.9 228.213 68.4501 0 136.9 0 C
+              227.431 114.012 317.961 275.529 397.175 285.03 C 487.706 304.032 419.808
+              114.012 363.227 0 C 408.832 -35.081 469.639 -112.259 515.243 -140.323
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   i:
     character: i
     default_variant: i.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0069
+    - U+0069
     variants:
       i.default:
-        advance_width: 38.0
+        advance_width: 444.35483870967744
         character: i
         entry: null
         exit: null
         id: i.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 35 38 C 22.333346 23.75 -3 3.5625 9.666654 2.375 C 17.266654 0 27.4
-                  4.75 35 10.6875
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 409.274 444.355 C 261.156 277.722 -35.0806 41.6583 113.037 27.7722
+              C 201.908 0 320.403 55.5444 409.274 124.975
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   k:
     character: k
     default_variant: k.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+006B
+    - U+006B
     variants:
       k.default:
-        advance_width: 60.0
+        advance_width: 701.6129032258065
         character: k
         entry: null
         exit: null
         id: k.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 0 0 C 13.170744 10.064496 32.487804 38.58062 33.365844 43.61292 C
-                  36 52 24.585372 45.290336 19.31706 31.870956 C 14.048784 18.451628 7.024392
-                  0 14.048784 0 C 25.9488 13.5 41.2488 25.5 48.0488 22.5 C 39.5488 16.5
-                  29.3488 6 37.8488 0
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 0 0 C 154.013 117.69 379.898 451.144 390.165 509.99 C 420.968 608.065
+              287.49 529.605 225.885 372.685 C 164.28 215.765 82.1401 0 164.28 0 C
+              303.434 157.863 482.345 298.185 561.861 263.105 C 462.466 192.944 343.192
+              70.1613 442.587 0
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   l:
     character: l
     default_variant: l.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+006C
+    - U+006C
     variants:
       l.default:
-        advance_width: 48.0
+        advance_width: 561.2903225806451
         character: l
         entry: null
         exit: null
         id: l.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M -2 0 C 14.46343 10.838688 38.609755 41.54836 39.707305 46.96776 C
-                  43 56 28.731715 48.774208 22.146325 34.322568 C 15.56098 19.870984 6.78049
-                  0 15.56098 0 C 23.961 -4.5 35.161 -14.4 43.561 -18
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M -23.3871 0 C 169.129 126.743 451.485 485.848 464.319 549.22 C 502.823
+              654.839 335.976 570.344 258.969 401.353 C 181.963 232.362 79.288 0 181.963
+              0 C 280.189 -52.621 411.157 -168.387 509.383 -210.484
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   m:
     character: m
     default_variant: m.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+006D
+    - U+006D
     variants:
       m.default:
-        advance_width: 63.0
+        advance_width: 736.6935483870967
         character: m
         entry: null
         exit: null
         id: m.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d: M -6 0 C -3.5 1 1 5 4 10
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
-          - id: body.1
-            parts:
-              - attach: true
-                d:
-                  M -6 0 C 1.74195 11.25 9.48387 27.1875 16.25805 28.125 C 24 30 18.19356
-                  11.25 13.35483 0 C 21.0968 11.25 28.8387 27.1875 35.6129 28.125 C 43.3548
-                  30 37.5484 11.25 32.7097 0 C 37.2097 -3 43.2097 -9.6 47.7097 -12
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M -70.1613 0 C -40.9274 11.6935 11.6935 58.4677 46.7742 116.935
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
+        - id: body.1
+          parts:
+          - attach: true
+            d: M -70.1613 0 C 20.3696 131.552 110.9 317.918 190.114 328.881 C 280.645
+              350.806 212.747 131.552 156.165 0 C 246.696 131.552 337.226 317.918
+              416.44 328.881 C 506.971 350.806 439.073 131.552 382.492 0 C 435.113
+              -35.081 505.274 -112.259 557.895 -140.323
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   n:
     character: n
     default_variant: n.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+006E
+    - U+006E
     variants:
       n.default:
-        advance_width: 45.0
+        advance_width: 526.2096774193549
         character: n
         entry: null
         exit: null
         id: n.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d: M -4 0 C -2 0.7 1.6 3.5 4 7
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
-          - id: body.1
-            parts:
-              - attach: true
-                d:
-                  M -4 0 C 6.064535 11.625 16.129031 28.09375 24.935465 29.0625 C 35
-                  31 27.451628 11.625 21.161279 0 C 25.0613 -3 30.2613 -9.6 34.1613 -12
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M -46.7742 0 C -23.3871 8.18548 18.7097 40.9274 46.7742 81.8548
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
+        - id: body.1
+          parts:
+          - attach: true
+            d: M -46.7742 0 C 70.9159 135.938 188.606 328.516 291.584 339.844 C 409.274
+              362.5 321.007 135.938 247.45 0 C 293.055 -35.081 353.861 -112.259 399.466
+              -140.323
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   u:
     character: u
     default_variant: u.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0075
+    - U+0075
     variants:
       u.default:
-        advance_width: 56.0
+        advance_width: 654.8387096774194
         character: u
         entry: null
         exit: null
         id: u.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 30 32 C 20.00001 20 0 3 9.99999 2 C 15.99999 0 24 4 30 9 C 20 -3
-                  0 -20 9.99999 -21 C 16 -23 24 -19 30 -14
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 350.806 374.194 C 233.871 233.871 0 35.0806 116.935 23.3871 C 187.097
+              0 280.645 46.7742 350.806 105.242 C 233.871 -35.081 -5.68434e-14 -233.871
+              116.935 -245.565 C 187.096 -268.952 280.645 -222.178 350.806 -163.71
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
   w:
     character: w
     default_variant: w.default
     provenance:
       topology_review_status: provisional
     unicode:
-      - U+0077
+    - U+0077
     variants:
       w.default:
-        advance_width: 60.0
+        advance_width: 701.6129032258065
         character: w
         entry: null
         exit: null
         id: w.default
         strokes:
-          - id: body
-            parts:
-              - attach: true
-                d:
-                  M 32 27 C 21.333344 16.875 0 2.53125 10.666656 1.6875 C 17.066656 0
-                  25.6 3.375 32 7.59375 C 21.3333 -2.53125 0 -16.875 10.6667 -17.7188
-                  C 17.0667 -19.4062 25.6 -16.0312 32 -11.8125
-                transform:
-                  dx: 0.0
-                  dy: 0.0
-                  scale_x: 1.0
-                  scale_y: 1.0
-                  shear_x: 0.0
-            role: body
+        - id: body
+          parts:
+          - attach: true
+            d: M 374.194 315.726 C 249.462 197.329 0 29.5993 124.731 19.7329 C 199.57
+              0 299.355 39.4657 374.194 88.7979 C 249.463 -29.5991 0.001 -197.329
+              124.732 -207.195 C 199.57 -226.928 299.356 -187.462 374.194 -138.13
+            transform:
+              dx: 0.0
+              dy: 0.0
+              scale_x: 1.0
+              scale_y: 1.0
+              shear_x: 0.0
+          role: body
 id: sas-1968
 languages: []
 license: NOASSERTION
@@ -385,6 +376,10 @@ metrics:
 name:
   en: sas-1968
 provenance:
+  coordinate_conversion:
+    fit_x_height_units: 31.0
+    runtime_units_per_fit_unit: 11.693548387096774
+    runtime_x_height_units: 362.5
   fit_project_id: sas-1968
   occurrence_deltas_compiled: false
   primitive_promotion:

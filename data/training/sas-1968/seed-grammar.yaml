@@ -176,3 +176,93 @@ primitives:
     provenance:
       construction: provisional k continuation
       trajectory: inferred
+
+connection_categories:
+  - id: connection-category-baseline
+    source_id: sas-1968-connection-categories
+    layout_region_id: connection-category-baseline
+    source_label: "Die einzügige Verbindung von der Grundlinie aus"
+    origin_level: baseline
+    example_pairs: [nu, na, ne, nl, Gu, Ga, Ge, Gl, Ku, Ka, Ke, Kl, Lu, La, Le]
+    behavior:
+      continuity: one-stroke
+      left_terminal_modification: not-recorded
+      right_entry_modification: not-recorded
+      pen_lift: not-recorded
+      attachment_point: not-recorded
+      exit_tangent: not-recorded
+      entry_tangent: not-recorded
+    runtime_mapping_status: pending-review
+  - id: connection-category-midline
+    source_id: sas-1968-connection-categories
+    layout_region_id: connection-category-midline
+    source_label: "Die einzügige Verbindung von der Mittellinie aus"
+    origin_level: midline
+    example_pairs: [ru, ra, re, bu, ba, be, bl, Au, Aa, Ae, Al]
+    behavior:
+      continuity: one-stroke
+      left_terminal_modification: not-recorded
+      right_entry_modification: not-recorded
+      pen_lift: not-recorded
+      attachment_point: not-recorded
+      exit_tangent: not-recorded
+      entry_tangent: not-recorded
+    runtime_mapping_status: pending-review
+  - id: connection-category-attached
+    source_id: sas-1968-connection-categories
+    layout_region_id: connection-category-attached
+    source_label: "Die angesetzte Verbindung"
+    origin_level: attached
+    example_pairs: [Pu, Pa, Pe, Pl, Wu, Wa, We, Wl, Su, Sa, Se, Sl]
+    behavior:
+      continuity: not-recorded
+      left_terminal_modification: not-recorded
+      right_entry_modification: not-recorded
+      pen_lift: not-recorded
+      attachment_point: not-recorded
+      exit_tangent: not-recorded
+      entry_tangent: not-recorded
+    runtime_mapping_status: pending-review
+connection_observations:
+  - id: connection-02-ba
+    text: ba
+    boundary_index: 1
+    observation_id: sas1968-connection-example-02-ba
+    split: hold-out
+    from_character: b
+    to_character: a
+  - id: connection-02-be
+    text: be
+    boundary_index: 1
+    observation_id: sas1968-connection-example-02-be
+    split: hold-out
+    from_character: b
+    to_character: e
+  - id: connection-02-He
+    text: He
+    boundary_index: 1
+    observation_id: sas1968-connection-example-02-He
+    split: hold-out
+    from_character: H
+    to_character: e
+  - id: connection-03-Do
+    text: Do
+    boundary_index: 1
+    observation_id: sas1968-connection-example-03-Do
+    split: hold-out
+    from_character: D
+    to_character: o
+  - id: connection-03-Jg
+    text: Jg
+    boundary_index: 1
+    observation_id: sas1968-connection-example-03-Jg
+    split: hold-out
+    from_character: J
+    to_character: g
+  - id: connection-03-Be
+    text: Be
+    boundary_index: 1
+    observation_id: sas1968-connection-example-03-Be
+    split: hold-out
+    from_character: B
+    to_character: e

@@ -144,3 +144,12 @@ runtime_units_to_glyph(xy, *, x_height_units)
 
 Pixel frames and font units never mix implicitly; every fit report records
 the units it used.
+
+
+Source observations are crop-local image pixels (`x` right, `y` down). Reviewed crop anchors store the writing origin and baseline in that frame. `dataset.transforms.ObservationFrame` records source axes and pixels per x-height; `source_px_to_glyph_units` and `glyph_units_to_source_px` make the source-pixel to normalized-glyph conversion explicit.
+
+The current SAS fitting frame uses one fit unit per crop pixel, with `x` right, `y` up, and the baseline at zero. `render_paths` places fit geometry at the reviewed crop origin/baseline when rasterizing an observation. Primitive geometry and topology/occurrence transforms compose in fit units; advances and connection adjustments/spacing use those same units.
+
+`FitCompileConfig.fit_x_height_units` declares the number of fit units per x-height. Compilation maps fit units to normalized glyph units, then uses `glyph_units_to_runtime(..., x_height_units=metrics.x_height)` for paths, advances, anchor positions, and connection offsets. Metrics, pen width, and anchor widths are already in runtime/font units and are not scaled again. Runtime rasterization and OpenType export consume those same runtime units.
+
+The current canonical SAS calibration is 31 fit units per x-height. It is measured from the `a` crop: reviewed baseline y=35 minus the top of the main ink component at y=4. The crop remains private under `work/`; this calibration does not promote or certify the provisional glyph geometry.

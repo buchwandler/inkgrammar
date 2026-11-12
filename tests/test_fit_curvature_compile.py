@@ -3,7 +3,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from inkgrammar.compiler import glyph_units_to_runtime, runtime_units_to_glyph
+from inkgrammar.compiler import (
+    fit_units_to_glyph,
+    fit_units_to_runtime,
+    glyph_units_to_fit,
+    glyph_units_to_runtime,
+    runtime_units_to_fit,
+    runtime_units_to_glyph,
+)
 from inkgrammar.fitting.control_sheet import render_trajectory_diagnostic
 from inkgrammar.fitting.curvature import (
     curvature_to_cubic_segments,
@@ -115,6 +122,28 @@ def test_unit_transforms_round_trip_and_scale():
         glyph_units_to_runtime(points, x_height_units=0.0)
     with pytest.raises(ValueError):
         runtime_units_to_glyph(points, x_height_units=-1.0)
+
+
+
+def test_fit_glyph_and_runtime_coordinate_boundaries_round_trip():
+    points = np.array([[31.0, 0.0], [62.0, 15.5], [-7.75, 31.0]])
+    glyph = fit_units_to_glyph(points, fit_x_height_units=31.0)
+    runtime = fit_units_to_runtime(
+        points, fit_x_height_units=31.0, x_height_units=362.5
+    )
+
+    np.testing.assert_allclose(glyph, points / 31.0)
+    np.testing.assert_allclose(glyph_units_to_fit(glyph, fit_x_height_units=31.0), points)
+    np.testing.assert_allclose(runtime, glyph * 362.5)
+    np.testing.assert_allclose(
+        runtime_units_to_fit(runtime, fit_x_height_units=31.0, x_height_units=362.5),
+        points,
+    )
+
+    with pytest.raises(ValueError, match="fit_x_height_units"):
+        fit_units_to_glyph(points, fit_x_height_units=0.0)
+    with pytest.raises(ValueError, match="coordinates must be finite"):
+        glyph_units_to_runtime(np.array([[np.nan, 0.0]]), x_height_units=362.5)
 
 
 def test_render_trajectory_diagnostic_draws_the_model():

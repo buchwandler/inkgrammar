@@ -443,13 +443,42 @@ def write_connection_control_sheet(
                 "message": message,
             }
         )
+    if not rows:
+        for observation in observations:
+            missing = [
+                character
+                for character in observation.text
+                if character not in model.glyphs
+            ]
+            preview = None
+            message = None
+            if missing:
+                message = f"Missing runtime glyphs: {''.join(dict.fromkeys(missing))}"
+            else:
+                preview = render_text_frame(model, observation.text, scale=0.35).image
+            rows.append(
+                {
+                    "title": observation.text,
+                    "detail": f"No rule | {observation.split} | mapping pending",
+                    "observation_id": observation.observation_id,
+                    "split": observation.split,
+                    "from_character": observation.from_character,
+                    "to_character": observation.to_character,
+                    "expected_class": observation.expected_class,
+                    "connection_rules_used": 0,
+                    "preview": preview,
+                    "message": message,
+                }
+            )
     coverage = connection_observation_coverage(observations)
     report = _write_debug_grid(
         rows,
         output_path,
-        f"Connection rules: {len(rows)} | observations by split: {coverage['split_counts']}",
+        f"Connection control cases: {len(rows)} | "
+        f"observations by split: {coverage['split_counts']}",
     )
     report["observation_coverage"] = coverage
+    report["runtime_rule_count"] = len(model.connection_rules)
     report["seed_fallback_primitives"] = compiled.diagnostics["seed_fallback_primitives"]
     report["promoted_primitives"] = compiled.diagnostics["promoted_primitives"]
     image_path = Path(output_path)

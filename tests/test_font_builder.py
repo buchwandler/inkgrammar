@@ -114,8 +114,31 @@ def test_font_plan_names_cmap_metrics_and_features_are_stable():
     assert "feature rclt" in plan.feature_source
     assert "sub a' b by a.join;" in plan.feature_source
     assert "feature curs" in plan.feature_source
-    assert "pos @IGLeft0' lookup IG_Cursive @IGRight0';" in plan.feature_source
+    assert "lookup IG_Cursive;" in plan.feature_source
     assert not plan.blockers
+
+
+def test_font_plan_blocks_pair_specific_cursive_rules_without_static_glyph_classes():
+    grammar = model().model_copy(
+        update={
+            "connection_rules": [
+                RuntimeConnectionRule(
+                    id="a-join-only",
+                    from_class="baseline",
+                    to_class="baseline",
+                    mode="cursive-anchor",
+                    required_variant_left="a.join",
+                )
+            ]
+        }
+    )
+
+    plan = create_font_plan(grammar)
+
+    assert any(
+        "cannot represent pair-specific connection rules" in blocker for blocker in plan.blockers
+    )
+    assert "feature curs" not in plan.feature_source
 
 
 def test_font_builder_writes_reproducible_ttf_and_structural_tables(tmp_path: Path):
@@ -208,8 +231,12 @@ def test_font_cli_plan_build_validate_and_runtime_comparison(tmp_path: Path):
     )
     assert comparison.exit_code == 0, comparison.output
     comparison_report = json.loads(comparison.output)
-    assert comparison_report["available"] is False
-    assert comparison_report["sequence_matches"] is None
+    if comparison_report["available"]:
+        assert comparison_report["sequence_matches"] is True
+        assert comparison_report["positions_match"] is True
+    else:
+        assert comparison_report["sequence_matches"] is None
+        assert comparison_report["positions_match"] is None
 
 
 def test_build_fit_cli_keeps_promotion_gate_enabled_by_default(tmp_path: Path):

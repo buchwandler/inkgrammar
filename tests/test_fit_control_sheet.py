@@ -89,11 +89,15 @@ def test_connection_and_context_sheets_are_source_free_and_staged(monkeypatch, t
     connections = write_connection_control_sheet(bundle, connection_path)
     contexts = write_context_control_sheet(bundle, context_path)
 
-    assert connections["case_count"] == 0
+    assert connections["case_count"] == 6
+    assert connections["runtime_rule_count"] == 0
+    assert len(connections["cases"]) == 6
+    assert all(case["connection_rules_used"] == 0 for case in connections["cases"])
+    assert all(case["expected_class"] is None for case in connections["cases"])
     assert connections["observation_coverage"]["split_counts"] == {
         "fit": 0,
         "validation": 0,
-        "hold-out": 0,
+        "hold-out": 6,
     }
     assert connections["source_free"] is True
     assert contexts["case_count"] == 12
@@ -192,7 +196,7 @@ def test_connection_coverage_cli_reports_staged_splits():
 
     assert result.exit_code == 0, result.output
     report = json.loads(result.output)
-    assert report["split_counts"] == {"fit": 0, "validation": 0, "hold-out": 0}
+    assert report["split_counts"] == {"fit": 0, "validation": 0, "hold-out": 6}
     assert report["source_free"] is True
 
 
@@ -207,4 +211,7 @@ def test_connection_control_sheet_cli_writes_source_free_outputs(tmp_path):
     assert output.is_file()
     report = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
     assert report["source_free"] is True
-    assert report["observation_coverage"]["observation_count"] == 0
+    assert report["observation_coverage"]["observation_count"] == 6
+    assert report["case_count"] == 6
+    assert report["runtime_rule_count"] == 0
+    assert "Control cases: 6" in result.output

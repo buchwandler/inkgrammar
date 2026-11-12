@@ -41,7 +41,8 @@ def test_alphabet_ids_derive_from_declared_layout_sequence():
         item = items[entry["id"]]
         assert item["label"] == entry["label"]
         assert item["crop_locator"].endswith(entry["crop"])
-    assert len(items) == 63
+    assert len(items) == 69
+    assert sum(item["kind"] == "connection-pair" for item in items.values()) == 6
 
 
 def test_recipe_represents_all_five_sources():

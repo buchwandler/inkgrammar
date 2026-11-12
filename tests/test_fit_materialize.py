@@ -180,7 +180,11 @@ def _write_fixture(tmp_path):
         "fit_config": "fit-config.yaml",
         "seed_grammar": "seed-grammar.yaml",
         "private_work_dir": "../../../work/toy",
-        "compile": {"output": "../../models/toy.yaml", "runtime_schema_version": 2},
+        "compile": {
+            "output": "../../models/toy.yaml",
+            "runtime_schema_version": 2,
+            "fit_x_height_units": 10.0,
+        },
     }
 
     (project_dir / "source-lock.json").write_text(json.dumps(source_lock), encoding="utf-8")

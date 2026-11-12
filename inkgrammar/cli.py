@@ -575,7 +575,7 @@ def fit_connection_control_sheet(
         raise typer.BadParameter(str(exc)) from exc
     typer.echo(f"Connection sheet: {output}")
     typer.echo(f"JSON report: {output.with_suffix('.json')}")
-    typer.echo(f"Rules: {report['case_count']}")
+    typer.echo(f"Control cases: {report['case_count']}")
 
 
 @fit_app.command("context-control-sheet")

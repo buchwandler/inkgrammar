@@ -14,3 +14,4 @@ private_work_dir: ../../../work/sas-1968
 compile:
   output: ../../models/sas-1968.yaml
   runtime_schema_version: 3
+  fit_x_height_units: 31.0
