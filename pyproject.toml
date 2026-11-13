@@ -26,6 +26,7 @@ dependencies = [
   "packaging>=24",
   "planarcurve>=0.1,<0.2",
   "skeletonpaths>=0.1,<0.2",
+  "strokeoutline[svg]>=0.1,<0.2",
   "Pillow>=10",
   "pydantic>=2.8",
   "PyYAML>=6.0",

@@ -3,8 +3,19 @@ from __future__ import annotations
 import math
 
 import pytest
+from strokeoutline import (
+    OutlineConfig as StrokeOutlineConfig,
+)
+from strokeoutline import (
+    OutlineResult,
+    combine_outlines,
+    outline_disc,
+    signed_area,
+)
+from strokeoutline.svg import outline_svg_path
 
 from inkgrammar.outline import (
+    ExpandedOutline,
     OutlineConfig,
     _signed_area,
     expand_path,
@@ -109,3 +120,64 @@ def test_shaped_text_expands_paths_and_taps_with_per_stroke_widths():
 def test_width_profile_rejects_invalid_knots():
     with pytest.raises(ValueError, match="positive widths"):
         expand_path("M 0 0 L 10 0", [(0.0, 2.0), (0.5, -1.0), (1.0, 4.0)])
+
+
+@pytest.mark.parametrize(
+    ("path", "width"),
+    [
+        ("M 0 0 L 10 0", 2.0),
+        ("M 0 0 Q 5 10 10 0", 2.0),
+        ("M 0 0 C 0 10 10 10 10 0", 4.0),
+        ("M 0 0 L 10 0 L 10 10 L 0 10 Z", 4.0),
+        ("M 0 0 L 10 0 M 20 0 L 30 0", 3.0),
+        ("M 0 0 L 10 0", [(0.0, 2.0), (1.0, 6.0)]),
+    ],
+)
+def test_expand_path_matches_strokeoutline_svg_adapter(path, width):
+    assert expand_path(path, width) == outline_svg_path(path, width)
+
+
+@pytest.mark.parametrize(("round_caps", "cap"), [(True, "round"), (False, "square")])
+def test_legacy_round_caps_map_to_strokeoutline_caps(round_caps, cap):
+    config = OutlineConfig(round_caps=round_caps)
+    expected = outline_svg_path("M 0 0 L 10 0", 2.0, config=StrokeOutlineConfig(cap=cap))
+
+    assert expand_path("M 0 0 L 10 0", 2.0, config=config) == expected
+
+
+def test_expand_tap_matches_strokeoutline_with_midpoint_width_profile():
+    profile = [(0.0, 2.0), (0.5, 8.0), (1.0, 4.0)]
+
+    assert expand_tap((4, -3), profile) == outline_disc((4, -3), profile)
+
+
+def test_inkgrammar_outline_reuses_strokeoutline_result_and_area_types():
+    assert ExpandedOutline is OutlineResult
+    assert _signed_area is signed_area
+
+
+def test_shaped_text_uses_per_stroke_tap_profile_and_combines_bounds():
+    shaped = ShapedText(
+        glyphs=(
+            ShapedGlyph(
+                character="a",
+                variant_id="a.default",
+                x=0,
+                y=0,
+                advance=20,
+                entry=None,
+                exit=None,
+                strokes=(
+                    ShapedStroke("body", "body", d="M 0 0 L 10 0"),
+                    ShapedStroke("dot", "dot", tap=(15, 0)),
+                ),
+            ),
+        ),
+        joins=(),
+        width=20,
+    )
+
+    result = expand_shaped_text(shaped, 2.0, width_profiles={"dot": 6.0})
+    expected = combine_outlines((outline_svg_path("M 0 0 L 10 0", 2.0), outline_disc((15, 0), 6.0)))
+
+    assert result == expected
