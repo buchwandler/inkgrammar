@@ -148,6 +148,10 @@ inkgrammar fit trajectory-report work/sas-1968/trajectory/e/parameters.yaml
 Fit outputs carry provenance hashes and measured gates. Nothing is promoted
 without human review.
 
+## Curve and skeleton geometry
+
+InkGrammar uses PlanarCurve for continuous curve geometry, polyline operations, transforms, and fitting. SkeletonPaths owns raster skeleton graphs, topology routes, and route ranking. SkeletonPaths paths are neutral `(x, y)` geometry; route orientation and ambiguity do not establish physical stroke direction. `inkgrammar.fitting.skeleton_graph` remains only as a compatibility re-export.
+
 ## Important evidence rule
 
 A scan can establish an observed shape. It does not automatically establish stroke order,

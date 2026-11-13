@@ -1,6 +1,8 @@
 import numpy as np
+import skeletonpaths
 from skimage.draw import circle_perimeter
 
+import inkgrammar.fitting.skeleton_graph as compatibility
 from inkgrammar.fitting.skeleton_graph import (
     build_skeleton_graph,
     prepare_topology_paths,
@@ -179,3 +181,9 @@ def test_prepared_topology_path_inventory_matches_dynamic_selection():
     np.testing.assert_array_equal(prepared_path.xy, direct_path.xy)
     assert prepared_path.edge_ids == direct_path.edge_ids
     assert prepared_path.ambiguous == direct_path.ambiguous
+
+
+
+def test_legacy_graph_module_reexports_skeletonpaths_implementation():
+    assert compatibility.SkeletonGraph is skeletonpaths.SkeletonGraph
+    assert compatibility.build_skeleton_graph is skeletonpaths.build_skeleton_graph

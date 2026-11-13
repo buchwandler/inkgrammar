@@ -8,7 +8,15 @@ from typing import Any, Literal
 import numpy as np
 from scipy.ndimage import distance_transform_edt
 from scipy.optimize import least_squares
-from scipy.spatial import cKDTree
+from skeletonpaths import (
+    SkeletonGraph,
+    SkeletonPath,
+    TopologyPathInventory,
+    build_skeleton_graph,
+    prepare_topology_paths,
+    rank_topology_paths,
+    select_topology_path,
+)
 
 from .annealing import AnnealingConfig, simulated_annealing
 from .models import (
@@ -21,15 +29,6 @@ from .models import (
 )
 from .objective import SplineCorrespondenceConfig, SplineCurveConfig
 from .seed_migration import SeedMigrationResult, migrate_legacy_seed
-from .skeleton_graph import (
-    SkeletonGraph,
-    SkeletonPath,
-    TopologyPathInventory,
-    build_skeleton_graph,
-    prepare_topology_paths,
-    rank_topology_paths,
-    select_topology_path,
-)
 from .spline import evaluate_primitive_curve, sample_curve_by_arclength
 from .spline_fit import SplineObservation, solve_shared_spline_coefficients
 
@@ -892,10 +891,7 @@ def evaluate_topology_path(
             cycle_mismatch = (
                 0
                 if expected_topology.expected_cycles is None
-                else max(
-                    abs(prepared_target.graph.cycle_count - expected_topology.expected_cycles),
-                    abs(path.cycle_count - expected_topology.expected_cycles),
-                )
+                else abs(path.cycle_count - expected_topology.expected_cycles)
             )
             endpoint_mismatch = abs(prepared_target.graph.endpoint_count - expected_endpoints)
             intersection_mismatch = (
@@ -918,7 +914,7 @@ def evaluate_topology_path(
                 "ambiguous_path": 5.0 * int(path.ambiguous),
             }
             penalty = float(sum(penalty_terms.values()))
-            proximity = float(cKDTree(path.xy).query(candidate, k=1)[0].mean())
+            path_score = path.score
             diagnostics = {
                 "expected_path_kind": expected_topology.path_kind,
                 "selected_path_kind": path_kind,
@@ -934,6 +930,14 @@ def evaluate_topology_path(
                 "self_intersection_mismatch": intersection_mismatch,
                 "path_kind_mismatch": bool(path_kind_mismatch),
                 "ambiguous": path.ambiguous,
+                "orientation_ambiguous": path.orientation_ambiguous,
+                "path_score": {
+                    "guide_distance_px": path_score.guide_distance_px,
+                    "endpoint_orientation_error_px": path_score.endpoint_orientation_error_px,
+                    "measured_confidence": path_score.measured_confidence,
+                    "length_error_px": path_score.length_error_px,
+                    "turning_cost": path_score.turning_cost,
+                },
                 "no_path": False,
                 "penalty_terms": penalty_terms,
                 "penalty": penalty,
@@ -946,8 +950,15 @@ def evaluate_topology_path(
             ranked.append(
                 (
                     penalty,
-                    proximity,
-                    -path.confidence,
+                    round(path_score.guide_distance_px, 9)
+                    if path_score.guide_distance_px is not None
+                    else 0.0,
+                    path_score.endpoint_orientation_error_px
+                    if path_score.endpoint_orientation_error_px is not None
+                    else 0.0,
+                    -path_score.measured_confidence,
+                    path_score.length_error_px if path_score.length_error_px is not None else 0.0,
+                    path_score.turning_cost if path_score.turning_cost is not None else 0.0,
                     path.edge_ids,
                     path,
                     exact_match,
@@ -971,15 +982,17 @@ def evaluate_topology_path(
             "self_intersection_mismatch": None,
             "path_kind_mismatch": False,
             "ambiguous": False,
+            "orientation_ambiguous": False,
+            "path_score": None,
             "no_path": True,
             "penalty_terms": {"no_path": no_path_penalty},
             "penalty": no_path_penalty,
         }
         return TopologyPathResult(None, False, no_path_penalty, diagnostics)
 
-    ranked.sort(key=lambda item: (item[0], item[1], item[2], item[3]))
+    ranked.sort(key=lambda item: item[:7])
     best = ranked[0]
-    return TopologyPathResult(best[4], best[5], best[0], best[6])
+    return TopologyPathResult(best[7], best[8], best[0], best[9])
 
 
 def optimize_primitive_family_v4(
@@ -1842,10 +1855,7 @@ def optimize_primitive_family_v4(
         and item["selected_endpoint_count"] == item["expected_endpoint_count"]
         and (
             item["expected_cycles"] is None
-            or (
-                item["selected_cycles"] == item["expected_cycles"]
-                and item["observed_cycles"] == item["expected_cycles"]
-            )
+            or item["selected_cycles"] == item["expected_cycles"]
         )
         and (
             item["expected_self_intersections"] is None

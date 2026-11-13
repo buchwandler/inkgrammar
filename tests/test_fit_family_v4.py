@@ -339,12 +339,14 @@ def test_declared_open_topology_returns_finite_penalty_for_incidental_graph_cycl
     )
 
     assert result.path is not None
-    assert result.exact_match is False
+    assert result.exact_match is True
     assert np.isfinite(result.topology_penalty)
     assert result.diagnostics["expected_path_kind"] == "open"
     assert result.diagnostics["selected_path_kind"] == "open"
-    assert result.diagnostics["cycle_mismatch"] == 1
-
+    assert result.diagnostics["cycle_mismatch"] == 0
+    assert result.diagnostics["observed_graph_cycles"] == 1
+    assert result.diagnostics["orientation_ambiguous"] is False
+    assert result.diagnostics["path_score"]["guide_distance_px"] >= 0.0
 
 def test_candidate_self_intersection_does_not_change_declared_open_topology():
     prepared = prepared_target_from_graph(incidental_cycle_graph())
@@ -382,6 +384,8 @@ def test_search_topology_returns_finite_no_path_result():
     assert result.exact_match is False
     assert result.topology_penalty == 50.0
     assert result.diagnostics["no_path"] is True
+    assert result.diagnostics["orientation_ambiguous"] is False
+    assert result.diagnostics["path_score"] is None
 
     configured = evaluate_topology_path(
         prepared,
