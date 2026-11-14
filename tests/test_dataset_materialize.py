@@ -354,9 +354,10 @@ def test_materialize_records_artifacts_and_derived(tmp_path):
         assert record["derived"]["topology"]["algorithm"] == "pixel-graph-v1"
         for name in ("skeleton", "centerline", "topology"):
             assert (tmp_path / "run" / "out" / record["derived"][name]["path"]).is_file()
-    assert index["source_hashes"]["src-1"] == hashlib.sha256(
-        (tmp_path / "run" / "private" / "source.png").read_bytes()
-    ).hexdigest()
+    assert (
+        index["source_hashes"]["src-1"]
+        == hashlib.sha256((tmp_path / "run" / "private" / "source.png").read_bytes()).hexdigest()
+    )
 
 
 def test_materialize_composes_review_patches(tmp_path):

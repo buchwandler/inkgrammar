@@ -221,9 +221,7 @@ class PrimitiveTemplate(StrictModel):
             if self.curvature_stroke is None:
                 raise ValueError("curvature-profile primitives require curvature_stroke geometry")
             if self.segments is not None or self.spline is not None:
-                raise ValueError(
-                    "curvature-profile primitives must not contain segments or spline"
-                )
+                raise ValueError("curvature-profile primitives must not contain segments or spline")
 
         free = self.free_parameters
         locked = self.locked_parameters
@@ -408,7 +406,6 @@ class ConnectionObservation(StrictModel):
         return self
 
 
-
 class ConnectionCategoryBehavior(StrictModel):
     continuity: Literal["one-stroke", "multi-stroke", "not-recorded"] = "not-recorded"
     left_terminal_modification: str = "not-recorded"
@@ -428,6 +425,7 @@ class ConnectionCategoryEvidence(StrictModel):
     example_pairs: list[str] = Field(min_length=1)
     behavior: ConnectionCategoryBehavior
     runtime_mapping_status: Literal["pending-review", "reviewed"] = "pending-review"
+
 
 class FitAnchors(StrictModel):
     baseline_y: float | None = None

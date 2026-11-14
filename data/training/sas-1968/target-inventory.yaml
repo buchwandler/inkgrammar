@@ -88,26 +88,39 @@ special_forms:
   layout: ../../../examples/layouts/sas-1968-stroke-order.yaml
   status: pending-review
   observations:
-    - {region_id: special-form-C, label: C, status: alternate-form-not-modeled}
-    - {region_id: special-form-Z, label: Z, status: not-modeled}
-    - {region_id: special-form-z, label: z, status: not-modeled}
-    - {region_id: special-form-J, label: J, status: not-modeled}
-    - {region_id: special-form-S, label: S, status: not-modeled}
-    - {region_id: special-form-s, label: s, status: not-modeled}
-    - {region_id: special-form-sharp-s, label: "ß", status: transcription-uncertain}
-    - {region_id: special-form-E, label: E, status: transcription-pending}
+    - {
+        region_id: special-form-C,
+        label: C,
+        status: alternate-form-not-modeled,
+      }
+    - { region_id: special-form-Z, label: Z, status: not-modeled }
+    - { region_id: special-form-z, label: z, status: not-modeled }
+    - { region_id: special-form-J, label: J, status: not-modeled }
+    - { region_id: special-form-S, label: S, status: not-modeled }
+    - { region_id: special-form-s, label: s, status: not-modeled }
+    - {
+        region_id: special-form-sharp-s,
+        label: "ß",
+        status: transcription-uncertain,
+      }
+    - { region_id: special-form-E, label: E, status: transcription-pending }
 stroke_order_observations:
   source_id: sas-1968-stroke-order
   layout: ../../../examples/layouts/sas-1968-stroke-order.yaml
   path_status: not-traced
   examples:
-    - {region_id: stroke-order-T, label: T, sequence: [1, 2]}
-    - {region_id: stroke-order-F, label: F, sequence: [1, 2, 3]}
-    - {region_id: stroke-order-H, label: H, sequence: [1, 2, 3]}
-    - {region_id: stroke-order-K, label: K, sequence: [1, 2, 3], annotation_isolation: pending}
-    - {region_id: stroke-order-X-01, label: X, sequence: [1, 2]}
-    - {region_id: stroke-order-X-02, label: X, sequence: [1, 2]}
-    - {region_id: stroke-order-P, label: P, sequence: [1, 2]}
-    - {region_id: stroke-order-B, label: B, sequence: [1, 2]}
-    - {region_id: stroke-order-R, label: R, sequence: [1, 2]}
-    - {region_id: stroke-order-D, label: D, sequence: [1, 2]}
+    - { region_id: stroke-order-T, label: T, sequence: [1, 2] }
+    - { region_id: stroke-order-F, label: F, sequence: [1, 2, 3] }
+    - { region_id: stroke-order-H, label: H, sequence: [1, 2, 3] }
+    - {
+        region_id: stroke-order-K,
+        label: K,
+        sequence: [1, 2, 3],
+        annotation_isolation: pending,
+      }
+    - { region_id: stroke-order-X-01, label: X, sequence: [1, 2] }
+    - { region_id: stroke-order-X-02, label: X, sequence: [1, 2] }
+    - { region_id: stroke-order-P, label: P, sequence: [1, 2] }
+    - { region_id: stroke-order-B, label: B, sequence: [1, 2] }
+    - { region_id: stroke-order-R, label: R, sequence: [1, 2] }
+    - { region_id: stroke-order-D, label: D, sequence: [1, 2] }

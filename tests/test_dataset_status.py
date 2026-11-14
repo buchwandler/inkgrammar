@@ -26,9 +26,7 @@ def _validation(bundle, root, index, tamper=None):
 def test_status_counters_are_reported_independently(tmp_path):
     bundle, root, index = _materialized(tmp_path)
     validation = _validation(bundle, root, index)
-    status = summarize_status(
-        bundle, index, validation, verify_sources(bundle), dataset_root=root
-    )
+    status = summarize_status(bundle, index, validation, verify_sources(bundle), dataset_root=root)
 
     assert status.source_pages_verified == 1
     assert status.source_pages_total == 1
@@ -144,9 +142,7 @@ def test_validate_reports_warnings_for_masks_and_metrics(tmp_path):
 def test_render_report_contains_coverage_tables(tmp_path):
     bundle, root, index = _materialized(tmp_path)
     validation = _validation(bundle, root, index)
-    status = summarize_status(
-        bundle, index, validation, verify_sources(bundle), dataset_root=root
-    )
+    status = summarize_status(bundle, index, validation, verify_sources(bundle), dataset_root=root)
 
     report = render_report(status, validation)
 

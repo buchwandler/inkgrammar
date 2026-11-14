@@ -4,6 +4,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 import numpy as np
+from planarcurve.polyline import distance_to_polyline
+from planarcurve.polyline import unit_tangents as planar_unit_tangents
 
 from .alignment import bilinear_sample, normal_track_ink
 from .centerline import TargetTrace
@@ -180,30 +182,13 @@ class OrderedCenterlineResiduals:
 
 
 def _unit_tangents(points: np.ndarray) -> np.ndarray:
-    tangents = np.gradient(points, axis=0)
-    norms = np.linalg.norm(tangents, axis=1)
-    return np.divide(
-        tangents,
-        norms[:, None],
-        out=np.zeros_like(tangents),
-        where=norms[:, None] > 1e-9,
-    )
+    tangents = planar_unit_tangents(points)
+    significant = np.linalg.norm(np.gradient(points, axis=0), axis=1) > 1e-9
+    return np.where(significant[:, None], tangents, 0.0)
 
 
 def _distances_to_polyline(points: np.ndarray, polyline: np.ndarray) -> np.ndarray:
-    segments = polyline[1:] - polyline[:-1]
-    squared_lengths = np.sum(segments**2, axis=1)
-    offsets = points[:, None, :] - polyline[None, :-1, :]
-    fractions = np.divide(
-        np.sum(offsets * segments[None, :, :], axis=2),
-        squared_lengths[None, :],
-        out=np.zeros((len(points), len(segments)), dtype=float),
-        where=squared_lengths[None, :] > 1e-12,
-    )
-    projections = (
-        polyline[None, :-1, :] + np.clip(fractions, 0.0, 1.0)[:, :, None] * segments[None, :, :]
-    )
-    return np.min(np.linalg.norm(points[:, None, :] - projections, axis=2), axis=1)
+    return distance_to_polyline(points, polyline)
 
 
 def ordered_centerline_residuals(

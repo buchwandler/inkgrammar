@@ -36,9 +36,7 @@ def test_fit_grammar_models_contextual_variants_and_v3_compile_config():
     recipe = glyph_recipe()
 
     assert recipe.default_variant == "a.default"
-    config = FitCompileConfig(
-        output="model.yaml", runtime_schema_version=3, fit_x_height_units=400
-    )
+    config = FitCompileConfig(output="model.yaml", runtime_schema_version=3, fit_x_height_units=400)
     assert config.runtime_schema_version == 3
     with pytest.raises(ValueError, match="default variant is missing"):
         GlyphRecipe(character="a", default_variant="a.missing", variants=recipe.variants)

@@ -50,8 +50,7 @@ def solve_shared_spline_coefficients(
         endpoint_policy=endpoint_policy,
     )
     planar_observations = [
-        PlanarSplineObservation(u=item.u, xy=item.xy, weight=item.weight)
-        for item in observations
+        PlanarSplineObservation(u=item.u, xy=item.xy, weight=item.weight) for item in observations
     ]
     result = fit_spline_control_points(
         to_planar_bspline(geometry),

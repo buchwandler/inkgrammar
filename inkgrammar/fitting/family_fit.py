@@ -542,6 +542,14 @@ def _input_hashes(bundle: FitProjectBundle, training: list[FitSample]) -> Checkp
         name: _file_sha256((bundle.project_dir / relative).resolve(strict=True))
         for name, relative in support_files.items()
     }
+    if bundle.fit_config.objective.version == 4:
+        policy_json = json.dumps(
+            bundle.fit_config.skeletonpaths.model_dump(mode="json"),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        support["skeletonpaths_policy"] = hashlib.sha256(policy_json.encode("utf-8")).hexdigest()
     materialized = bundle.private_work_dir / "materialized"
     training_artifacts = []
     for sample in sorted(training, key=lambda item: item.id):

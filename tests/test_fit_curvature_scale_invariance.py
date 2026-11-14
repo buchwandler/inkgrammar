@@ -38,12 +38,8 @@ def test_rotation_rotates_the_full_trajectory():
     rotated = evaluate_curvature_stroke(_geometry(1.0, start_angle_deg=30.0), count=129)
 
     angle = np.deg2rad(30.0)
-    rotation = np.array(
-        [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
-    )
-    np.testing.assert_allclose(
-        rotated.xy, base.xy @ rotation.T, atol=1e-9
-    )
+    rotation = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+    np.testing.assert_allclose(rotated.xy, base.xy @ rotation.T, atol=1e-9)
     np.testing.assert_allclose(rotated.heading_deg, base.heading_deg + 30.0, atol=1e-9)
 
 

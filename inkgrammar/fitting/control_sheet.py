@@ -445,11 +445,7 @@ def write_connection_control_sheet(
         )
     if not rows:
         for observation in observations:
-            missing = [
-                character
-                for character in observation.text
-                if character not in model.glyphs
-            ]
+            missing = [character for character in observation.text if character not in model.glyphs]
             preview = None
             message = None
             if missing:
@@ -539,7 +535,6 @@ def write_context_control_sheet(
     return report
 
 
-
 def render_trajectory_diagnostic(
     geometry: CurvatureStrokeGeometry,
     *,
@@ -620,9 +615,7 @@ def render_trajectory_diagnostic(
     if direction_u.size:
         arrow_xy, _ = evaluate_stroke_at(geometry, direction_u)
         for index, point in enumerate(to_pixels(arrow_xy)):
-            tangent = sample.tangent[
-                int(np.argmin(np.abs(sample.u - direction_u[index])))
-            ]
+            tangent = sample.tangent[int(np.argmin(np.abs(sample.u - direction_u[index])))]
             draw_arrow(point, tangent, (120, 120, 120))
 
     return panel

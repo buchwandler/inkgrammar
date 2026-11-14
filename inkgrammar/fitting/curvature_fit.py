@@ -53,15 +53,11 @@ class SharedProfileFitResult:
     metrics: dict[str, float] = field(default_factory=dict)
 
 
-def resample_by_arclength(
-    xy: np.ndarray, *, samples: int = DEFAULT_SAMPLES
-) -> np.ndarray:
+def resample_by_arclength(xy: np.ndarray, *, samples: int = DEFAULT_SAMPLES) -> np.ndarray:
     return _resample_by_arclength(xy, samples=samples)
 
 
-def estimate_observed_heading(
-    xy: np.ndarray, *, smooth_window: int = 5
-) -> np.ndarray:
+def estimate_observed_heading(xy: np.ndarray, *, smooth_window: int = 5) -> np.ndarray:
     points = resample_by_arclength(xy, samples=max(len(xy), DEFAULT_SAMPLES))
     return estimate_polyline_heading(points, smooth_window=smooth_window)
 
@@ -71,19 +67,13 @@ def estimate_observed_heading_rate(u: np.ndarray, heading_deg: np.ndarray) -> np
 
 
 def initialize_event_positions(q_obs: np.ndarray, change_count: int) -> np.ndarray:
-    return initialize_change_positions(
-        q_obs, change_count, min_spacing=MIN_CHANGE_SPACING
-    )
+    return initialize_change_positions(q_obs, change_count, min_spacing=MIN_CHANGE_SPACING)
 
 
 def matched_fit_state(
     geometry: CurvatureStrokeGeometry, samples: int
 ) -> tuple[np.ndarray, np.ndarray]:
-    return matched_trajectory_state(
-        to_planar_trajectory(geometry), samples
-    )
-
-
+    return matched_trajectory_state(to_planar_trajectory(geometry), samples)
 
 
 def fit_curvature_stroke(
@@ -130,7 +120,6 @@ def fit_shared_profile(
             endpoint_weight=0.0,
             endpoint_heading_weight=0.0,
             turn_weight=0.3,
-            profile_weight=0.0,
         ),
     )
     return SharedProfileFitResult(

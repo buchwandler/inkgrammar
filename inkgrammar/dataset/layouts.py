@@ -57,12 +57,11 @@ class LayoutRegion(StrictModel):
 
     @field_validator("subregions")
     @classmethod
-    def validate_subregions(
-        cls, value: dict[str, NormalizedBBox]
-    ) -> dict[str, NormalizedBBox]:
+    def validate_subregions(cls, value: dict[str, NormalizedBBox]) -> dict[str, NormalizedBBox]:
         for bbox in value.values():
             _validate_bbox(bbox)
         return value
+
 
 class RegionLayout(StrictModel):
     schema_version: Literal[1] = 1

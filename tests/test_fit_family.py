@@ -290,6 +290,95 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path, Path]:
     return repository, project_path, source_dir
 
 
+def test_v4_input_hashes_track_effective_skeletonpaths_settings(tmp_path):
+    from dataclasses import replace
+
+    from skeletonpaths import PathRankingPolicy, PathSearchLimits
+
+    from inkgrammar.fitting.family_fit import _input_hashes
+    from inkgrammar.fitting.workspace import FitRunConfig
+
+    repository, project_path, source_dir = _write_project(tmp_path)
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    training = [sample for sample in bundle.corpus.samples if sample.split == "fit"]
+    config = FitRunConfig.model_validate(
+        {
+            "format": "inkgrammar-fit-config",
+            "format_version": 1,
+            "objective": {"version": 4},
+            "optimizer": {"method": "spline-alt-lsq"},
+            "split_policy": {
+                "fit": "fit",
+                "validation": "diagnostic",
+                "hold-out": "report",
+            },
+        }
+    )
+    v4_bundle = replace(bundle, fit_config=config)
+    baseline = _input_hashes(v4_bundle, training)
+    assert "skeletonpaths_policy" not in _input_hashes(bundle, training).support_sha256
+
+    limits = config.skeletonpaths.model_copy(
+        update={"search_limits": PathSearchLimits(max_paths=32, max_states=1000)}
+    )
+    changed_limits = replace(
+        v4_bundle, fit_config=config.model_copy(update={"skeletonpaths": limits})
+    )
+    assert (
+        _input_hashes(changed_limits, training).support_sha256["skeletonpaths_policy"]
+        != baseline.support_sha256["skeletonpaths_policy"]
+    )
+
+    ranking = config.skeletonpaths.model_copy(
+        update={"ranking_policy": PathRankingPolicy(guide_samples=12)}
+    )
+    changed_ranking = replace(
+        v4_bundle, fit_config=config.model_copy(update={"skeletonpaths": ranking})
+    )
+    assert (
+        _input_hashes(changed_ranking, training).support_sha256["skeletonpaths_policy"]
+        != baseline.support_sha256["skeletonpaths_policy"]
+    )
+
+
+def test_v4_report_records_effective_skeletonpaths_settings(tmp_path):
+    repository, project_path, source_dir = _write_project(tmp_path)
+    _write_yaml(
+        project_path.parent / "fit-config.yaml",
+        {
+            "format": "inkgrammar-fit-config",
+            "format_version": 1,
+            "objective": {"version": 4},
+            "optimizer": {"method": "spline-alt-lsq"},
+            "split_policy": {
+                "fit": "fit",
+                "validation": "diagnostic",
+                "hold-out": "report",
+            },
+            "skeletonpaths": {
+                "search_limits": {"max_paths": 32, "max_states": 1000},
+                "ranking_policy": {"guide_samples": 12},
+            },
+        },
+    )
+    bundle = load_fit_project(project_path, repository_root=repository)
+    materialize_fit_project(bundle, source_dir)
+    optimize_primitive_family(bundle, PRIMITIVE_ID)
+
+    report_path = bundle.project_dir / "reports" / f"{PRIMITIVE_ID}.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["skeletonpaths"]["search_limits"] == {
+        "max_paths": 32,
+        "max_states": 1000,
+    }
+    assert report["skeletonpaths"]["ranking_policy"]["guide_samples"] == 12
+    assert all(
+        "prepared_path_kinds" in occurrence["topology"]
+        for occurrence in report["occurrences"].values()
+    )
+
+
 def test_refresh_primitive_artifact_hashes_preserves_fit_results(tmp_path):
     repository, project_path, source_dir = _write_project(tmp_path)
     bundle = load_fit_project(project_path, repository_root=repository)
@@ -794,6 +883,21 @@ def test_objective_v3_fit_uses_centerline_assignments_and_keeps_validation_and_h
     assert second.report["parameters"] == pytest.approx(first_parameters, abs=1e-8)
     assert second.report["hold_out"]["samples"][0]["objective"] != first_holdout
     assert second.report["validation"]["samples"][0]["objective"] != first_validation
+
+
+def test_objective_v3_dispatch_stays_on_legacy_pipeline(monkeypatch):
+    from types import SimpleNamespace
+
+    from inkgrammar.fitting import family_fit, family_fit_v3
+
+    bundle = SimpleNamespace(fit_config=SimpleNamespace(objective=SimpleNamespace(version=3)))
+    monkeypatch.setattr(
+        family_fit_v3,
+        "optimize_primitive_family_v3",
+        lambda bundle, primitive_id, *, resume=False: "legacy-v3",
+    )
+
+    assert family_fit.optimize_primitive_family(bundle, PRIMITIVE_ID) == "legacy-v3"
 
 
 @pytest.mark.parametrize(

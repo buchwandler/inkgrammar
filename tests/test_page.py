@@ -46,8 +46,6 @@ def test_layout_aware_page_extraction(tmp_path):
     assert (output / "detections.json").is_file()
 
 
-
-
 def test_region_layout_extraction(tmp_path):
     image = Image.new("RGB", (200, 100), "white")
     draw = ImageDraw.Draw(image)

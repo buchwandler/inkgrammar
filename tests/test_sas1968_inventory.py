@@ -20,9 +20,7 @@ STROKE_LAYOUT_PATH = ROOT / "examples/layouts/sas-1968-stroke-order.yaml"
 def test_target_inventory_covers_source_observations_and_runtime_statuses():
     inventory = yaml.safe_load(INVENTORY_PATH.read_text(encoding="utf-8"))
     observations = json.loads(OBSERVATIONS_PATH.read_text(encoding="utf-8"))
-    assert (
-        DATA_DIR / inventory["source_observations"]["manifest"]
-    ).resolve() == OBSERVATIONS_PATH
+    assert (DATA_DIR / inventory["source_observations"]["manifest"]).resolve() == OBSERVATIONS_PATH
     runtime_model = load_model(MODEL_PATH)
     topology = FitTopologyFile.model_validate(
         yaml.safe_load(TOPOLOGY_PATH.read_text(encoding="utf-8"))
@@ -104,6 +102,9 @@ def test_special_forms_and_stroke_order_are_linked_to_source_layout_regions():
         row["sequence"] == [int(number) for number in regions[row["region_id"]]["sequence"]]
         for row in examples
     )
-    assert next(row for row in examples if row["region_id"] == "stroke-order-K")[
-        "annotation_isolation"
-    ] == "pending"
+    assert (
+        next(row for row in examples if row["region_id"] == "stroke-order-K")[
+            "annotation_isolation"
+        ]
+        == "pending"
+    )

@@ -49,7 +49,6 @@ The supplied SAS-1968 layout includes reviewed centers for this reason.
 An OCR classifier can later propose labels for arbitrary pages, but its output should be stored
 as a hypothesis with confidence and human review. It should not silently become canonical data.
 
-
 ## Dataset extraction strategies
 
 Page extraction is split into reusable pieces (`threshold_source`,

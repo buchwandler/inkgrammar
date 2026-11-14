@@ -5,6 +5,8 @@ from typing import Any
 
 import numpy as np
 import yaml
+from fontTools.pens.recordingPen import RecordingPen
+from fontTools.svgLib.path import parse_path
 
 from .fitting.family_fit import load_fit_reports, primitive_path
 from .fitting.models import (
@@ -81,17 +83,13 @@ def runtime_units_to_glyph(xy, *, x_height_units: float) -> np.ndarray:
     return _validate_coordinates(xy) / x_height_units
 
 
-def fit_units_to_runtime(
-    xy, *, fit_x_height_units: float, x_height_units: float
-) -> np.ndarray:
+def fit_units_to_runtime(xy, *, fit_x_height_units: float, x_height_units: float) -> np.ndarray:
     """Map fit-space coordinates through normalized glyph units to runtime units."""
     glyph = fit_units_to_glyph(xy, fit_x_height_units=fit_x_height_units)
     return glyph_units_to_runtime(glyph, x_height_units=x_height_units)
 
 
-def runtime_units_to_fit(
-    xy, *, fit_x_height_units: float, x_height_units: float
-) -> np.ndarray:
+def runtime_units_to_fit(xy, *, fit_x_height_units: float, x_height_units: float) -> np.ndarray:
     """Map runtime coordinates back through normalized glyph units to fit space."""
     glyph = runtime_units_to_glyph(xy, x_height_units=x_height_units)
     return glyph_units_to_fit(glyph, fit_x_height_units=fit_x_height_units)
@@ -179,6 +177,71 @@ def _compile_strokes(
     return compiled, instance_paths, source_paths
 
 
+def _path_endpoint_tangents(
+    path: str,
+) -> tuple[tuple[float, float] | None, tuple[float, float] | None]:
+    pen = RecordingPen()
+    parse_path(path, pen)
+    current = None
+    subpath_start = None
+    directions = []
+
+    def unit(vector):
+        length = float(np.hypot(*vector))
+        if length <= 1e-12:
+            return None
+        return float(vector[0] / length), float(vector[1] / length)
+
+    for operation, points in pen.value:
+        if operation == "moveTo":
+            current = subpath_start = points[0]
+        elif operation == "lineTo":
+            for end in points:
+                vector = (end[0] - current[0], end[1] - current[1])
+                directions.append((vector, vector))
+                current = end
+        elif operation == "curveTo":
+            for index in range(0, len(points), 3):
+                control1, control2, end = points[index : index + 3]
+                start = next(
+                    (
+                        (point[0] - current[0], point[1] - current[1])
+                        for point in (control1, control2, end)
+                        if point != current
+                    ),
+                    (0.0, 0.0),
+                )
+                finish = next(
+                    (
+                        (end[0] - point[0], end[1] - point[1])
+                        for point in (control2, control1, current)
+                        if point != end
+                    ),
+                    (0.0, 0.0),
+                )
+                directions.append((start, finish))
+                current = end
+        elif operation == "qCurveTo":
+            controls = [point for point in points[:-1] if point is not None]
+            end = points[-1]
+            if end is None:
+                continue
+            first = controls[0] if controls else end
+            last = controls[-1] if controls else current
+            start = (first[0] - current[0], first[1] - current[1])
+            finish = (end[0] - last[0], end[1] - last[1])
+            directions.append((start, finish))
+            current = end
+        elif operation == "closePath" and current is not None and subpath_start is not None:
+            vector = (subpath_start[0] - current[0], subpath_start[1] - current[1])
+            directions.append((vector, vector))
+            current = subpath_start
+
+    start = next((value for first, _ in directions if (value := unit(first))), None)
+    end = next((value for _, last in reversed(directions) if (value := unit(last))), None)
+    return start, end
+
+
 def _compile_anchor(
     endpoint: GlyphEndpoint | None,
     instance_paths: dict[str, str],
@@ -187,15 +250,17 @@ def _compile_anchor(
     if endpoint is None:
         return None
     try:
-        info = analyze_path(instance_paths[endpoint.instance])
+        path = instance_paths[endpoint.instance]
+        info = analyze_path(path)
+        tangent_start, tangent_end = _path_endpoint_tangents(path)
     except KeyError as exc:
         raise ValueError(
             f"endpoint references unmaterialized instance: {endpoint.instance}"
         ) from exc
     if endpoint.endpoint == "start":
-        point, tangent = info.start, info.tangent_start
+        point, tangent = info.start, tangent_start
     else:
-        point, tangent = info.end, info.tangent_end
+        point, tangent = info.end, tangent_end
     if tangent is None:
         raise ValueError(f"endpoint has no tangent: {endpoint.instance}")
     direction = 1.0 if endpoint.direction == "forward" else -1.0
@@ -312,7 +377,6 @@ def _geometry_parity(source_paths: list[str], model: WritingModelV3) -> float:
     return maximum
 
 
-
 def _compile_connection_rule(
     rule,
     *,
@@ -329,7 +393,6 @@ def _compile_connection_rule(
             )
         )
     return RuntimeConnectionRule.model_validate(values)
-
 
 
 def _runtime_scale_diagnostics(model: WritingModelV3) -> dict[str, dict[str, dict[str, Any]]]:
@@ -443,7 +506,6 @@ def _select_fit_templates(
         for stroke in variant.strokes
         for occurrence in stroke.parts
     )
-
 
     for primitive_id in sorted(referenced):
         report = reports.get(primitive_id)

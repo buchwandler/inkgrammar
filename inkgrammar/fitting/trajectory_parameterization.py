@@ -25,9 +25,7 @@ def decode_change_positions(
     start: float = 0.0,
     end: float = 1.0,
 ) -> np.ndarray:
-    return ordered_positions_from_logits(
-        logits, min_spacing=min_spacing, start=start, end=end
-    )
+    return ordered_positions_from_logits(logits, min_spacing=min_spacing, start=start, end=end)
 
 
 def encode_change_positions(
@@ -37,9 +35,7 @@ def encode_change_positions(
     start: float = 0.0,
     end: float = 1.0,
 ) -> np.ndarray:
-    return ordered_positions_to_logits(
-        positions, min_spacing=min_spacing, start=start, end=end
-    )
+    return ordered_positions_to_logits(positions, min_spacing=min_spacing, start=start, end=end)
 
 
 def decode_bounded(param: float, *, low: float, high: float) -> float:

@@ -223,9 +223,7 @@ def _write_word_sheet(
         {"text": word, "purpose": "future coverage, intentionally not modeled"}
         for word in cases.get("future_words", [])
     )
-    rows = [
-        _word_case(build.model, case["text"], case.get("purpose", "")) for case in word_cases
-    ]
+    rows = [_word_case(build.model, case["text"], case.get("purpose", "")) for case in word_cases]
 
     font = ImageFont.load_default()
     header_height = 42
@@ -533,9 +531,7 @@ def render_validation(
     before_hashes = _tracked_hashes(bundle)
 
     geometries: tuple[PreviewGeometry, ...] = (
-        ("canonical", "latest-candidate")
-        if geometry == "both"
-        else (geometry,)
+        ("canonical", "latest-candidate") if geometry == "both" else (geometry,)
     )
     builds = [build_fit_preview_model(bundle, geometry=item) for item in geometries]
     glyph_characters = sorted(set().union(*(set(build.model.glyphs) for build in builds)))

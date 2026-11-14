@@ -8,7 +8,6 @@ Open-oval loss regions use crop-local pixel boxes and explicitly name the topolo
 
 `seed-grammar.yaml` contains typed normalized cubic templates, not optimizer state serialized as SVG text. The topology separately encodes shared underturn, hump, and ascender-loop instances for `w`, `h`, and `k`. Entry/exit connectors and the b/k continuations are provisional and are not claims of complete glyph models.
 
-
 `target-inventory.yaml` links the 63 alphabet-and-digit targets to the accepted source-label observations and records each runtime status. The 12 seeded topologies are explicitly incomplete and retain their source observation IDs and known gaps. The numbered stroke-order examples and special-form regions are linked to the source layout, but their paths remain untraced and the special-form labels remain pending review. This inventory does not promote or complete any glyph.
 
 `seed-grammar.yaml` also records the baseline, midline, and attached connection headings and their listed pair examples. Only the baseline and midline headings explicitly preserve one-stroke continuity; terminal/entry modifications, pen lifts, attachment points, and tangents remain unrecorded. Six numbered connection pairs link to declared page regions, but review and geometry transcription remain pending. The source-free connection control sheet shows available runtime pair previews or missing-glyph blockers and uses no connection rules.
@@ -56,7 +55,6 @@ inkgrammar fit report data/training/sas-1968/project.yaml --format markdown
 Underturn fits `i`, validates `u`, and diagnoses the two-part `w` hold-out. Hump fits `n`, validates `m`, and evaluates `h`'s local hump region as hold-out. Ascender-loop fits `l`, validates `b`, and reports local regions for hold-out `h` and `k`. Source-derived region overlays are generated only under ignored `work/sas-1968/overlays/`; review them before promoting provisional transforms or connectors.
 
 See [phase-h-review.md](phase-h-review.md) for the source-free member metrics and private overlay review findings. The underturn `u` fit member worsens, and the ascender-loop hold-outs remain poor; these fits are diagnostic and provisional, not release-ready.
-
 
 ## Current objective-v4 status
 

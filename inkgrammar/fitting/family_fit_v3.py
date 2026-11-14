@@ -1,3 +1,9 @@
+"""Frozen objective-v3 centerline pipeline retained for reproducibility.
+
+Do not add features or new consumers, and do not migrate its skeleton behavior
+to SkeletonPaths.
+"""
+
 from __future__ import annotations
 
 import json

@@ -28,39 +28,39 @@ The benchmark read the already-materialized private SAS data from ignored `work/
 
 Training is shown as best / median / worst fit objective. Candidate and target distances, endpoint RMS, hold-out diagnostic, runtime, and evaluation counts are medians across the five runs. The topology and non-visual columns count passing runs. `Coarse/total evaluations` separates the global seed-search calls from the optimizer's aggregate count.
 
-| Family | Method | Training best / median / worst | Candidate / target p95 (px) | Endpoint RMS (px) | Coverage | Topology | Non-visual gates | Assignment stable | No saturation | Coarse / total evals | Hold-out median, diagnostic | Median seconds |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| underturn | v4 baseline | 2.705 / 2.705 / 2.705 | 5.87 / 1.22 | 7.26 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 0 / 12 | 11.27 | 1.99 |
-| underturn | random restarts | 1.771 / 1.971 / 2.027 | 4.03 / 1.05 | 5.43 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 40 | 12.20 | 6.79 |
-| underturn | differential evolution | 1.820 / 1.958 / 2.026 | 4.01 / 1.01 | 5.31 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 24 / 39 | 12.05 | 6.62 |
-| underturn | SciPy dual annealing | 1.937 / 2.021 / 2.096 | 4.13 / 1.02 | 5.56 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 40 | 12.14 | 6.99 |
-| underturn | InkGrammar annealing | 1.623 / 1.995 / 2.129 | 4.08 / 1.03 | 5.45 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 39 | 12.17 | 7.24 |
-| open oval | v4 baseline | 3.880 / 3.880 / 3.880 | 4.47 / 5.59 | 5.55 | 1.000 | 0/5 | 0/5 | 0/5 | 0/5 | 0 / 8 | 13.23 | 1.98 |
-| open oval | random restarts | 3.648 / 3.695 / 3.858 | 3.90 / 6.41 | 5.91 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 36 | 13.84 | 9.99 |
-| open oval | differential evolution | 3.686 / 3.726 / 3.806 | 3.83 / 6.55 | 5.87 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 24 / 35 | 13.80 | 12.98 |
-| open oval | SciPy dual annealing | 3.569 / 3.827 / 3.927 | 4.17 / 6.07 | 6.35 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 36 | 13.50 | 10.35 |
-| open oval | InkGrammar annealing | 3.640 / 3.713 / 3.889 | 3.69 / 6.91 | 6.05 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 35 | 14.29 | 10.10 |
-| hump | v4 baseline | 5.772 / 5.772 / 5.772 | 8.90 / 8.23 | 30.52 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 0 / 12 | 7.79 | 1.90 |
-| hump | random restarts | 5.437 / 5.879 / 5.903 | 10.14 / 7.69 | 29.94 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 40 | 7.26 | 8.74 |
-| hump | differential evolution | 5.959 / 6.062 / 6.957 | 10.00 / 7.41 | 29.70 | 1.000 | 0/5 | 0/5 | 4/5 | 0/5 | 24 / 39 | 7.19 | 8.17 |
-| hump | SciPy dual annealing | 5.794 / 5.880 / 6.107 | 10.20 / 7.46 | 29.89 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 40 | 7.26 | 6.88 |
-| hump | InkGrammar annealing | 5.737 / 5.797 / 5.921 | 10.03 / 7.81 | 30.06 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 40 | 7.45 | 7.79 |
-| ascender loop | v4 baseline | 11.401 / 11.401 / 11.401 | 32.40 / 3.55 | 36.85 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 0 / 8 | 14.03 | 1.57 |
-| ascender loop | random restarts | 11.257 / 11.389 / 11.495 | 32.01 / 2.93 | 37.57 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 36 | 15.53 | 7.54 |
-| ascender loop | differential evolution | 11.322 / 11.420 / 11.471 | 32.02 / 2.92 | 37.45 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 24 / 35 | 15.68 | 6.26 |
-| ascender loop | SciPy dual annealing | 11.224 / 11.321 / 11.374 | 31.99 / 2.97 | 36.49 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 36 | 14.91 | 6.18 |
-| ascender loop | InkGrammar annealing | 11.305 / 11.408 / 11.449 | 31.98 / 2.95 | 37.51 | 1.000 | 0/5 | 0/5 | 5/5 | 0/5 | 25 / 36 | 15.59 | 6.49 |
+| Family        | Method                 | Training best / median / worst | Candidate / target p95 (px) | Endpoint RMS (px) | Coverage | Topology | Non-visual gates | Assignment stable | No saturation | Coarse / total evals | Hold-out median, diagnostic | Median seconds |
+| ------------- | ---------------------- | -----------------------------: | --------------------------: | ----------------: | -------: | -------: | ---------------: | ----------------: | ------------: | -------------------: | --------------------------: | -------------: |
+| underturn     | v4 baseline            |          2.705 / 2.705 / 2.705 |                 5.87 / 1.22 |              7.26 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |               0 / 12 |                       11.27 |           1.99 |
+| underturn     | random restarts        |          1.771 / 1.971 / 2.027 |                 4.03 / 1.05 |              5.43 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 40 |                       12.20 |           6.79 |
+| underturn     | differential evolution |          1.820 / 1.958 / 2.026 |                 4.01 / 1.01 |              5.31 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              24 / 39 |                       12.05 |           6.62 |
+| underturn     | SciPy dual annealing   |          1.937 / 2.021 / 2.096 |                 4.13 / 1.02 |              5.56 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 40 |                       12.14 |           6.99 |
+| underturn     | InkGrammar annealing   |          1.623 / 1.995 / 2.129 |                 4.08 / 1.03 |              5.45 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 39 |                       12.17 |           7.24 |
+| open oval     | v4 baseline            |          3.880 / 3.880 / 3.880 |                 4.47 / 5.59 |              5.55 |    1.000 |      0/5 |              0/5 |               0/5 |           0/5 |                0 / 8 |                       13.23 |           1.98 |
+| open oval     | random restarts        |          3.648 / 3.695 / 3.858 |                 3.90 / 6.41 |              5.91 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 36 |                       13.84 |           9.99 |
+| open oval     | differential evolution |          3.686 / 3.726 / 3.806 |                 3.83 / 6.55 |              5.87 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              24 / 35 |                       13.80 |          12.98 |
+| open oval     | SciPy dual annealing   |          3.569 / 3.827 / 3.927 |                 4.17 / 6.07 |              6.35 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 36 |                       13.50 |          10.35 |
+| open oval     | InkGrammar annealing   |          3.640 / 3.713 / 3.889 |                 3.69 / 6.91 |              6.05 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 35 |                       14.29 |          10.10 |
+| hump          | v4 baseline            |          5.772 / 5.772 / 5.772 |                 8.90 / 8.23 |             30.52 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |               0 / 12 |                        7.79 |           1.90 |
+| hump          | random restarts        |          5.437 / 5.879 / 5.903 |                10.14 / 7.69 |             29.94 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 40 |                        7.26 |           8.74 |
+| hump          | differential evolution |          5.959 / 6.062 / 6.957 |                10.00 / 7.41 |             29.70 |    1.000 |      0/5 |              0/5 |               4/5 |           0/5 |              24 / 39 |                        7.19 |           8.17 |
+| hump          | SciPy dual annealing   |          5.794 / 5.880 / 6.107 |                10.20 / 7.46 |             29.89 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 40 |                        7.26 |           6.88 |
+| hump          | InkGrammar annealing   |          5.737 / 5.797 / 5.921 |                10.03 / 7.81 |             30.06 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 40 |                        7.45 |           7.79 |
+| ascender loop | v4 baseline            |       11.401 / 11.401 / 11.401 |                32.40 / 3.55 |             36.85 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |                0 / 8 |                       14.03 |           1.57 |
+| ascender loop | random restarts        |       11.257 / 11.389 / 11.495 |                32.01 / 2.93 |             37.57 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 36 |                       15.53 |           7.54 |
+| ascender loop | differential evolution |       11.322 / 11.420 / 11.471 |                32.02 / 2.92 |             37.45 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              24 / 35 |                       15.68 |           6.26 |
+| ascender loop | SciPy dual annealing   |       11.224 / 11.321 / 11.374 |                31.99 / 2.97 |             36.49 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 36 |                       14.91 |           6.18 |
+| ascender loop | InkGrammar annealing   |       11.305 / 11.408 / 11.449 |                31.98 / 2.95 |             37.51 |    1.000 |      0/5 |              0/5 |               5/5 |           0/5 |              25 / 36 |                       15.59 |           6.49 |
 
 ## Guide threshold outcomes
 
 For the candidate-distance comparison, each method's run with the lowest fit objective was selected. The comparison tolerance for target-to-candidate p95 was 2 px, matching the unchanged absolute promotion gate value as a comparison allowance.
 
-| Family | Baseline candidate / target p95 | Annealed candidate / target p95 | Candidate improved | Target change within 2 px | Quality comparison |
-| --- | ---: | ---: | --- | --- | --- |
-| underturn | 5.87 / 1.22 | 3.05 / 1.05 | yes | yes | pass |
-| open oval | 4.47 / 5.59 | 3.32 / 6.91 | yes | yes, +1.32 px | pass |
-| hump | 8.90 / 8.23 | 9.83 / 7.39 | no | yes | fail |
-| ascender loop | 32.40 / 3.55 | 32.05 / 2.86 | yes | yes | pass |
+| Family        | Baseline candidate / target p95 | Annealed candidate / target p95 | Candidate improved | Target change within 2 px | Quality comparison |
+| ------------- | ------------------------------: | ------------------------------: | ------------------ | ------------------------- | ------------------ |
+| underturn     |                     5.87 / 1.22 |                     3.05 / 1.05 | yes                | yes                       | pass               |
+| open oval     |                     4.47 / 5.59 |                     3.32 / 6.91 | yes                | yes, +1.32 px             | pass               |
+| hump          |                     8.90 / 8.23 |                     9.83 / 7.39 | no                 | yes                       | fail               |
+| ascender loop |                    32.40 / 3.55 |                    32.05 / 2.86 | yes                | yes                       | pass               |
 
 The quality-comparison threshold passed for 3/4 families. This does not imply the absolute geometry gates passed. Across all 100 runs, the automatic-gate true counts were: assigned coverage 100/100, assignment stability 94/100, target-to-candidate p95 25/100, candidate-to-target p95 0/100, supervised endpoint RMS 0/100, topology match 0/100, and no transform saturation 0/100. No method/family group had all non-visual gates pass in any of its five runs.
 

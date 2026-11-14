@@ -27,9 +27,7 @@ TRUE_GEOMETRY = CurvatureStrokeGeometry.model_validate(
 )
 
 
-def _transformed_occurrence(
-    scale: float, rotation_deg: float, dx: float, dy: float, *, seed: int
-):
+def _transformed_occurrence(scale: float, rotation_deg: float, dx: float, dy: float, *, seed: int):
     points = evaluate_curvature_stroke(TRUE_GEOMETRY, count=257).xy
     angle = np.deg2rad(rotation_deg)
     rotation = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])

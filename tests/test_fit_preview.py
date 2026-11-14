@@ -103,9 +103,7 @@ def test_canonical_preview_matches_compiler_policy_without_writing_model(monkeyp
     assert model_path.read_bytes() == original_model
 
 
-def test_latest_candidate_preview_uses_candidates_without_promoting_reports(
-    monkeypatch
-):
+def test_latest_candidate_preview_uses_candidates_without_promoting_reports(monkeypatch):
     bundle = load_fit_project(PROJECT)
     reports = _reports(bundle)
     monkeypatch.setattr(compiler, "load_fit_reports", lambda _: reports)
@@ -121,19 +119,14 @@ def test_latest_candidate_preview_uses_candidates_without_promoting_reports(
     assert candidate.model.provenance["canonical"] is False
     assert candidate.model.provenance["unpromoted"] is True
     assert candidate.model.provenance["primitive_geometry"] == {
-        **{
-            primitive_id: "latest-candidate"
-            for primitive_id in CANDIDATE_PRIMITIVES
-        },
+        **{primitive_id: "latest-candidate" for primitive_id in CANDIDATE_PRIMITIVES},
         **{
             primitive_id: "seed-fallback"
             for primitive_id in set(candidate.diagnostics["primitive_geometry"])
             - CANDIDATE_PRIMITIVES
         },
     }
-    assert all(
-        report["visual_review"]["status"] == "promotion_pending" for report in reports
-    )
+    assert all(report["visual_review"]["status"] == "promotion_pending" for report in reports)
     assert all(
         detail["visual_review_status"] == "promotion_pending"
         for detail in candidate.diagnostics["fit_reports"].values()

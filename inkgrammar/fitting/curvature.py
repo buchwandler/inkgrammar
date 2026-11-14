@@ -88,30 +88,26 @@ def evaluate_curvature_stroke(
     )
 
 
-def trajectory_end_pose(
-    geometry: CurvatureStrokeGeometry, *, count: int = 256
-) -> StrokePose:
+def trajectory_end_pose(geometry: CurvatureStrokeGeometry, *, count: int = 256) -> StrokePose:
     return evaluate_curvature_stroke(geometry, count=count).end_pose
 
 
-def trajectory_total_turn(
-    geometry: CurvatureStrokeGeometry, *, count: int = 256
-) -> float:
+def trajectory_total_turn(geometry: CurvatureStrokeGeometry, *, count: int = 256) -> float:
     if isinstance(count, bool) or count < 2:
         raise ValueError("count must be at least 2")
     return _trajectory_total_turn(to_planar_trajectory(geometry))
 
 
 def sample_curvature_stroke(
-    geometry: CurvatureStrokeGeometry, *, count: int = 256, samples: int = 64
+    geometry: CurvatureStrokeGeometry, *, samples: int = 64, tolerance: float = 1e-10
 ) -> np.ndarray:
     return sample_trajectory_by_arclength(
-        to_planar_trajectory(geometry), samples, integration_count=count
+        to_planar_trajectory(geometry), samples, tolerance=tolerance
     )
 
 
 def evaluate_stroke_at(
-    geometry: CurvatureStrokeGeometry, u: np.ndarray, *, base_count: int = 257
+    geometry: CurvatureStrokeGeometry, u: np.ndarray, *, tolerance: float = 1e-10
 ) -> tuple[np.ndarray, np.ndarray]:
     values = np.asarray(u, dtype=float)
     if values.ndim != 1 or values.size == 0:
@@ -122,9 +118,7 @@ def evaluate_stroke_at(
         or np.any(np.diff(values) < 0.0)
     ):
         raise ValueError("u must be ascending inside [0, 1]")
-    return _evaluate_trajectory_at(
-        to_planar_trajectory(geometry), values, base_count=base_count
-    )
+    return _evaluate_trajectory_at(to_planar_trajectory(geometry), values, tolerance=tolerance)
 
 
 def curvature_to_cubic_segments(
@@ -136,9 +130,7 @@ def curvature_to_cubic_segments(
     """Adapt planarcurve's tolerance-driven path to InkGrammar segment models."""
     if not np.isfinite(max_u_step) or max_u_step <= 0.0:
         raise ValueError("max_u_step must be positive and finite")
-    path = trajectory_to_cubic_path(
-        to_planar_trajectory(geometry), max_error=tolerance
-    )
+    path = trajectory_to_cubic_path(to_planar_trajectory(geometry), max_error=tolerance)
     segments = []
     start = np.asarray(path.start, dtype=float)
 
@@ -154,8 +146,6 @@ def curvature_to_cubic_segments(
         append_with_step_limit(right, depth - 1)
 
     for segment in path.segments:
-        append_with_step_limit(
-            CubicBezier(start, segment.c1, segment.c2, segment.end), 16
-        )
+        append_with_step_limit(CubicBezier(start, segment.c1, segment.c2, segment.end), 16)
         start = np.asarray(segment.end, dtype=float)
     return segments

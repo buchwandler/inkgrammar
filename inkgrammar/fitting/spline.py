@@ -117,9 +117,7 @@ def _cubic_chain_values(
         if selected.size == 0:
             continue
         controls = affine.apply(
-            np.asarray(
-                [starts[index], segment.c1, segment.c2, segment.end], dtype=float
-            )
+            np.asarray([starts[index], segment.c1, segment.c2, segment.end], dtype=float)
         )
         curve = CubicBezier(*(tuple(point) for point in controls))
         sample_parameters = local[selected]
@@ -151,9 +149,7 @@ def evaluate_primitive_curve(
         transform=_to_affine(transform),
         derivatives=derivatives,
     )
-    return CurveEvaluation(
-        evaluated.u, evaluated.xy, evaluated.tangent, evaluated.curvature
-    )
+    return CurveEvaluation(evaluated.u, evaluated.xy, evaluated.tangent, evaluated.curvature)
 
 
 def sample_curve_by_arclength(
@@ -169,9 +165,7 @@ def sample_curve_by_arclength(
         evaluated = _sample_bspline_by_arclength(
             to_planar_bspline(primitive.spline), count, transform=_to_affine(transform)
         )
-        return CurveEvaluation(
-            evaluated.u, evaluated.xy, evaluated.tangent, evaluated.curvature
-        )
+        return CurveEvaluation(evaluated.u, evaluated.xy, evaluated.tangent, evaluated.curvature)
     dense_u = np.linspace(0.0, 1.0, max(1024, count * 32))
     dense = evaluate_primitive_curve(primitive, transform, dense_u, derivatives=False).xy
     arc = cumulative_arclength(dense)
@@ -190,10 +184,5 @@ def spline_to_cubic_segments(
     *,
     tolerance: float = 1e-8,
 ) -> list[CubicSegment]:
-    segments = _spline_to_cubic_segments(
-        to_planar_bspline(geometry), tolerance=tolerance
-    )
-    return [
-        CubicSegment(c1=segment.c1, c2=segment.c2, end=segment.end)
-        for segment in segments
-    ]
+    segments = _spline_to_cubic_segments(to_planar_bspline(geometry), tolerance=tolerance)
+    return [CubicSegment(c1=segment.c1, c2=segment.c2, end=segment.end) for segment in segments]

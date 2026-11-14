@@ -37,6 +37,10 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     objective = ObjectiveConfig.model_validate(fit_config["objective"])
     optimizer = OptimizerConfig.model_validate(fit_config["optimizer"])
 
+    run_config = FitRunConfig.model_validate(fit_config)
+    bounded_run_config = FitRunConfig.model_validate(
+        read_yaml(PROJECT_DIR / "fit-config-bounded.yaml")
+    )
     assert project.runtime_model_id == "sas-1968"
     assert project.compile.runtime_schema_version == 3
     assert (PROJECT_DIR / project.private_work_dir).resolve() == (ROOT / "work" / "sas-1968")
@@ -49,6 +53,10 @@ def test_training_project_files_validate_and_resolve_relative_paths():
     assert optimizer.seed == 1968
     assert optimizer.method == "spline-annealed-alt-lsq"
     assert optimizer.anneal_steps == 240
+    assert run_config.skeletonpaths.search_limits.max_paths == 10000
+    assert run_config.skeletonpaths.ranking_policy.guide_samples == 64
+    assert bounded_run_config.skeletonpaths.search_limits.max_paths == 10000
+    assert run_config.model_dump(mode="json")["skeletonpaths"] == fit_config["skeletonpaths"]
     assert set(topology.glyphs) <= {sample.text for sample in corpus.samples}
     assert all(
         part.primitive in grammar.primitives
@@ -132,9 +140,7 @@ def test_compositional_families_isolate_w_h_k_and_local_responsibility():
     grammar = ScriptGrammar.model_validate(read_yaml(PROJECT_DIR / "seed-grammar.yaml"))
     samples = {sample.text: sample for sample in corpus.samples}
     family_by_id = {family.id: family for family in families.families}
-    assert {
-        family.id: family.validation for family in families.families
-    } == {
+    assert {family.id: family.validation for family in families.families} == {
         "sas-underturn-01": ["sas1968-alphabet-U+0075"],
         "sas-open-oval-01": ["sas1968-alphabet-U+0061"],
         "sas-ascender-loop-01": ["sas1968-alphabet-U+0062"],
@@ -205,6 +211,10 @@ def test_objective_v3_rejects_unsupported_optimizer_settings():
     with pytest.raises(ValueError, match="does not support optimizer settings"):
         FitRunConfig.model_validate(config)
 
+    config["optimizer"] = {"method": "centerline-em-trf"}
+    config["skeletonpaths"] = {}
+    with pytest.raises(ValueError, match="require objective v4"):
+        FitRunConfig.model_validate(config)
 
 
 def test_objective_v4_accepts_annealed_method_and_rejects_annealing_settings_on_baseline():
@@ -218,8 +228,19 @@ def test_objective_v4_accepts_annealed_method_and_rejects_annealing_settings_on_
             "anneal_top_k": 2,
         },
         "split_policy": {"fit": "fit", "validation": "diagnostic", "hold-out": "report"},
+        "skeletonpaths": {
+            "search_limits": {"max_paths": 17, "max_states": 23},
+            "ranking_policy": {"guide_samples": 8},
+        },
     }
     validated = FitRunConfig.model_validate(config)
+    assert validated.skeletonpaths.search_limits.max_paths == 17
+    assert validated.skeletonpaths.search_limits.max_states == 23
+    assert validated.skeletonpaths.ranking_policy.guide_samples == 8
+    assert validated.model_dump(mode="json")["skeletonpaths"]["search_limits"] == {
+        "max_paths": 17,
+        "max_states": 23,
+    }
     assert validated.optimizer.method == "spline-annealed-alt-lsq"
     config["optimizer"] = {
         "method": "dual-annealing+spline-alt-lsq",

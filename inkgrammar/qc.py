@@ -359,7 +359,6 @@ def _validate_writing_model_v2(model: WritingModel) -> QCReport:
     )
 
 
-
 def validate_runtime_model_v3(model: WritingModelV3) -> QCReport:
     issues: list[Issue] = []
     source_ids = [source.id for source in model.sources]

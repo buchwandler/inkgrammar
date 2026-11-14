@@ -152,6 +152,12 @@ without human review.
 
 InkGrammar uses PlanarCurve for continuous curve geometry, polyline operations, transforms, and fitting. SkeletonPaths owns raster skeleton graphs, topology routes, and route ranking. SkeletonPaths paths are neutral `(x, y)` geometry; route orientation and ambiguity do not establish physical stroke direction. `inkgrammar.fitting.skeleton_graph` remains only as a compatibility re-export.
 
+| Responsibility                                                   | Owning package | InkGrammar boundary                                       |
+| ---------------------------------------------------------------- | -------------- | --------------------------------------------------------- |
+| SVG parsing, curve operations, transforms, and polyline sampling | PlanarCurve    | Coordinate frames and fitting-domain adapters             |
+| Raster skeleton graphs, topology routes, and route ranking       | SkeletonPaths  | Evidence status and reviewed physical-order annotations   |
+| Variable-width outlines, caps, joins, and contour composition    | StrokeOutline  | Shaped-text traversal and per-stroke width-profile lookup |
+
 ## Stroke outlining
 
 `inkgrammar.outline` is a compatibility adapter over `strokeoutline`. It keeps traversal of `ShapedText` and per-stroke width-profile lookup in InkGrammar; centerline expansion and point-disc geometry live in StrokeOutline. InkGrammar retains the `OutlineConfig(round_caps=...)` constructor and maps it to StrokeOutline cap styles.

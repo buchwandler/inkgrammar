@@ -84,7 +84,6 @@ explicit compatibility range and `git_commit` through `build_release`.
 Rights notices are not a rights clearance. Do not publish a reconstructed SAS
 model while its model-data license or derivation rights remain unresolved.
 
-
 ## SAS-1968 dataset pipeline
 
 The private SAS workspace is organized as a four-layer evidence chain (source

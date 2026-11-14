@@ -61,7 +61,6 @@ regions:
       Example group 3 as numbered on the page; the arrow mark below the pair
       is a printed annotation mark and is excluded from the region.
 
-
   - id: word-03-do
     kind: word
     label: Do

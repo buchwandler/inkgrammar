@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from skeletonpaths import PathRankingPolicy, PathSearchLimits
 
 from inkgrammar.fitting.family_fit_v4 import (
     MonotoneCurveCorrespondence,
@@ -105,7 +106,7 @@ def test_topology_target_extracts_an_ordered_confidence_weighted_curve():
         min_spur_length_px=0.0,
     )
 
-    target, graph, path = extract_observed_curve(
+    selected = extract_observed_curve(
         mask,
         min_spur_length_px=0.0,
         expected_cycles=0,
@@ -115,9 +116,13 @@ def test_topology_target_extracts_an_ordered_confidence_weighted_curve():
         sample_count=31,
     )
 
+    target, graph, path = selected.curve, selected.graph, selected.path
     assert graph.endpoint_count == 2
     assert graph is prepared.graph
     assert path.start_node != path.end_node
+    assert selected.feasible_path_count >= 1
+    assert isinstance(selected.route_ambiguous, bool)
+    assert isinstance(selected.orientation_ambiguous, bool)
     assert np.all(np.diff(target.u) > 0.0)
     assert target.xy.shape == (31, 2)
     assert np.any(target.confidence < 1.0)
@@ -289,7 +294,6 @@ def test_width_profile_is_separate_from_centerline_shape():
     )
 
 
-
 def prepared_target_from_graph(graph):
     shape = (9, 9)
     return PreparedTopologyTarget(
@@ -305,9 +309,9 @@ def prepared_target_from_graph(graph):
 def incidental_cycle_graph():
     return SkeletonGraph(
         nodes=(
-            SkeletonNode(0, (1.0, 2.0), degree=1, radius=1.0, confidence=1.0),
-            SkeletonNode(1, (4.0, 2.0), degree=3, radius=1.0, confidence=1.0),
-            SkeletonNode(2, (7.0, 2.0), degree=1, radius=1.0, confidence=1.0),
+            SkeletonNode(0, (1.0, 2.0), degree=1, radius_px=1.0, confidence=1.0),
+            SkeletonNode(1, (4.0, 2.0), degree=3, radius_px=1.0, confidence=1.0),
+            SkeletonNode(2, (7.0, 2.0), degree=1, radius_px=1.0, confidence=1.0),
         ),
         edges=(
             SkeletonEdge(0, 1, np.array([[1.0, 2.0], [4.0, 2.0]]), 3.0, 1.0, 1.0),
@@ -348,11 +352,10 @@ def test_declared_open_topology_returns_finite_penalty_for_incidental_graph_cycl
     assert result.diagnostics["orientation_ambiguous"] is False
     assert result.diagnostics["path_score"]["guide_distance_px"] >= 0.0
 
+
 def test_candidate_self_intersection_does_not_change_declared_open_topology():
     prepared = prepared_target_from_graph(incidental_cycle_graph())
-    candidate = np.array(
-        [[1.0, 3.0], [5.0, 3.0], [5.0, 1.0], [3.0, 5.0], [7.0, 5.0]]
-    )
+    candidate = np.array([[1.0, 3.0], [5.0, 3.0], [5.0, 1.0], [3.0, 5.0], [7.0, 5.0]])
 
     result = evaluate_topology_path(
         prepared,
@@ -424,3 +427,47 @@ def test_family_search_energy_rejects_nonfinite_or_negative_terms():
         evaluate_family_search_energy([float("nan")])
     with pytest.raises(ValueError, match="finite and nonnegative"):
         evaluate_family_search_energy([-0.1])
+
+
+def test_topology_preparation_respects_requested_kinds_and_policy(monkeypatch):
+    from inkgrammar.fitting import family_fit_v4 as family_fit_v4_module
+
+    mask = np.zeros((15, 15), dtype=bool)
+    mask[2:13, 7] = True
+    candidate = np.column_stack((np.full(11, 7.0), np.arange(2.0, 13.0)))
+    limits = PathSearchLimits(max_paths=32, max_states=1000)
+    policy = PathRankingPolicy(guide_samples=12)
+    prepared = prepare_topology_target(
+        mask,
+        min_spur_length_px=0.0,
+        path_kinds=("open",),
+        search_limits=limits,
+        ranking_policy=policy,
+    )
+
+    assert tuple(prepared.path_inventory.paths_by_kind) == ("open",)
+    assert prepared.search_limits == limits
+    assert prepared.ranking_policy == policy
+    rank_calls = []
+    select_calls = []
+    original_rank_paths = family_fit_v4_module.rank_paths
+    original_select_path = family_fit_v4_module.select_path
+
+    def capture_rank_paths(*args, **kwargs):
+        rank_calls.append((kwargs["policy"], kwargs["limits"]))
+        return original_rank_paths(*args, **kwargs)
+
+    def capture_select_path(*args, **kwargs):
+        select_calls.append((kwargs["policy"], kwargs["limits"]))
+        return original_select_path(*args, **kwargs)
+
+    monkeypatch.setattr(family_fit_v4_module, "rank_paths", capture_rank_paths)
+    monkeypatch.setattr(family_fit_v4_module, "select_path", capture_select_path)
+    result = evaluate_topology_path(
+        prepared, FamilyTopology(path_kind="open", expected_cycles=0), candidate
+    )
+
+    assert result.path is not None
+    assert rank_calls == [(policy, limits)]
+    assert select_calls == [(policy, limits)]
+    assert result.diagnostics["prepared_path_kinds"] == ["open"]

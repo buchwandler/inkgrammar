@@ -46,7 +46,6 @@ class CleanupRecord(StrictModel):
     removed_components: list[RemovedComponent] = Field(default_factory=list)
 
 
-
 class IsolationComponent(StrictModel):
     bbox: tuple[int, int, int, int]
     area: int
@@ -106,6 +105,7 @@ def isolate_target_ink(
             )
         )
     return candidate, IsolationProposal(center=center, components=records)
+
 
 @dataclass(frozen=True)
 class PreprocessResult:

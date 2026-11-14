@@ -67,6 +67,7 @@ class OptimizerConfig(StrictModel):
             raise ValueError("annealing refinement cycles must be nondecreasing")
         return self
 
+
 @dataclass(frozen=True)
 class OptimizationResult:
     parameter_names: tuple[str, ...]

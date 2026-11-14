@@ -13,6 +13,7 @@ from inkgrammar.fitting.annealing import (
 def test_annealing_is_deterministic_and_keeps_compact_summary():
     def objective(parameters):
         return float(np.sum((parameters - 0.25) ** 2))
+
     config = AnnealingConfig(steps=30, initial_samples=12, cooling=0.95)
     arguments = (np.zeros(3), [(-1.0, 1.0)] * 3, objective)
 
@@ -45,6 +46,7 @@ def test_temperature_calibration_uses_median_uphill_energy():
 def test_annealing_accepts_an_uphill_barrier_move_and_finds_lower_basin():
     def objective(parameters):
         return float((parameters[0] ** 2 - 1.0) ** 2 - 0.2 * parameters[0])
+
     samples = 8
     calls = 0
 

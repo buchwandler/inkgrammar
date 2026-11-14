@@ -6,16 +6,22 @@ from math import sqrt
 from typing import Any, Literal
 
 import numpy as np
+from planarcurve.polyline import polyline_length, resample_polyline_by_arclength, unit_tangents
 from scipy.ndimage import distance_transform_edt
 from scipy.optimize import least_squares
 from skeletonpaths import (
+    DEFAULT_RANKING_POLICY,
+    DEFAULT_SEARCH_LIMITS,
+    PathRankingPolicy,
+    PathSearchLimits,
+    PathSelection,
     SkeletonGraph,
     SkeletonPath,
     TopologyPathInventory,
     build_skeleton_graph,
     prepare_topology_paths,
-    rank_topology_paths,
-    select_topology_path,
+    rank_paths,
+    select_path,
 )
 
 from .annealing import AnnealingConfig, simulated_annealing
@@ -44,6 +50,7 @@ class ObservedCurve:
     ambiguous: np.ndarray
     supervise_endpoints: bool = True
 
+
 @dataclass(frozen=True)
 class PreparedTopologyTarget:
     mask: np.ndarray
@@ -52,12 +59,35 @@ class PreparedTopologyTarget:
     radius_map: np.ndarray
     confidence_map: np.ndarray
     min_spur_length_px: float
+    search_limits: PathSearchLimits = DEFAULT_SEARCH_LIMITS
+    ranking_policy: PathRankingPolicy = DEFAULT_RANKING_POLICY
+
+
+_FALLBACK_PATH_KINDS = {
+    "open": ("open", "open-with-loop", "loop"),
+    "loop": ("loop", "open-with-loop", "open"),
+    "open-with-loop": ("open-with-loop", "open", "loop"),
+}
+
+
 @dataclass(frozen=True)
 class TopologyPathResult:
     path: SkeletonPath | None
     exact_match: bool
     topology_penalty: float
     diagnostics: dict[str, Any]
+    selection: PathSelection | None = None
+
+
+@dataclass(frozen=True)
+class SelectedObservedCurve:
+    curve: ObservedCurve
+    graph: SkeletonGraph
+    path: SkeletonPath
+    route_ambiguous: bool
+    orientation_ambiguous: bool
+    feasible_path_count: int
+
 
 class NoTopologyPathError(ValueError):
     """Raised when no observed skeleton path can support a local fit."""
@@ -173,10 +203,6 @@ def evaluate_family_search_energy(
     )
 
 
-
-
-
-
 @dataclass(frozen=True)
 class MonotoneCurveCorrespondence:
     candidate_indices: np.ndarray
@@ -211,18 +237,12 @@ def _sample_polyline(points: np.ndarray, count: int) -> tuple[np.ndarray, np.nda
         raise ValueError("observed curve sample count must be at least two")
     if points.ndim != 2 or points.shape[1] != 2 or not np.isfinite(points).all():
         raise ValueError("observed path must contain finite xy points")
-    lengths = np.linalg.norm(np.diff(points, axis=0), axis=1)
-    cumulative = np.concatenate(([0.0], np.cumsum(lengths)))
-    keep = np.concatenate(([True], np.diff(cumulative) > 1e-12))
-    cumulative = cumulative[keep]
-    points = points[keep]
-    if len(points) < 2 or cumulative[-1] <= 1e-12:
+    total_length = polyline_length(points)
+    if len(points) < 2 or total_length <= 1e-12:
         raise ValueError("observed path must have positive length")
     parameters = np.linspace(0.0, 1.0, count)
-    distances = parameters * cumulative[-1]
-    sampled = np.column_stack(
-        [np.interp(distances, cumulative, points[:, axis]) for axis in range(2)]
-    )
+    distances = parameters * total_length
+    sampled = resample_polyline_by_arclength(points, count)
     return parameters, sampled, distances
 
 
@@ -232,6 +252,13 @@ def prepare_topology_target(
     confidence: np.ndarray | None = None,
     radius: np.ndarray | None = None,
     min_spur_length_px: float = 3.0,
+    path_kinds: tuple[Literal["open", "loop", "open-with-loop"], ...] = (
+        "open",
+        "loop",
+        "open-with-loop",
+    ),
+    search_limits: PathSearchLimits = DEFAULT_SEARCH_LIMITS,
+    ranking_policy: PathRankingPolicy = DEFAULT_RANKING_POLICY,
 ) -> PreparedTopologyTarget:
     """Build the candidate-independent graph, path inventory, and target maps once."""
     mask = np.asarray(target_mask, dtype=bool)
@@ -266,10 +293,12 @@ def prepare_topology_target(
     return PreparedTopologyTarget(
         mask=mask,
         graph=graph,
-        path_inventory=prepare_topology_paths(graph),
+        path_inventory=prepare_topology_paths(graph, path_kinds=path_kinds, limits=search_limits),
         radius_map=radius_map,
         confidence_map=confidence_map,
         min_spur_length_px=min_spur_length_px,
+        search_limits=search_limits,
+        ranking_policy=ranking_policy,
     )
 
 
@@ -284,11 +313,11 @@ def extract_observed_curve(
     expected_endpoints: tuple[tuple[float, float] | None, tuple[float, float] | None] | None = None,
     candidate_xy: np.ndarray | None = None,
     prepared_target: PreparedTopologyTarget | None = None,
-    preselected_path: SkeletonPath | None = None,
+    preselected_selection: PathSelection | None = None,
     endpoint_tolerance_px: float = 4.0,
     sample_count: int = 128,
-) -> tuple[ObservedCurve, SkeletonGraph, SkeletonPath]:
-    """Build an ordered, confidence-weighted curve from a topology-selected skeleton path."""
+) -> SelectedObservedCurve:
+    """Build a curve and retain the topology selection's ambiguity metadata."""
     mask = np.asarray(target_mask, dtype=bool)
     if mask.ndim != 2 or not np.any(mask):
         raise ValueError("target mask must be a nonempty two-dimensional image")
@@ -309,7 +338,7 @@ def extract_observed_curve(
     confidence_map = prepared_target.confidence_map
     radius_map = prepared_target.radius_map
     graph = prepared_target.graph
-    path = preselected_path or select_topology_path(
+    selection = preselected_selection or select_path(
         graph,
         path_kind=path_kind,
         expected_cycles=expected_cycles,
@@ -317,16 +346,12 @@ def extract_observed_curve(
         endpoint_tolerance_px=endpoint_tolerance_px,
         candidate_xy=candidate_xy,
         path_inventory=prepared_target.path_inventory,
+        policy=prepared_target.ranking_policy,
+        limits=prepared_target.search_limits,
     )
+    path = selection.path
     u, xy, _ = _sample_polyline(path.xy, sample_count)
-    tangents = np.gradient(xy, axis=0)
-    tangent_lengths = np.linalg.norm(tangents, axis=1)
-    tangents = np.divide(
-        tangents,
-        tangent_lengths[:, None],
-        out=np.zeros_like(tangents),
-        where=tangent_lengths[:, None] > 1e-12,
-    )
+    tangents = _unit_tangents(xy)
     columns = np.clip(np.rint(xy[:, 0]).astype(int), 0, mask.shape[1] - 1)
     rows = np.clip(np.rint(xy[:, 1]).astype(int), 0, mask.shape[0] - 1)
     sample_confidence = confidence_map[rows, columns] * path.confidence
@@ -337,31 +362,28 @@ def extract_observed_curve(
         for x, y in (xy[0], xy[-1])
     )
     supervise_endpoints = bool(np.all(sample_confidence[[0, -1]] > 0.0) and not endpoints_on_border)
-    return (
-        ObservedCurve(
-            u=u,
-            xy=xy,
-            tangent=tangents,
-            radius=sample_radius,
-            confidence=sample_confidence,
-            source_indices=rows * mask.shape[1] + columns,
-            ambiguous=ambiguous,
-            supervise_endpoints=supervise_endpoints,
-        ),
-        graph,
-        path,
+    curve = ObservedCurve(
+        u=u,
+        xy=xy,
+        tangent=tangents,
+        radius=sample_radius,
+        confidence=sample_confidence,
+        source_indices=rows * mask.shape[1] + columns,
+        ambiguous=ambiguous,
+        supervise_endpoints=supervise_endpoints,
+    )
+    return SelectedObservedCurve(
+        curve=curve,
+        graph=graph,
+        path=path,
+        route_ambiguous=selection.ambiguous,
+        orientation_ambiguous=selection.orientation_ambiguous,
+        feasible_path_count=selection.feasible_path_count,
     )
 
 
 def _unit_tangents(points: np.ndarray) -> np.ndarray:
-    tangent = np.gradient(points, axis=0)
-    length = np.linalg.norm(tangent, axis=1)
-    return np.divide(
-        tangent,
-        length[:, None],
-        out=np.zeros_like(tangent),
-        where=length[:, None] > 1e-12,
-    )
+    return unit_tangents(points)
 
 
 def monotone_curve_correspondence(
@@ -871,20 +893,22 @@ def evaluate_topology_path(
     if not np.isfinite(candidate).all():
         raise ValueError("candidate curve must contain finite xy points")
 
-    fallback_kinds = {
-        "open": ("open", "open-with-loop", "loop"),
-        "loop": ("loop", "open-with-loop", "open"),
-        "open-with-loop": ("open-with-loop", "open", "loop"),
-    }
+    if expected_topology.path_kind not in prepared_target.path_inventory.paths_by_kind:
+        raise ValueError("prepared topology target omits the expected path kind")
+    fallback_kinds = _FALLBACK_PATH_KINDS
     candidate_intersections = int(_has_polyline_self_intersection(candidate))
     ranked = []
     for path_kind in fallback_kinds[expected_topology.path_kind]:
-        paths = rank_topology_paths(
+        if path_kind not in prepared_target.path_inventory.paths_by_kind:
+            continue
+        paths = rank_paths(
             prepared_target.graph,
             path_kind=path_kind,
             endpoint_tolerance_px=endpoint_tolerance_px,
             candidate_xy=candidate,
             path_inventory=prepared_target.path_inventory,
+            policy=prepared_target.ranking_policy,
+            limits=prepared_target.search_limits,
         )
         for path in paths:
             expected_endpoints = 0 if expected_topology.path_kind == "loop" else 2
@@ -911,12 +935,12 @@ def evaluate_topology_path(
                 "endpoint_count": 10.0 * endpoint_mismatch,
                 "self_intersection": 10.0 * intersection_mismatch,
                 "path_kind": 20.0 * path_kind_mismatch,
-                "ambiguous_path": 5.0 * int(path.ambiguous),
             }
             penalty = float(sum(penalty_terms.values()))
             path_score = path.score
             diagnostics = {
                 "expected_path_kind": expected_topology.path_kind,
+                "prepared_path_kinds": list(prepared_target.path_inventory.paths_by_kind),
                 "selected_path_kind": path_kind,
                 "observed_graph_cycles": prepared_target.graph.cycle_count,
                 "selected_path_cycles": path.cycle_count,
@@ -929,11 +953,9 @@ def evaluate_topology_path(
                 "selected_path_self_intersections": int(_has_polyline_self_intersection(path.xy)),
                 "self_intersection_mismatch": intersection_mismatch,
                 "path_kind_mismatch": bool(path_kind_mismatch),
-                "ambiguous": path.ambiguous,
-                "orientation_ambiguous": path.orientation_ambiguous,
                 "path_score": {
                     "guide_distance_px": path_score.guide_distance_px,
-                    "endpoint_orientation_error_px": path_score.endpoint_orientation_error_px,
+                    "endpoint_order_error_px": path_score.endpoint_order_error_px,
                     "measured_confidence": path_score.measured_confidence,
                     "length_error_px": path_score.length_error_px,
                     "turning_cost": path_score.turning_cost,
@@ -942,24 +964,21 @@ def evaluate_topology_path(
                 "penalty_terms": penalty_terms,
                 "penalty": penalty,
             }
-            exact_match = (
-                penalty == 0.0
-                and path_kind == expected_topology.path_kind
-                and not path.ambiguous
-            )
+            exact_match = penalty == 0.0 and path_kind == expected_topology.path_kind
             ranked.append(
                 (
                     penalty,
                     round(path_score.guide_distance_px, 9)
                     if path_score.guide_distance_px is not None
                     else 0.0,
-                    path_score.endpoint_orientation_error_px
-                    if path_score.endpoint_orientation_error_px is not None
+                    path_score.endpoint_order_error_px
+                    if path_score.endpoint_order_error_px is not None
                     else 0.0,
                     -path_score.measured_confidence,
                     path_score.length_error_px if path_score.length_error_px is not None else 0.0,
                     path_score.turning_cost if path_score.turning_cost is not None else 0.0,
                     path.edge_ids,
+                    path_kind,
                     path,
                     exact_match,
                     diagnostics,
@@ -969,6 +988,7 @@ def evaluate_topology_path(
     if not ranked:
         diagnostics = {
             "expected_path_kind": expected_topology.path_kind,
+            "prepared_path_kinds": list(prepared_target.path_inventory.paths_by_kind),
             "selected_path_kind": None,
             "observed_graph_cycles": prepared_target.graph.cycle_count,
             "selected_path_cycles": None,
@@ -983,6 +1003,7 @@ def evaluate_topology_path(
             "path_kind_mismatch": False,
             "ambiguous": False,
             "orientation_ambiguous": False,
+            "feasible_path_count": 0,
             "path_score": None,
             "no_path": True,
             "penalty_terms": {"no_path": no_path_penalty},
@@ -992,7 +1013,28 @@ def evaluate_topology_path(
 
     ranked.sort(key=lambda item: item[:7])
     best = ranked[0]
-    return TopologyPathResult(best[7], best[8], best[0], best[9])
+    selection = select_path(
+        prepared_target.graph,
+        path_kind=best[7],
+        endpoint_tolerance_px=endpoint_tolerance_px,
+        candidate_xy=candidate,
+        path_inventory=prepared_target.path_inventory,
+        policy=prepared_target.ranking_policy,
+        limits=prepared_target.search_limits,
+    )
+    diagnostics = {
+        **best[10],
+        "ambiguous": selection.ambiguous,
+        "orientation_ambiguous": selection.orientation_ambiguous,
+        "feasible_path_count": selection.feasible_path_count,
+    }
+    return TopologyPathResult(
+        selection.path,
+        best[9] and not selection.ambiguous,
+        best[0],
+        diagnostics,
+        selection,
+    )
 
 
 def optimize_primitive_family_v4(
@@ -1163,13 +1205,16 @@ def optimize_primitive_family_v4(
             item.key: prepare_topology_target(
                 masks[item.key],
                 min_spur_length_px=objective.centerline.min_spur_length_px,
+                path_kinds=_FALLBACK_PATH_KINDS[family_topology.path_kind],
+                search_limits=bundle.fit_config.skeletonpaths.search_limits,
+                ranking_policy=bundle.fit_config.skeletonpaths.ranking_policy,
             )
             for item in raw_occurrences
         }
         topology_diagnostics = {}
         sample_count = [objective.centerline.sample_schedule[-1]]
         reference_selected_edges = {}
-        fallback_paths = {}
+        fallback_selections: dict[str, PathSelection] = {}
 
         def update(curve_template, current_states):
             targets = {}
@@ -1190,28 +1235,25 @@ def optimize_primitive_family_v4(
                     cycle_penalty=optimizer.anneal_topology_penalty,
                     no_path_penalty=optimizer.anneal_no_path_penalty,
                 )
-                selected_path = topology_result.path
-                if selected_path is None:
-                    selected_path = fallback_paths.get(item.key)
-                if selected_path is None:
+                selection = topology_result.selection or fallback_selections.get(item.key)
+                if selection is None:
                     raise NoTopologyPathError(
                         f"no plausible topology path for occurrence {item.key}"
                     )
-                fallback_paths.setdefault(item.key, selected_path)
-                path_kind = family_topology.path_kind
-                expected_endpoints = None
-                target, graph, path = extract_observed_curve(
+                fallback_selections.setdefault(item.key, selection)
+                selected = extract_observed_curve(
                     masks[item.key],
                     min_spur_length_px=objective.centerline.min_spur_length_px,
                     prepared_target=prepared_targets[item.key],
-                    path_kind=path_kind,
-                    preselected_path=selected_path,
-                    expected_endpoints=expected_endpoints,
+                    path_kind=family_topology.path_kind,
+                    preselected_selection=selection,
                     candidate_xy=candidate_xy,
                     endpoint_tolerance_px=max(4.0, 2.0 * objective.assignment.sigma_px),
                     sample_count=max(32, min(256, sample_count[0])),
                 )
-                targets[item.key] = target
+                targets[item.key] = selected.curve
+                path = selected.path
+                graph = selected.graph
                 selected_edges = tuple(path.edge_ids)
                 reference_edges = reference_selected_edges.get(item.key)
                 if reference_edges is None:
@@ -1242,8 +1284,9 @@ def optimize_primitive_family_v4(
                     "endpoint_count": graph.endpoint_count,
                     "junction_count": graph.junction_count,
                     "selected_edges": list(selected_edges),
-                    "ambiguous": path.ambiguous,
-                    "alternatives": path.alternatives,
+                    "ambiguous": selected.route_ambiguous,
+                    "orientation_ambiguous": selected.orientation_ambiguous,
+                    "feasible_path_count": selected.feasible_path_count,
                     "confidence": float(path.confidence),
                 }
             return targets
@@ -1496,6 +1539,7 @@ def optimize_primitive_family_v4(
                 coarse_fit_evaluations += 1
             coarse_records.append(record)
             return record["energy"].total
+
         annealing_config = AnnealingConfig(
             steps=optimizer.anneal_steps,
             initial_samples=optimizer.anneal_initial_samples,
@@ -1567,9 +1611,7 @@ def optimize_primitive_family_v4(
             search_metadata = {
                 "method": "inkgrammar-random-restarts",
                 "evaluations": float(len(random_parameters)),
-                "best_energy": float(
-                    min(record["energy"].total for record in coarse_records)
-                ),
+                "best_energy": float(min(record["energy"].total for record in coarse_records)),
             }
         search_metadata["coarse_fit_evaluations"] = float(coarse_fit_evaluations)
         ranked_coarse = sorted(
@@ -1643,7 +1685,6 @@ def optimize_primitive_family_v4(
         template = fit.geometry
         states = fit.states
         final_targets = target_update(template, states)
-    
 
     if not initial_targets:
         initial_targets = target_update(base_template, base_states)
@@ -1853,10 +1894,7 @@ def optimize_primitive_family_v4(
     topology_match = all(
         item["component_count"] == item["expected_component_count"]
         and item["selected_endpoint_count"] == item["expected_endpoint_count"]
-        and (
-            item["expected_cycles"] is None
-            or item["selected_cycles"] == item["expected_cycles"]
-        )
+        and (item["expected_cycles"] is None or item["selected_cycles"] == item["expected_cycles"])
         and (
             item["expected_self_intersections"] is None
             or (
@@ -1995,9 +2033,7 @@ def optimize_primitive_family_v4(
     }
 
     final_parameters = parameter_map(template, states)
-    checkpoint_evaluations = (
-        search_evaluation_count + fit.assignment_cycles * len(occurrences)
-    )
+    checkpoint_evaluations = search_evaluation_count + fit.assignment_cycles * len(occurrences)
     if checkpoint is None:
         checkpoint = FitCheckpoint(
             project_id=bundle.project.id,
@@ -2079,9 +2115,7 @@ def optimize_primitive_family_v4(
                     else 0.0
                 ),
                 "seed_search_steps": float(
-                    annealing_metadata.get("steps", 0.0)
-                    if annealing_metadata is not None
-                    else 0.0
+                    annealing_metadata.get("steps", 0.0) if annealing_metadata is not None else 0.0
                 ),
                 "seed_search_accepted_moves": float(
                     annealing_metadata.get("accepted_moves", 0.0)
@@ -2104,6 +2138,7 @@ def optimize_primitive_family_v4(
     )
     save_checkpoint(checkpoint, checkpoint_path)
 
+    skeletonpaths_settings = bundle.fit_config.skeletonpaths.model_dump(mode="json")
     report = {
         "format": "inkgrammar-fit-report",
         "format_version": 4,
@@ -2111,6 +2146,7 @@ def optimize_primitive_family_v4(
         "stage": stage,
         "primitive_id": primitive_id,
         "objective_version": objective.version,
+        "skeletonpaths": skeletonpaths_settings,
         "selection_objective": {
             "kind": "symmetric dense centerline distance p95",
             "total": float(final_score),
@@ -2180,6 +2216,11 @@ def optimize_primitive_family_v4(
         f"# Fit report: {primitive_id}",
         "",
         "Objective version: 4",
+        "",
+        "## SkeletonPaths configuration",
+        "",
+        f"Search limits: {skeletonpaths_settings['search_limits']}",
+        f"Ranking policy: {skeletonpaths_settings['ranking_policy']}",
         "",
         f"Training objective: {initial_score:.6f} to {final_score:.6f}",
         f"Assignment changes: {fit.assignment_cycles}, final fraction {fit.assignment_change:.6f}",

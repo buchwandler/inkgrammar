@@ -177,7 +177,6 @@ def test_compiler_supports_explicit_schema_v2_output(monkeypatch, tmp_path):
     assert loaded.glyphs["a"].forms["default"].advance_width == 500
 
 
-
 def test_compiler_converts_fit_units_to_runtime_and_scales_advances(monkeypatch, tmp_path):
     bundle = bundle_for(tmp_path)
     bundle.project.compile = FitCompileConfig(
@@ -215,9 +214,8 @@ def test_compiler_converts_fit_units_to_runtime_and_scales_advances(monkeypatch,
         == result.diagnostics["coordinate_conversion"]
     )
     assert result.diagnostics["coordinate_conversion"]["runtime_units_per_fit_unit"] == 2
-    assert (
-        result.diagnostics["scale_sanity"]["a"]["a.default"]["ink_bbox_height"]
-        == pytest.approx(200)
+    assert result.diagnostics["scale_sanity"]["a"]["a.default"]["ink_bbox_height"] == pytest.approx(
+        200
     )
 
 

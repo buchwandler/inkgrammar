@@ -118,9 +118,7 @@ def apply_review_patch(
         effective["fitting_status"] = patch_set.fitting_status
     metric_fields = ("baseline_y", "x_height_y", "cap_height_y", "ascender_y", "descender_y")
     metrics = {
-        key: value
-        for key in metric_fields
-        if (value := getattr(patch_set, key)) is not None
+        key: value for key in metric_fields if (value := getattr(patch_set, key)) is not None
     }
     if metrics:
         effective.setdefault("metrics", {})
@@ -214,11 +212,15 @@ def _render_observation_sheet(dataset_root: Path, record: dict, output_dir: Path
 
     artifacts = record["artifacts"]
     crop = Image.open(dataset_root / artifacts["crop"])
-    clean = Image.open(dataset_root / artifacts["clean_mask"]).convert("L").point(
-        lambda value: 255 - value
+    clean = (
+        Image.open(dataset_root / artifacts["clean_mask"])
+        .convert("L")
+        .point(lambda value: 255 - value)
     )
-    normalized = Image.open(dataset_root / artifacts["normalized"]).convert("L").point(
-        lambda value: 255 - value
+    normalized = (
+        Image.open(dataset_root / artifacts["normalized"])
+        .convert("L")
+        .point(lambda value: 255 - value)
     )
 
     sheet = Image.new("RGB", (PANEL_SIZE * 3, PANEL_SIZE + TEXT_HEIGHT), SHEET_BACKGROUND)
@@ -231,7 +233,6 @@ def _render_observation_sheet(dataset_root: Path, record: dict, output_dir: Path
     draw = ImageDraw.Draw(sheet)
     centerline_path = (record.get("derived") or {}).get("centerline", {}).get("path")
     if centerline_path is not None:
-
         candidates = json.loads((dataset_root / centerline_path).read_text(encoding="utf-8"))[
             "candidates"
         ]
@@ -272,12 +273,8 @@ def _render_observation_sheet(dataset_root: Path, record: dict, output_dir: Path
     scale, offset_x, offset_y = panels[2]
     baseline_y = PREVIEW_BASELINE * scale + offset_y
     x_height_y = (PREVIEW_BASELINE - PREVIEW_UNIT) * scale + offset_y
-    draw.line(
-        (2 * PANEL_SIZE, baseline_y, 3 * PANEL_SIZE, baseline_y), fill=(0, 160, 0), width=1
-    )
-    draw.line(
-        (2 * PANEL_SIZE, x_height_y, 3 * PANEL_SIZE, x_height_y), fill=(0, 0, 220), width=1
-    )
+    draw.line((2 * PANEL_SIZE, baseline_y, 3 * PANEL_SIZE, baseline_y), fill=(0, 160, 0), width=1)
+    draw.line((2 * PANEL_SIZE, x_height_y, 3 * PANEL_SIZE, x_height_y), fill=(0, 0, 220), width=1)
 
     metrics = record.get("metrics") or {}
     text_lines = [

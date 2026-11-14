@@ -41,7 +41,7 @@ def test_noisy_synthetic_recovery():
     assert result.metrics["endpoint_tangent_error_deg"] <= 5.0
     assert result.metrics["total_turn_error_deg"] <= 3.0
 
-    assert abs(result.geometry.start_angle_deg - 40.0) <= 6.0
+    assert abs(result.geometry.start_angle_deg + result.transform.rotation_deg - 40.0) <= 6.0
     # control points are not uniquely identifiable (rates compensate locally);
     # the identifiable parameters are the start angle and the total turn
     fitted_positions = [change.at for change in result.geometry.curvature.changes]
@@ -57,4 +57,4 @@ def test_recovery_without_noise_matches_geometry():
     assert result.metrics["median_position_error"] <= 0.003
     assert result.metrics["endpoint_error"] <= 0.005
     assert result.metrics["total_turn_error_deg"] <= 1.0
-    assert abs(result.geometry.start_angle_deg - 40.0) <= 3.0
+    assert abs(result.geometry.start_angle_deg + result.transform.rotation_deg - 40.0) <= 3.0

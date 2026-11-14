@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from planarcurve.polyline import unit_tangents as planar_unit_tangents
 
 from .centerline import TargetTrace
 
@@ -17,14 +18,9 @@ class MonotoneCorrespondence:
 
 
 def _unit_tangents(points: np.ndarray) -> np.ndarray:
-    tangents = np.gradient(points, axis=0)
-    norms = np.linalg.norm(tangents, axis=1)
-    return np.divide(
-        tangents,
-        norms[:, None],
-        out=np.zeros_like(tangents),
-        where=norms[:, None] > 1e-9,
-    )
+    tangents = planar_unit_tangents(points)
+    significant = np.linalg.norm(np.gradient(points, axis=0), axis=1) > 1e-9
+    return np.where(significant[:, None], tangents, 0.0)
 
 
 def monotone_correspondence(

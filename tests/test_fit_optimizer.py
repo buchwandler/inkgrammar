@@ -225,7 +225,6 @@ def test_spline_alt_lsq_configuration_exposes_alternating_cycle_controls():
     assert config.assignment_update_interval == 1
 
 
-
 def test_annealed_spline_optimizer_settings_are_bounded_and_validated():
     config = OptimizerConfig(method="spline-annealed-alt-lsq")
 

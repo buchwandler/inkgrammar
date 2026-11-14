@@ -96,7 +96,6 @@ def test_load_model_rejects_unknown_schema_version(tmp_path):
         load_model(path)
 
 
-
 def test_runtime_qc_dispatches_sas_v3_and_reports_incomplete_coverage():
     model_path = Path(__file__).parents[1] / "data/models/sas-1968.yaml"
     model = load_model(model_path)

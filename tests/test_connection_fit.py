@@ -142,3 +142,56 @@ def test_workspace_rejects_connection_split_mismatch():
         _validate_connection_observations(
             [connection], {source_observation.id: source_observation}, [sample]
         )
+
+
+def test_connection_fit_preserves_point_sample_centerline_distance(monkeypatch):
+    from types import SimpleNamespace
+
+    import numpy as np
+    from planarcurve.polyline import distance_to_polyline
+    from scipy.spatial import cKDTree
+
+    import inkgrammar.fitting.connection_fit as connection_fit
+
+    candidate = np.asarray([[0.0, 0.0], [5.0, 0.0], [10.0, 0.0]])
+    target = np.asarray([[2.0, 1.0], [8.0, 1.0]])
+    record = observation()
+    record = record.model_copy(
+        update={
+            "target_geometry": record.target_geometry.model_copy(
+                update={"centerline": target.tolist()}
+            )
+        }
+    )
+
+    def evaluate_without_optimization(residuals, initial_adjustment):
+        values = residuals(np.zeros(2))
+        return SimpleNamespace(fun=values, x=np.zeros(2))
+
+    monkeypatch.setattr(connection_fit, "least_squares", evaluate_without_optimization)
+    left, right = endpoints()
+    fitted = fit_connection_observation(
+        record,
+        left,
+        right,
+        generated_centerline=candidate.tolist(),
+        weights=ConnectionFitWeights(
+            anchor_position=0,
+            tangent=0,
+            centerline=1,
+            width=0,
+            gap=0,
+            rule_prior=0,
+        ),
+    )
+
+    point_sample_distances = np.concatenate(
+        (cKDTree(target).query(candidate)[0], cKDTree(candidate).query(target)[0])
+    )
+    continuous_segment_distances = np.concatenate(
+        (distance_to_polyline(candidate, target), distance_to_polyline(target, candidate))
+    )
+    assert fitted.objective == pytest.approx(point_sample_distances @ point_sample_distances)
+    assert fitted.objective != pytest.approx(
+        continuous_segment_distances @ continuous_segment_distances
+    )

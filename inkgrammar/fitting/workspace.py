@@ -14,6 +14,7 @@ import numpy as np
 import yaml
 from PIL import Image, ImageDraw, ImageFont
 from pydantic import Field, model_validator
+from skeletonpaths import PathRankingPolicy, PathSearchLimits
 
 from ..models import StrictModel
 from ..observations import ObservationManifest
@@ -42,10 +43,16 @@ class FitRenderConfig(StrictModel):
     supersampling: int = Field(default=4, ge=1)
 
 
+class SkeletonPathsConfig(StrictModel):
+    search_limits: PathSearchLimits = Field(default_factory=PathSearchLimits)
+    ranking_policy: PathRankingPolicy = Field(default_factory=PathRankingPolicy)
+
+
 class FitRunConfig(StrictModel):
     format: str
     format_version: int = Field(gt=0)
     objective: ObjectiveConfig
+    skeletonpaths: SkeletonPathsConfig = Field(default_factory=SkeletonPathsConfig)
     optimizer: OptimizerConfig
     split_policy: FitSplitPolicy
     render: FitRenderConfig = Field(default_factory=FitRenderConfig)
@@ -54,6 +61,8 @@ class FitRunConfig(StrictModel):
     def validate_format(self) -> FitRunConfig:
         if self.format != "inkgrammar-fit-config" or self.format_version != 1:
             raise ValueError("unsupported fitting configuration format")
+        if self.objective.version != 4 and "skeletonpaths" in self.model_fields_set:
+            raise ValueError("SkeletonPaths settings require objective v4")
         if self.objective.version == 3:
             if self.optimizer.method != "centerline-em-trf":
                 raise ValueError("objective v3 requires optimizer method centerline-em-trf")

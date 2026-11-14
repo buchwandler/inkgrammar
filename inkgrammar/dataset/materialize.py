@@ -98,8 +98,14 @@ def _thin_zhang_suen(mask: np.ndarray) -> np.ndarray:
         for phase in (0, 1):
             padded = np.pad(image, 1)
             offsets = {
-                "p2": (-1, 0), "p3": (-1, 1), "p4": (0, 1), "p5": (1, 1),
-                "p6": (1, 0), "p7": (1, -1), "p8": (0, -1), "p9": (-1, -1),
+                "p2": (-1, 0),
+                "p3": (-1, 1),
+                "p4": (0, 1),
+                "p5": (1, 1),
+                "p6": (1, 0),
+                "p7": (1, -1),
+                "p8": (0, -1),
+                "p9": (-1, -1),
             }
             p = {
                 name: padded[1 + dy : 1 + dy + image.shape[0], 1 + dx : 1 + dx + image.shape[1]]
@@ -109,8 +115,14 @@ def _thin_zhang_suen(mask: np.ndarray) -> np.ndarray:
             transitions = sum(
                 (~p[a] & p[b]).astype(int)
                 for a, b in (
-                    ("p2", "p3"), ("p3", "p4"), ("p4", "p5"), ("p5", "p6"),
-                    ("p6", "p7"), ("p7", "p8"), ("p8", "p9"), ("p9", "p2"),
+                    ("p2", "p3"),
+                    ("p3", "p4"),
+                    ("p4", "p5"),
+                    ("p5", "p6"),
+                    ("p6", "p7"),
+                    ("p7", "p8"),
+                    ("p8", "p9"),
+                    ("p9", "p2"),
                 )
             )
             if phase == 0:
@@ -194,10 +206,6 @@ def _pixel_neighbors(
     )
 
 
-
-
-
-
 def _chain_graph(
     pixel_set: set[tuple[int, int]], adjacency: dict
 ) -> tuple[set, list[tuple]] | None:
@@ -228,9 +236,7 @@ def _chain_graph(
     return nodes, chains
 
 
-def _euler_path(
-    pixel_set: set[tuple[int, int]], adjacency: dict
-) -> list[tuple[int, int]] | None:
+def _euler_path(pixel_set: set[tuple[int, int]], adjacency: dict) -> list[tuple[int, int]] | None:
     """Chinese-Postman walk over the chain graph covering every skeleton edge.
 
     Nodes (ends and junctions) are chained into edges; odd-degree nodes are
@@ -249,9 +255,7 @@ def _euler_path(
         incident[first].append((index, second))
         if second != first:
             incident[second].append((index, first))
-    ends = sorted(
-        (node for node in nodes if len(incident[node]) == 1), key=lambda p: (p[1], p[0])
-    )
+    ends = sorted((node for node in nodes if len(incident[node]) == 1), key=lambda p: (p[1], p[0]))
     if len(ends) >= 2:
         start, goal = ends[0], ends[-1]
     else:
@@ -296,9 +300,7 @@ def _euler_path(
             best = None
             for first_index in range(len(remaining)):
                 for second_index in range(first_index + 1, len(remaining)):
-                    distance = len(
-                        node_path(remaining[first_index], remaining[second_index])
-                    )
+                    distance = len(node_path(remaining[first_index], remaining[second_index]))
                     if best is None or distance < best[0]:
                         best = (distance, first_index, second_index)
             _, first_index, second_index = best
@@ -477,8 +479,8 @@ def derive_artifacts(clean_mask: np.ndarray) -> dict[str, dict]:
             if previous is not None:
                 step_y, step_x = current[0] - previous[0], current[1] - previous[1]
                 options.sort(
-                    key=lambda other: -(
-                        (other[0] - current[0]) * step_y + (other[1] - current[1]) * step_x
+                    key=lambda other: (
+                        -((other[0] - current[0]) * step_y + (other[1] - current[1]) * step_x)
                     )
                 )
             next_pixel = options[0]
@@ -647,9 +649,7 @@ def _row_centers(
     width, height = source_size
     bbox = detection["bbox"]
     row_y = (row.y[0] + row.y[1]) / 2 * height
-    points = [
-        (center * width - bbox[0], row_y - bbox[1]) for center in row.centers
-    ]
+    points = [(center * width - bbox[0], row_y - bbox[1]) for center in row.centers]
     own = detection["index"]
     neighbors = tuple(point for index, point in enumerate(points) if index != own)
     left_fence = (points[own - 1][0] + points[own][0]) / 2 if own > 0 else -1.0

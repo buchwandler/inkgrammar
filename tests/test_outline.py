@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 
 import pytest
+from planarcurve import CubicPath, CubicSegment
 from strokeoutline import (
     OutlineConfig as StrokeOutlineConfig,
 )
@@ -12,6 +13,7 @@ from strokeoutline import (
     outline_disc,
     signed_area,
 )
+from strokeoutline import outline as strokeoutline_outline
 from strokeoutline.svg import outline_svg_path
 
 from inkgrammar.outline import (
@@ -181,3 +183,16 @@ def test_shaped_text_uses_per_stroke_tap_profile_and_combines_bounds():
     expected = combine_outlines((outline_svg_path("M 0 0 L 10 0", 2.0), outline_disc((15, 0), 6.0)))
 
     assert result == expected
+
+
+def test_typed_cubic_path_uses_strokeoutline_native_api():
+    path = CubicPath(
+        (0.0, 0.0),
+        (CubicSegment((0.0, 10.0), (10.0, 10.0), (10.0, 0.0)),),
+    )
+    config = OutlineConfig(max_centerline_error=0.1)
+
+    result = expand_path(path, 4.0, config=config)
+
+    assert result == strokeoutline_outline(path, 4.0, config=config.to_strokeoutline())
+    assert_closed_and_finite(result)

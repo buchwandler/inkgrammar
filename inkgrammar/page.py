@@ -331,9 +331,7 @@ def extract_annotated_region_page(
     detections = []
     for region in layout.regions:
         annotation_names = sorted(
-            name
-            for name in region.subregions
-            if name.startswith(ANNOTATION_SUBREGION_PREFIX)
+            name for name in region.subregions if name.startswith(ANNOTATION_SUBREGION_PREFIX)
         )
         if annotation_names and INK_SUBREGION not in region.subregions:
             raise ValueError(

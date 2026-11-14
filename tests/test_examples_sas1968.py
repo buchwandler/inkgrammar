@@ -85,14 +85,17 @@ def test_example_outputs_show_full_coverage_words_and_reloadable_preview(tmp_pat
     assert manifest["connected_writing"] is False
     assert manifest["source_free"] is True
     assert manifest["canonical_model_modified"] is False
-    assert all((output / name).is_file() for name in (
-        "manifest.json",
-        "01-alphabet.png",
-        "01-alphabet.json",
-        "02-supported-glyphs.png",
-        "03-words.png",
-        "model-preview.yaml",
-    ))
+    assert all(
+        (output / name).is_file()
+        for name in (
+            "manifest.json",
+            "01-alphabet.png",
+            "01-alphabet.json",
+            "02-supported-glyphs.png",
+            "03-words.png",
+            "model-preview.yaml",
+        )
+    )
     assert len(list((output / "debug").glob("*.svg"))) == 6
     preview_model = load_model(output / "model-preview.yaml")
     assert preview_model.provenance["preview_geometry"] == "canonical"
@@ -105,8 +108,6 @@ def test_example_outputs_show_full_coverage_words_and_reloadable_preview(tmp_pat
     assert all(row["missing"] for row in words[6:])
     with Image.open(output / "03-words.png") as image:
         assert ImageOps.invert(image.convert("L")).getbbox() is not None
-
-
 
 
 def test_word_preflight_blocks_unsupported_text_without_partial_image():
@@ -195,9 +196,12 @@ def test_both_mode_comparisons_use_common_dimensions_and_report_candidate_state(
         detail["visual_review_status"] == "promotion_pending"
         for detail in candidate_manifest["fit_reports"].values()
     )
-    assert yaml.safe_load(
-        (output / "latest-candidate" / "model-preview.yaml").read_text()
-    )["provenance"]["unpromoted"] is True
+    assert (
+        yaml.safe_load((output / "latest-candidate" / "model-preview.yaml").read_text())[
+            "provenance"
+        ]["unpromoted"]
+        is True
+    )
     for left_name, right_name in (
         ("01-alphabet.png", "01-alphabet.png"),
         ("02-supported-glyphs.png", "02-supported-glyphs.png"),

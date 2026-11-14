@@ -9,7 +9,7 @@ glyphs:
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0043
+      - U+0043
     variants:
       C.default:
         advance_width: 608.0645161290323
@@ -18,25 +18,26 @@ glyphs:
         exit: null
         id: C.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 561.29 462.766 C 318.57 701.613 0 298.559 15.17 149.279 C 45.51 0
-              333.74 74.6397 470.27 194.063
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 561.29 462.766 C 318.57 701.613 0 298.559 15.17 149.279 C 45.51 0
+                  333.74 74.6397 470.27 194.063
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   a:
     character: a
     default_variant: a.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0061
+      - U+0061
     variants:
       a.default:
         advance_width: 608.0645161290323
@@ -45,25 +46,26 @@ glyphs:
         exit: null
         id: a.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 596.371 269.947 C 368.821 409.274 70.1613 174.159 84.3832 87.0796
-              C 112.827 0 383.043 43.5398 511.04 113.204
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 596.371 269.947 C 368.821 409.274 70.1613 174.159 84.3832 87.0796
+                  C 112.827 0 383.043 43.5398 511.04 113.204
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   b:
     character: b
     default_variant: b.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0062
+      - U+0062
     variants:
       b.default:
         advance_width: 608.0645161290323
@@ -72,27 +74,28 @@ glyphs:
         exit: null
         id: b.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 0 0 C 162.569 124.479 401.003 477.172 411.841 539.412 C 444.355 643.145
-              303.462 560.159 238.434 394.186 C 173.407 228.213 86.7034 0 173.407
-              0 C 275.726 0 334.193 189.435 304.959 294.677 C 421.895 378.871 465.746
-              168.387 465.746 0
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 0 0 C 162.569 124.479 401.003 477.172 411.841 539.412 C 444.355 643.145
+                  303.462 560.159 238.434 394.186 C 173.407 228.213 86.7034 0 173.407
+                  0 C 275.726 0 334.193 189.435 304.959 294.677 C 421.895 378.871 465.746
+                  168.387 465.746 0
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   c:
     character: c
     default_variant: c.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0063
+      - U+0063
     variants:
       c.default:
         advance_width: 537.9032258064516
@@ -101,25 +104,26 @@ glyphs:
         exit: null
         id: c.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 526.21 269.947 C 298.66 409.274 0 174.159 14.2219 87.0796 C 42.6656
-              0 312.882 43.5398 440.878 113.204
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 526.21 269.947 C 298.66 409.274 0 174.159 14.2219 87.0796 C 42.6656
+                  0 312.882 43.5398 440.878 113.204
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   h:
     character: h
     default_variant: h.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0068
+      - U+0068
     variants:
       h.default:
         advance_width: 608.0645161290323
@@ -128,27 +132,28 @@ glyphs:
         exit: null
         id: h.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 0 0 C 128.344 124.479 316.581 477.172 325.138 539.412 C 350.806 643.145
-              239.575 560.159 188.237 394.186 C 136.9 228.213 68.4501 0 136.9 0 C
-              227.431 114.012 317.961 275.529 397.175 285.03 C 487.706 304.032 419.808
-              114.012 363.227 0 C 408.832 -35.081 469.639 -112.259 515.243 -140.323
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 0 0 C 128.344 124.479 316.581 477.172 325.138 539.412 C 350.806 643.145
+                  239.575 560.159 188.237 394.186 C 136.9 228.213 68.4501 0 136.9 0 C
+                  227.431 114.012 317.961 275.529 397.175 285.03 C 487.706 304.032 419.808
+                  114.012 363.227 0 C 408.832 -35.081 469.639 -112.259 515.243 -140.323
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   i:
     character: i
     default_variant: i.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0069
+      - U+0069
     variants:
       i.default:
         advance_width: 444.35483870967744
@@ -157,25 +162,26 @@ glyphs:
         exit: null
         id: i.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 409.274 444.355 C 261.156 277.722 -35.0806 41.6583 113.037 27.7722
-              C 201.908 0 320.403 55.5444 409.274 124.975
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 409.274 444.355 C 261.156 277.722 -35.0806 41.6583 113.037 27.7722
+                  C 201.908 0 320.403 55.5444 409.274 124.975
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   k:
     character: k
     default_variant: k.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+006B
+      - U+006B
     variants:
       k.default:
         advance_width: 701.6129032258065
@@ -184,27 +190,28 @@ glyphs:
         exit: null
         id: k.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 0 0 C 154.013 117.69 379.898 451.144 390.165 509.99 C 420.968 608.065
-              287.49 529.605 225.885 372.685 C 164.28 215.765 82.1401 0 164.28 0 C
-              303.434 157.863 482.345 298.185 561.861 263.105 C 462.466 192.944 343.192
-              70.1613 442.587 0
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 0 0 C 154.013 117.69 379.898 451.144 390.165 509.99 C 420.968 608.065
+                  287.49 529.605 225.885 372.685 C 164.28 215.765 82.1401 0 164.28 0 C
+                  303.434 157.863 482.345 298.185 561.861 263.105 C 462.466 192.944 343.192
+                  70.1613 442.587 0
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   l:
     character: l
     default_variant: l.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+006C
+      - U+006C
     variants:
       l.default:
         advance_width: 561.2903225806451
@@ -213,26 +220,27 @@ glyphs:
         exit: null
         id: l.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M -23.3871 0 C 169.129 126.743 451.485 485.848 464.319 549.22 C 502.823
-              654.839 335.976 570.344 258.969 401.353 C 181.963 232.362 79.288 0 181.963
-              0 C 280.189 -52.621 411.157 -168.387 509.383 -210.484
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M -23.3871 0 C 169.129 126.743 451.485 485.848 464.319 549.22 C 502.823
+                  654.839 335.976 570.344 258.969 401.353 C 181.963 232.362 79.288 0 181.963
+                  0 C 280.189 -52.621 411.157 -168.387 509.383 -210.484
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   m:
     character: m
     default_variant: m.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+006D
+      - U+006D
     variants:
       m.default:
         advance_width: 736.6935483870967
@@ -241,38 +249,39 @@ glyphs:
         exit: null
         id: m.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M -70.1613 0 C -40.9274 11.6935 11.6935 58.4677 46.7742 116.935
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
-        - id: body.1
-          parts:
-          - attach: true
-            d: M -70.1613 0 C 20.3696 131.552 110.9 317.918 190.114 328.881 C 280.645
-              350.806 212.747 131.552 156.165 0 C 246.696 131.552 337.226 317.918
-              416.44 328.881 C 506.971 350.806 439.073 131.552 382.492 0 C 435.113
-              -35.081 505.274 -112.259 557.895 -140.323
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d: M -70.1613 0 C -40.9274 11.6935 11.6935 58.4677 46.7742 116.935
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
+          - id: body.1
+            parts:
+              - attach: true
+                d:
+                  M -70.1613 0 C 20.3696 131.552 110.9 317.918 190.114 328.881 C 280.645
+                  350.806 212.747 131.552 156.165 0 C 246.696 131.552 337.226 317.918
+                  416.44 328.881 C 506.971 350.806 439.073 131.552 382.492 0 C 435.113
+                  -35.081 505.274 -112.259 557.895 -140.323
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   n:
     character: n
     default_variant: n.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+006E
+      - U+006E
     variants:
       n.default:
         advance_width: 526.2096774193549
@@ -281,37 +290,38 @@ glyphs:
         exit: null
         id: n.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M -46.7742 0 C -23.3871 8.18548 18.7097 40.9274 46.7742 81.8548
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
-        - id: body.1
-          parts:
-          - attach: true
-            d: M -46.7742 0 C 70.9159 135.938 188.606 328.516 291.584 339.844 C 409.274
-              362.5 321.007 135.938 247.45 0 C 293.055 -35.081 353.861 -112.259 399.466
-              -140.323
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d: M -46.7742 0 C -23.3871 8.18548 18.7097 40.9274 46.7742 81.8548
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
+          - id: body.1
+            parts:
+              - attach: true
+                d:
+                  M -46.7742 0 C 70.9159 135.938 188.606 328.516 291.584 339.844 C 409.274
+                  362.5 321.007 135.938 247.45 0 C 293.055 -35.081 353.861 -112.259 399.466
+                  -140.323
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   u:
     character: u
     default_variant: u.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0075
+      - U+0075
     variants:
       u.default:
         advance_width: 654.8387096774194
@@ -320,26 +330,27 @@ glyphs:
         exit: null
         id: u.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 350.806 374.194 C 233.871 233.871 0 35.0806 116.935 23.3871 C 187.097
-              0 280.645 46.7742 350.806 105.242 C 233.871 -35.081 -5.68434e-14 -233.871
-              116.935 -245.565 C 187.096 -268.952 280.645 -222.178 350.806 -163.71
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 350.806 374.194 C 233.871 233.871 0 35.0806 116.935 23.3871 C 187.097
+                  0 280.645 46.7742 350.806 105.242 C 233.871 -35.081 -5.68434e-14 -233.871
+                  116.935 -245.565 C 187.096 -268.952 280.645 -222.178 350.806 -163.71
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
   w:
     character: w
     default_variant: w.default
     provenance:
       topology_review_status: provisional
     unicode:
-    - U+0077
+      - U+0077
     variants:
       w.default:
         advance_width: 701.6129032258065
@@ -348,19 +359,20 @@ glyphs:
         exit: null
         id: w.default
         strokes:
-        - id: body
-          parts:
-          - attach: true
-            d: M 374.194 315.726 C 249.462 197.329 0 29.5993 124.731 19.7329 C 199.57
-              0 299.355 39.4657 374.194 88.7979 C 249.463 -29.5991 0.001 -197.329
-              124.732 -207.195 C 199.57 -226.928 299.356 -187.462 374.194 -138.13
-            transform:
-              dx: 0.0
-              dy: 0.0
-              scale_x: 1.0
-              scale_y: 1.0
-              shear_x: 0.0
-          role: body
+          - id: body
+            parts:
+              - attach: true
+                d:
+                  M 374.194 315.726 C 249.462 197.329 0 29.5993 124.731 19.7329 C 199.57
+                  0 299.355 39.4657 374.194 88.7979 C 249.463 -29.5991 0.001 -197.329
+                  124.732 -207.195 C 199.57 -226.928 299.356 -187.462 374.194 -138.13
+                transform:
+                  dx: 0.0
+                  dy: 0.0
+                  scale_x: 1.0
+                  scale_y: 1.0
+                  shear_x: 0.0
+            role: body
 id: sas-1968
 languages: []
 license: NOASSERTION

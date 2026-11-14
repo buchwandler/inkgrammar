@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from planarcurve.polyline import resample_polyline_by_arclength
+from planarcurve.polyline import unit_tangents as planar_unit_tangents
 
 from ..geometry import sample_path
 from .models import OccurrenceDelta, TopologyTransform, compose_occurrence_transform
@@ -30,14 +32,9 @@ def sample_path_by_arclength(
     points = np.asarray(sample_path(path, samples_per_curve=samples_per_curve), dtype=float)
     if points.ndim != 2 or points.shape[1] != 2 or len(points) < 2:
         raise ValueError("path must contain at least two two-dimensional samples")
-    lengths = np.linalg.norm(np.diff(points, axis=0), axis=1)
-    cumulative = np.concatenate(([0.0], np.cumsum(lengths)))
-    if cumulative[-1] <= 0:
+    if np.linalg.norm(np.diff(points, axis=0), axis=1).sum() <= 0:
         raise ValueError("path must have positive arc length")
-    targets = np.linspace(0.0, cumulative[-1], sample_count)
-    return np.column_stack(
-        [np.interp(targets, cumulative, points[:, dimension]) for dimension in range(2)]
-    )
+    return resample_polyline_by_arclength(points, sample_count)
 
 
 def path_points_in_image(
@@ -109,7 +106,7 @@ def normal_track_ink(
     widths = np.zeros(len(points), dtype=float)
     radius = expected_stroke_width * search_scale
     offsets = np.arange(-radius, radius + sample_step * 0.5, sample_step)
-    tangents = np.gradient(points, axis=0)
+    tangents = planar_unit_tangents(points)
 
     for index, (point, tangent) in enumerate(zip(points, tangents, strict=True)):
         length = float(np.linalg.norm(tangent))

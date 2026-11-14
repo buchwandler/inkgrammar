@@ -1,5 +1,19 @@
 format: inkgrammar-fit-config
 format_version: 1
+skeletonpaths:
+  search_limits:
+    max_paths: 10000
+    max_states: 100000
+  ranking_policy:
+    guide_samples: 64
+    turning_samples: 64
+    guide_tie_tolerance_px: 1.0e-9
+    ambiguity_guide_distance_px: 0.5
+    ambiguity_endpoint_order_px: 0.5
+    ambiguity_confidence: 0.05
+    ambiguity_length_error_px: 1.0
+    ambiguity_turning_cost: 0.1
+    turning_cost_is_evidence: false
 objective:
   version: 4
   curve:

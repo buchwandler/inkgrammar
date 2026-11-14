@@ -875,7 +875,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "b", "right_label": "a", "sequence_text": "ba"},
+      "relations": {
+        "left_label": "b",
+        "right_label": "a",
+        "sequence_text": "ba"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,
@@ -896,7 +900,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "b", "right_label": "e", "sequence_text": "be"},
+      "relations": {
+        "left_label": "b",
+        "right_label": "e",
+        "sequence_text": "be"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,
@@ -917,7 +925,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "H", "right_label": "e", "sequence_text": "He"},
+      "relations": {
+        "left_label": "H",
+        "right_label": "e",
+        "sequence_text": "He"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,
@@ -938,7 +950,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "D", "right_label": "o", "sequence_text": "Do"},
+      "relations": {
+        "left_label": "D",
+        "right_label": "o",
+        "sequence_text": "Do"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,
@@ -959,7 +975,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "J", "right_label": "g", "sequence_text": "Jg"},
+      "relations": {
+        "left_label": "J",
+        "right_label": "g",
+        "sequence_text": "Jg"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,
@@ -980,7 +1000,11 @@
       "label_source": "declared-layout-region",
       "review_status": "pending",
       "fitting_status": "pending",
-      "relations": {"left_label": "B", "right_label": "e", "sequence_text": "Be"},
+      "relations": {
+        "left_label": "B",
+        "right_label": "e",
+        "sequence_text": "Be"
+      },
       "extraction": {
         "extractor": "region-layout-v1",
         "extractor_version": 1,

@@ -246,9 +246,7 @@ def test_change_position_round_trip_preserves_order_and_spacing():
     )
 
 
-@pytest.mark.parametrize(
-    "logits", [[-100.0, 100.0], [5.0, -5.0, 3.0], [0.0, 0.0, 0.0, 0.0]]
-)
+@pytest.mark.parametrize("logits", [[-100.0, 100.0], [5.0, -5.0, 3.0], [0.0, 0.0, 0.0, 0.0]])
 def test_change_positions_are_ordered_by_construction(logits):
     from inkgrammar.fitting.trajectory_parameterization import decode_change_positions
 

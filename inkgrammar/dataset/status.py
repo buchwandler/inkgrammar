@@ -272,13 +272,13 @@ def _sequence_disagreement(record: dict) -> list[ValidationIssue]:
         relations.get("left_label") not in (None, sequence[0])
         or relations.get("right_label") not in (None, sequence[1])
     ):
-            issues.append(
-                ValidationIssue(
-                    rule="sequence-relation-disagreement",
-                    observation_id=record["id"],
-                    message="left/right labels disagree with the declared sequence",
-                )
+        issues.append(
+            ValidationIssue(
+                rule="sequence-relation-disagreement",
+                observation_id=record["id"],
+                message="left/right labels disagree with the declared sequence",
             )
+        )
     return issues
 
 

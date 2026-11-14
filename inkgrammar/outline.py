@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from math import isfinite
 
 import strokeoutline
-from strokeoutline import combine_outlines, outline_disc, signed_area
+from planarcurve import CubicPath
+from strokeoutline import combine_outlines, outline, outline_disc, signed_area
 from strokeoutline.svg import outline_svg_path
 
 from .geometry import Point
@@ -51,12 +52,14 @@ _signed_area = signed_area
 
 
 def expand_path(
-    d: str,
+    d: str | CubicPath,
     width: WidthProfile,
     *,
     config: OutlineConfig = DEFAULT_OUTLINE_CONFIG,
 ) -> ExpandedOutline:
-    """Expand an SVG path while preserving InkGrammar's compatibility API."""
+    """Expand an SVG path or typed PlanarCurve path through StrokeOutline."""
+    if isinstance(d, CubicPath):
+        return outline(d, width, config=config.to_strokeoutline())
     return outline_svg_path(d, width, config=config.to_strokeoutline())
 
 

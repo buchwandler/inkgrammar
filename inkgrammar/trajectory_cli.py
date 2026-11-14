@@ -1,9 +1,8 @@
-"""Trajectory fitting CLI commands (the brief's sections 50 and 27).
+"""Trajectory fitting commands grounded in explicit stroke evidence.
 
-The fitter resolves its input by observation ID through the materialized
-dataset index: observation ID -> dataset index -> reviewed/accepted fitting
-mask -> stroke annotation -> centerline candidate -> trajectory fit. No
-ad-hoc image paths.
+A reviewed ``trajectory_xy`` annotation is required for physical trajectory fitting.
+A raster mask can produce an inferred SkeletonPaths route candidate, but cannot
+establish stroke order, direction, retracing, or pen lifts.
 """
 
 from __future__ import annotations
@@ -12,6 +11,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import typer
@@ -29,6 +29,7 @@ from .fitting.curvature_fit import (
     resample_by_arclength,
 )
 from .fitting.family_fit_v4 import prepare_topology_target
+from .fitting.skeleton_graph import select_path
 
 DEFAULT_DATASET_ROOT = Path("work/sas-1968/dataset")
 DEFAULT_FIT_ROOT = Path("work/sas-1968/trajectory")
@@ -40,122 +41,49 @@ class FitContext:
     observation_id: str
     record: dict
     target_xy: np.ndarray
-    stroke_annotation: dict | None
+    stroke_annotation: dict
+    trajectory_evidence_status: str
     input_hashes: dict[str, str]
 
 
-def _ductus_polyline(graph) -> np.ndarray:
-    """Ordered pen path covering every skeleton edge (small-graph Postman).
+@dataclass(frozen=True)
+class TopologyRouteCandidate:
+    """Unreviewed route geometry that does not establish physical ductus."""
 
-    The topology-aware skeleton graph is tiny (ends and junctions only), so
-    odd-degree junctions are paired and their connecting edges doubled, then
-    an Euler walk reconstructs the ductus order. For a cursive ``e`` the
-    middle connector is genuinely traversed twice by the pen, so no spurious
-    retrace is introduced.
-    """
-    incident = {node.id: [] for node in graph.nodes}
-    for index, edge in enumerate(graph.edges):
-        incident[edge.a].append((index, edge.b))
-        if edge.b != edge.a:
-            incident[edge.b].append((index, edge.a))
+    xy: np.ndarray
+    route_ambiguous: bool
+    orientation_ambiguous: bool
+    feasible_path_count: int
+    evidence_status: str = "inferred"
+    physical_ductus_authoritative: bool = False
 
-    def edge_path(source: int, target: int) -> list[int]:
-        previous = {source: None}
-        queue = [source]
-        for node in queue:
-            if node == target:
-                break
-            for index, other in incident[node]:
-                if other not in previous:
-                    previous[other] = (node, index)
-                    queue.append(other)
-        if target not in previous:
-            return []
-        indexes = []
-        current = target
-        while previous[current] is not None:
-            node, index = previous[current]
-            indexes.append(index)
-            current = node
-        indexes.reverse()
-        return indexes
 
-    nodes_by_id = {node.id: node for node in graph.nodes}
-    ends = sorted(
-        (node for node in graph.nodes if len(incident[node.id]) == 1),
-        key=lambda node: tuple(node.xy),
+def infer_candidate_route_from_topology(
+    target_mask: np.ndarray,
+    *,
+    path_kind: Literal["open", "loop", "open-with-loop"] = "open",
+    expected_cycles: int | None = None,
+    expected_endpoints: tuple[tuple[float, float] | None, tuple[float, float] | None] | None = None,
+    candidate_xy: np.ndarray | None = None,
+    endpoint_tolerance_px: float = 4.0,
+) -> TopologyRouteCandidate:
+    """Return neutral candidate geometry without inferring a pen traversal."""
+    prepared = prepare_topology_target(target_mask)
+    selection = select_path(
+        prepared.graph,
+        path_kind=path_kind,
+        expected_cycles=expected_cycles,
+        expected_endpoints=expected_endpoints,
+        candidate_xy=candidate_xy,
+        endpoint_tolerance_px=endpoint_tolerance_px,
+        path_inventory=prepared.path_inventory,
     )
-    if len(ends) >= 2:
-        start, goal = ends[0].id, ends[-1].id
-    else:
-        start = goal = min(graph.nodes, key=lambda node: tuple(node.xy)).id
-
-    odd = sorted(
-        (node.id for node in graph.nodes if len(incident[node.id]) % 2 == 1),
-        key=lambda node_id: tuple(nodes_by_id[node_id].xy),
+    return TopologyRouteCandidate(
+        xy=selection.path.xy,
+        route_ambiguous=selection.ambiguous,
+        orientation_ambiguous=selection.orientation_ambiguous,
+        feasible_path_count=selection.feasible_path_count,
     )
-    remaining = [node_id for node_id in odd if node_id not in (start, goal)]
-    pairs = []
-    while len(remaining) >= 2:
-        best = None
-        for first_index in range(len(remaining)):
-            for second_index in range(first_index + 1, len(remaining)):
-                distance = len(
-                    edge_path(remaining[first_index], remaining[second_index])
-                )
-                if best is None or distance < best[0]:
-                    best = (distance, first_index, second_index)
-        _, first_index, second_index = best
-        pairs.append((remaining[first_index], remaining[second_index]))
-        remaining = [
-            node_id
-            for index, node_id in enumerate(remaining)
-            if index not in (first_index, second_index)
-        ]
-    multiplicity = [1] * len(graph.edges)
-    for source, target in pairs:
-        for index in edge_path(source, target):
-            multiplicity[index] += 1
-
-    stack_nodes = [start]
-    stack_edges: list = [None]
-    result_nodes: list = []
-    result_edges: list = []
-    while stack_nodes:
-        current = stack_nodes[-1]
-        step = None
-        for index, other in incident[current]:
-            if multiplicity[index] > 0:
-                multiplicity[index] -= 1
-                step = (index, other)
-                break
-        if step is None:
-            result_nodes.append(stack_nodes.pop())
-            result_edges.append(stack_edges.pop())
-        else:
-            stack_nodes.append(step[1])
-            stack_edges.append(step)
-    result_nodes.reverse()
-    result_edges.reverse()
-
-    walk: list = []
-    previous_node = result_nodes[0]
-    previous_index = None
-    for node, edge_step in zip(result_nodes[1:], result_edges[1:], strict=True):
-        index, _ = edge_step
-        if index == previous_index:
-            # immediate out-and-back: the second pass is a pure retrace
-            previous_node = node
-            previous_index = None
-            continue
-        previous_index = index
-        edge = graph.edges[index]
-        segment = np.asarray(edge.pixels, dtype=float)
-        if edge.a != previous_node:
-            segment = segment[::-1]
-        walk.extend(segment if not walk else segment[1:])
-        previous_node = node
-    return np.asarray(walk, dtype=float)
 
 
 def _scipy_version() -> str:
@@ -164,19 +92,21 @@ def _scipy_version() -> str:
     return scipy.__version__
 
 
-def _smooth_polyline(points: np.ndarray, *, window: int) -> np.ndarray:
-    """Light edge-preserving moving average for noisy skeleton centerlines."""
-    if window <= 1 or len(points) < 3:
-        return points
-    half = window // 2
-    smoothed = np.empty_like(points)
-    for axis in range(2):
-        padded = np.pad(points[:, axis], (half, half), mode="edge")
-        kernel = np.ones(window) / window
-        smoothed[:, axis] = np.convolve(padded, kernel, mode="valid")
-    smoothed[0] = points[0]
-    smoothed[-1] = points[-1]
-    return smoothed
+def _reviewed_trajectory_points(annotation: dict | None) -> np.ndarray | None:
+    if not isinstance(annotation, dict) or annotation.get("review_status") not in {
+        "reviewed",
+        "verified",
+    }:
+        return None
+    points = annotation.get("trajectory_xy")
+    if points is None:
+        return None
+    trajectory = np.asarray(points, dtype=float)
+    if trajectory.ndim != 2 or trajectory.shape[1] != 2 or len(trajectory) < 2:
+        raise typer.BadParameter("reviewed trajectory_xy must contain at least two xy points")
+    if not np.isfinite(trajectory).all():
+        raise typer.BadParameter("reviewed trajectory_xy must contain finite coordinates")
+    return trajectory
 
 
 def _sha256_file(path: Path) -> str:
@@ -200,9 +130,7 @@ def load_fit_context(
 
     frame_data = record.get("frame")
     if frame_data is None:
-        raise typer.BadParameter(
-            f"observation {observation_id} has no coordinate frame candidate"
-        )
+        raise typer.BadParameter(f"observation {observation_id} has no coordinate frame candidate")
     from .dataset.transforms import ObservationFrame
 
     frame = ObservationFrame.model_validate(frame_data)
@@ -210,18 +138,18 @@ def load_fit_context(
     mask_path = Path(dataset_root) / record["artifacts"]["fitting_mask"]
     if not mask_path.is_file():
         raise typer.BadParameter(f"observation {observation_id} has no fitting mask")
-    target_mask = np.asarray(Image.open(mask_path).convert("L")) > 0
-    prepared = prepare_topology_target(target_mask)
-    crop_xy = _ductus_polyline(prepared.graph)
-    source_xy = crop_xy + np.array([source_bbox[0], source_bbox[1]], dtype=float)
-    target_xy = source_px_to_glyph_units(source_xy, frame)
-    target_xy = _smooth_polyline(target_xy, window=5)
-
     annotation_path = root / ANNOTATIONS_DIR / f"{observation_id}.yaml"
     stroke_annotation = None
     if annotation_path.is_file():
         stroke_annotation = yaml.safe_load(annotation_path.read_text(encoding="utf-8"))
-
+    trajectory_points = _reviewed_trajectory_points(stroke_annotation)
+    if trajectory_points is None:
+        raise typer.BadParameter(
+            f"observation {observation_id} has no reviewed physical trajectory; "
+            "a fitting mask supports only an inferred topology route candidate"
+        )
+    source_xy = trajectory_points + np.array([source_bbox[0], source_bbox[1]], dtype=float)
+    target_xy = source_px_to_glyph_units(source_xy, frame)
     input_hashes = {
         "source_sha256": index["source_hashes"][record["source_id"]],
         "dataset_index_sha256": _sha256_file(index_path),
@@ -244,6 +172,7 @@ def load_fit_context(
         record=record,
         target_xy=target_xy,
         stroke_annotation=stroke_annotation,
+        trajectory_evidence_status="reviewed",
         input_hashes=input_hashes,
     )
 
@@ -271,6 +200,7 @@ def write_fit_outputs(
     parameters = {
         "observation_id": context.observation_id,
         "kind": "curvature-profile",
+        "trajectory_evidence_status": context.trajectory_evidence_status,
         "geometry": result.geometry.model_dump(mode="json"),
         "transform": result.transform.model_dump(mode="json"),
     }
@@ -287,6 +217,7 @@ def write_fit_outputs(
     }
     metrics = {
         "observation_id": context.observation_id,
+        "trajectory_evidence_status": context.trajectory_evidence_status,
         "optimizer": "scipy-least_squares-soft_l1",
         "optimizer_version": _scipy_version(),
         "success": result.success,
@@ -314,6 +245,7 @@ def write_fit_outputs(
         "label": context.record["label"],
         "source_id": context.record["source_id"],
         "input_hashes": context.input_hashes,
+        "trajectory_evidence_status": context.trajectory_evidence_status,
         "stroke_annotation": context.stroke_annotation,
     }
     observation_path = fit_dir / "observation.json"
@@ -357,9 +289,7 @@ def _render_scaled_previews(result: CurvatureFitResult, fit_dir: Path, label: st
         from PIL import ImageDraw
 
         draw = ImageDraw.Draw(canvas)
-        pixels = [
-            (size / 2 + x * px_per_unit, size / 2 - y * px_per_unit) for x, y in points
-        ]
+        pixels = [(size / 2 + x * px_per_unit, size / 2 - y * px_per_unit) for x, y in points]
         stroke_width = max(2, int(round(0.1 * px_per_unit)))
         draw.line(pixels, fill=0, width=stroke_width)
         path = fit_dir / f"{label}-{name}.png"
@@ -386,9 +316,7 @@ def _plot_frame(size: tuple[int, int], x_domain, y_domain):
         py = height - margin - (y - y0) / (y1 - y0) * (height - 2 * margin)
         return (px, py)
 
-    draw.rectangle(
-        (margin, margin, width - margin, height - margin), outline=(120, 120, 120)
-    )
+    draw.rectangle((margin, margin, width - margin, height - margin), outline=(120, 120, 120))
     return image, draw, to_px
 
 
@@ -411,11 +339,14 @@ def render_fit_diagnostics(
     fit_heading = np.asarray(fit_data["fit_heading_deg"])
     written = []
 
-    target_mask = np.asarray(
-        Image.open(
-            Path(dataset_root) / context.record["artifacts"]["fitting_mask"]
-        ).convert("L")
-    ) > 0
+    target_mask = (
+        np.asarray(
+            Image.open(Path(dataset_root) / context.record["artifacts"]["fitting_mask"]).convert(
+                "L"
+            )
+        )
+        > 0
+    )
     mask_image = Image.fromarray(((~target_mask) * 255).astype(np.uint8))
     mask_path = fit_dir / "target-mask.png"
     mask_image.save(mask_path)
@@ -572,5 +503,3 @@ def register_trajectory_commands(app) -> None:
 def _gates_pass(fit_dir: Path) -> dict:
     metrics = json.loads((fit_dir / "metrics.json").read_text(encoding="utf-8"))
     return metrics["gates_pass"]
-
-

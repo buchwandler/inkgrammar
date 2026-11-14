@@ -19,9 +19,7 @@ def to_planar_heading_rate(profile: CurvatureProfile) -> HeadingRateProfile:
     return HeadingRateProfile(
         start_rate_deg_per_u=profile.start_rate_deg,
         end_rate_deg_per_u=profile.end_rate_deg,
-        changes=tuple(
-            HeadingRateChange(change.at, change.rate_deg) for change in profile.changes
-        ),
+        changes=tuple(HeadingRateChange(change.at, change.rate_deg) for change in profile.changes),
         interpolation=profile.interpolation,
     )
 

@@ -124,13 +124,10 @@ def test_unit_transforms_round_trip_and_scale():
         runtime_units_to_glyph(points, x_height_units=-1.0)
 
 
-
 def test_fit_glyph_and_runtime_coordinate_boundaries_round_trip():
     points = np.array([[31.0, 0.0], [62.0, 15.5], [-7.75, 31.0]])
     glyph = fit_units_to_glyph(points, fit_x_height_units=31.0)
-    runtime = fit_units_to_runtime(
-        points, fit_x_height_units=31.0, x_height_units=362.5
-    )
+    runtime = fit_units_to_runtime(points, fit_x_height_units=31.0, x_height_units=362.5)
 
     np.testing.assert_allclose(glyph, points / 31.0)
     np.testing.assert_allclose(glyph_units_to_fit(glyph, fit_x_height_units=31.0), points)

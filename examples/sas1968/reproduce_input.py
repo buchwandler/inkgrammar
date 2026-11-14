@@ -285,9 +285,7 @@ def _draw_word_sheet(
 
 def _draw_connection_sheet(model: WritingModelV3, output: Path) -> list[dict[str, Any]]:
     targets = [
-        {"group": group, "text": text}
-        for group, examples in CONNECTION_GROUPS
-        for text in examples
+        {"group": group, "text": text} for group, examples in CONNECTION_GROUPS for text in examples
     ]
     columns = 5
     cell_width, cell_height = 206, 96
@@ -304,10 +302,7 @@ def _draw_connection_sheet(model: WritingModelV3, output: Path) -> list[dict[str
     for index, row in enumerate(targets):
         status = _target_status(model, row["text"], row["group"])
         row.update(
-            {
-                key: status[key]
-                for key in ("status", "missing", "rendered", "connection_rules_used")
-            }
+            {key: status[key] for key in ("status", "missing", "rendered", "connection_rules_used")}
         )
         column, grid_row = index % columns, index // columns
         left = column * cell_width

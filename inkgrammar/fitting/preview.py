@@ -33,9 +33,7 @@ def _fit_command(bundle: FitProjectBundle, primitive_id: str) -> str:
     return f"inkgrammar fit optimize-primitive {project_path} {primitive_id}"
 
 
-def _candidate_failure(
-    bundle: FitProjectBundle, primitive_id: str, message: str
-) -> ValueError:
+def _candidate_failure(bundle: FitProjectBundle, primitive_id: str, message: str) -> ValueError:
     return ValueError(
         f"latest candidate for {primitive_id} is {message}.\n"
         f"Run:\n{_fit_command(bundle, primitive_id)}"

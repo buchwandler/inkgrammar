@@ -1,10 +1,14 @@
-"""Compatibility re-exports for skeleton topology now owned by SkeletonPaths."""
+"""Compatibility exports for SkeletonPaths types and operations used by InkGrammar."""
 
 from skeletonpaths import (
-    DEFAULT_MAX_PATHS,
+    DEFAULT_RANKING_POLICY,
+    DEFAULT_SEARCH_LIMITS,
     NoFeasiblePathError,
+    PathRankingPolicy,
     PathScore,
     PathSearchLimitError,
+    PathSearchLimits,
+    PathSelection,
     SkeletonEdge,
     SkeletonGraph,
     SkeletonNode,
@@ -16,16 +20,18 @@ from skeletonpaths import (
     prepare_topology_paths,
     prune_spurs,
     rank_paths,
-    rank_topology_paths,
     select_path,
-    select_topology_path,
 )
 
 __all__ = [
-    "DEFAULT_MAX_PATHS",
+    "DEFAULT_RANKING_POLICY",
+    "DEFAULT_SEARCH_LIMITS",
     "NoFeasiblePathError",
+    "PathRankingPolicy",
     "PathScore",
     "PathSearchLimitError",
+    "PathSearchLimits",
+    "PathSelection",
     "SkeletonEdge",
     "SkeletonGraph",
     "SkeletonNode",
@@ -37,7 +43,5 @@ __all__ = [
     "prepare_topology_paths",
     "prune_spurs",
     "rank_paths",
-    "rank_topology_paths",
     "select_path",
-    "select_topology_path",
 ]

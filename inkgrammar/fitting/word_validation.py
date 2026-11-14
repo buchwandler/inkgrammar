@@ -159,8 +159,7 @@ def _word_coverage(sample, paths: dict[str, str], connection_checks: list[dict[s
     validation until every required boundary has a fitted/reviewed rule.
     """
     glyph_coverage = all(
-        any(key.startswith(f"{index}:") for key in paths)
-        for index in range(len(sample.text))
+        any(key.startswith(f"{index}:") for key in paths) for index in range(len(sample.text))
     )
     connection_coverage = bool(connection_checks) and all(
         check["status"] == "pass" for check in connection_checks
