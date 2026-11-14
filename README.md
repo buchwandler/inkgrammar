@@ -82,6 +82,44 @@ inkgrammar model compare data/models/demo-looped.yaml "mi" refs/mi.png
 
 Metrics currently include normalized mask IoU, precision, and recall.
 
+## Compare two cropped letter images
+
+Install the optional image-processing dependencies:
+
+```bash
+python -m pip install -e ".[comparison]"
+```
+
+Select one known letter manually in each image. Crop coordinates are `x,y,width,height` in the original image, and the crops are retained without resizing:
+
+```bash
+inkgrammar compare-letter reference.jpg mine.jpg \\
+  --letter e \\
+  --reference-crop 820,760,160,230 \\
+  --sample-crop 450,250,130,150 \\
+  --output build/compare-e
+```
+
+The output directory contains the original crops, extraction and topology diagnostics, aligned overlays, progress plots, and JSON, Markdown, and HTML reports. The HTML report is the human-facing summary; JSON contains the raw series and metrics.
+
+The API is also available from `inkgrammar.comparison` (and the package root):
+
+```python
+from inkgrammar.comparison import compare_letter_images
+
+report = compare_letter_images(
+    "reference.jpg",
+    "mine.jpg",
+    letter="e",
+    reference_crop=(820, 760, 160, 230),
+    sample_crop=(450, 250, 130, 150),
+    output_dir="build/compare-e",
+)
+print(report.html_path)
+```
+
+The ordered paths are aligned using translation, rotation, and positive uniform scale, without reflection. The selected sample direction is inferred from the reference match, not observed from the image. Position errors are normalized by reference path length. Raw path-length ratios do not represent physical size, stroke width is diagnostic only, and no composite correctness score is produced.
+
 ## Fit a connection from actual output
 
 ```bash

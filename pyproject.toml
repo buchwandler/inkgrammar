@@ -55,6 +55,9 @@ Issues = "https://github.com/buchwandler/inkgrammar/issues"
 Changelog = "https://github.com/buchwandler/inkgrammar/releases"
 
 [project.optional-dependencies]
+comparison = [
+  "skeletonpaths[image]>=0.1.1,<0.2",
+]
 dev = [
   "pytest>=8",
   "ruff>=0.8",

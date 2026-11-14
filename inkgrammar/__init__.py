@@ -1,5 +1,6 @@
 """InkGrammar public Python API."""
 
+from .comparison.api import compare_letter_images
 from .io import load_model
 from .model import compile_glyph, compile_text
 from .models import WritingModel
@@ -11,6 +12,7 @@ except ImportError:  # source tree before setuptools_scm has generated _version.
 
 __all__ = [
     "WritingModel",
+    "compare_letter_images",
     "__version__",
     "compile_glyph",
     "compile_text",

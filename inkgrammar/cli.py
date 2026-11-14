@@ -38,6 +38,48 @@ def version() -> None:
     typer.echo(__version__)
 
 
+def _parse_crop_coordinates(value: str, option: str) -> tuple[int, int, int, int]:
+    try:
+        coordinates = tuple(int(part.strip()) for part in value.split(","))
+    except ValueError as exc:
+        raise typer.BadParameter(f"{option} must be x,y,width,height integers") from exc
+    if len(coordinates) != 4:
+        raise typer.BadParameter(f"{option} must be x,y,width,height")
+    return coordinates
+
+
+@app.command("compare-letter")
+def compare_letter_command(
+    reference: Path = typer.Argument(..., exists=True),  # noqa: B008
+    sample: Path = typer.Argument(..., exists=True),  # noqa: B008
+    letter: str = typer.Option(..., "--letter"),
+    reference_crop: str = typer.Option(..., "--reference-crop", help="x,y,width,height"),
+    sample_crop: str = typer.Option(..., "--sample-crop", help="x,y,width,height"),
+    output: Path = typer.Option(..., "--output"),  # noqa: B008
+) -> None:
+    """Compare two manually cropped images of one known letter."""
+    from .comparison.api import compare_letter_images
+
+    try:
+        report = compare_letter_images(
+            reference,
+            sample,
+            letter=letter,
+            reference_crop=_parse_crop_coordinates(reference_crop, "--reference-crop"),
+            sample_crop=_parse_crop_coordinates(sample_crop, "--sample-crop"),
+            output_dir=output,
+        )
+    except ImportError as exc:
+        raise typer.BadParameter(
+            'comparison dependencies are missing; install inkgrammar with the "comparison" extra'
+        ) from exc
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    typer.echo(f"HTML report: {report.html_path}")
+    typer.echo(f"JSON report: {report.json_path}")
+
+
 @page_app.command("extract")
 def page_extract(
     image: Path = typer.Argument(..., exists=True),  # noqa: B008
