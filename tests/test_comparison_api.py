@@ -123,3 +123,53 @@ def test_compare_letter_cli_rejects_malformed_crop_coordinates(tmp_path):
 
     assert result.exit_code == 2
     assert "--reference-crop must be x,y,width,height" in result.output
+
+
+
+def test_label_free_comparison_writes_raster_report_when_path_recovery_fails(
+    tmp_path, monkeypatch
+):
+    import inkgrammar.comparison.api as comparison_api
+    from inkgrammar.comparison import (
+        ComparisonIdentity,
+        compare_extracted_letters,
+        extract_letter,
+    )
+    from inkgrammar.comparison.path import PathExtractionError
+    from inkgrammar.comparison.report import write_comparison_report
+
+    reference_path, sample_path = _write_letter_images(tmp_path)
+
+    def fail_path_recovery(_diagnostics):
+        raise PathExtractionError("synthetic multi-stroke path")
+
+    monkeypatch.setattr(comparison_api, "recover_ordered_path", fail_path_recovery)
+    reference = extract_letter(reference_path, (0, 0, 80, 72), allow_path_failure=True)
+    sample = extract_letter(sample_path, (0, 0, 80, 72), allow_path_failure=True)
+    result = compare_extracted_letters(
+        reference,
+        sample,
+        identity=ComparisonIdentity("sample-000", "ref-004"),
+    )
+    report = write_comparison_report(result, tmp_path / "raster-only")
+
+    assert result.alignment is None
+    assert report.payload["letter"] is None
+    assert report.payload["identity"] == {
+        "sample_id": "sample-000",
+        "reference_id": "ref-004",
+        "label": None,
+    }
+    assert report.payload["capabilities"] == {
+        "raster": True,
+        "topology": True,
+        "ordered_path": False,
+        "curvature": False,
+        "unavailable_reason": (
+            "Ordered-path recovery failed; trajectory metrics are unavailable."
+        ),
+    }
+    assert report.html_path.is_file()
+    assert report.markdown_path.is_file()
+    assert (report.output_dir / "overlay-raster.png").is_file()
+    assert "trajectory metrics are unavailable" in report.markdown_path.read_text()

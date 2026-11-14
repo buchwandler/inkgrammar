@@ -298,7 +298,9 @@ def _report_payload(result: ComparisonResult, analysis: ComparisonAnalysis) -> d
             "mask_confidence": letter.mask_result.confidence,
             "warnings": letter.mask_result.warnings,
             "topology": letter.diagnostics.topology.model_dump(mode="json"),
-            "path_coverage": letter.ordered_path.coverage,
+            "path_coverage": (
+                letter.ordered_path.coverage if letter.ordered_path is not None else None
+            ),
             "original_artifact": _ARTIFACTS[f"input_{side}"],
             "mask_artifact": _ARTIFACTS[f"mask_{side}"],
             "skeleton_artifact": _ARTIFACTS[f"skeleton_{side}"],
@@ -314,6 +316,17 @@ def _report_payload(result: ComparisonResult, analysis: ComparisonAnalysis) -> d
         "format": "inkgrammar-letter-comparison",
         "format_version": 1,
         "letter": result.letter,
+        "identity": {
+            "sample_id": result.identity.sample_id,
+            "reference_id": result.identity.reference_id,
+            "label": result.identity.label,
+        },
+        "capabilities": {
+            "raster": True,
+            "topology": True,
+            "ordered_path": True,
+            "curvature": True,
+        },
         "direction_source": "inferred",
         "inputs": {
             "reference": input_payload(result.reference, "reference"),
@@ -350,7 +363,7 @@ def _markdown(result: ComparisonResult, payload: dict[str, Any]) -> str:
     inputs = payload["inputs"]
     alignment = payload["alignment"]
     rows = [
-        f"# Letter comparison: {result.letter}",
+        f"# {_comparison_title(result)}",
         "",
         "## Inputs and extraction",
         "",
@@ -415,6 +428,14 @@ def _markdown(result: ComparisonResult, payload: dict[str, Any]) -> str:
     return "\n".join(rows)
 
 
+def _comparison_title(result: ComparisonResult) -> str:
+    if result.letter is not None:
+        return f"Letter comparison: {result.letter}"
+    identity = result.identity
+    assert identity is not None
+    return f"Glyph comparison: {identity.sample_id} to {identity.reference_id}"
+
+
 def _html(result: ComparisonResult, payload: dict[str, Any]) -> str:
     metrics = payload["metrics"]
     inputs = payload["inputs"]
@@ -429,13 +450,13 @@ def _html(result: ComparisonResult, payload: dict[str, Any]) -> str:
     rows = [
         "<!doctype html>",
         '<html lang="en"><head><meta charset="utf-8">',
-        f"<title>Letter comparison: {html.escape(result.letter)}</title>",
+        f"<title>{html.escape(_comparison_title(result))}</title>",
         "<style>body{font:16px sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem}"
         "img{max-width:100%;height:auto;border:1px solid #bbb}figure{margin:0.5rem}"
         ".grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}"
         "td,th{padding:.35rem .7rem;border:1px solid #ccc;text-align:left}"
         "table{border-collapse:collapse}</style></head><body>",
-        f"<h1>Letter comparison: {html.escape(result.letter)}</h1>",
+        f"<h1>{html.escape(_comparison_title(result))}</h1>",
         "<h2>1. Extraction</h2>",
         "<table><thead><tr><th></th><th>Reference</th><th>My writing</th></tr></thead><tbody>",
         f"<tr><th>Source</th><td>{html.escape(inputs['reference']['source_name'])}</td>",
@@ -518,14 +539,181 @@ def _html(result: ComparisonResult, payload: dict[str, Any]) -> str:
     return "\n".join(rows)
 
 
+def _write_raster_only_report(
+    result: ComparisonResult,
+    output_dir: Path,
+) -> WrittenComparisonReport:
+    reference = result.reference
+    sample = result.sample
+    _save_rgb_crop(reference.image, output_dir / _ARTIFACTS["input_reference"])
+    _save_rgb_crop(sample.image, output_dir / _ARTIFACTS["input_sample"])
+
+    panels = []
+    for side, extracted in (("reference", reference), ("sample", sample)):
+        Image.fromarray(extracted.mask_result.mask.astype(np.uint8) * 255).save(
+            output_dir / _ARTIFACTS[f"mask_{side}"]
+        )
+        skeleton = extracted.image.convert("RGB")
+        ys, xs = np.nonzero(extracted.diagnostics.skeleton)
+        ImageDraw.Draw(skeleton).point(
+            list(zip(xs.tolist(), ys.tolist(), strict=True)), fill=(20, 195, 95)
+        )
+        skeleton.save(output_dir / _ARTIFACTS[f"skeleton_{side}"], format="PNG")
+        panels.append((side.title(), extracted.mask_result.mask))
+
+    gap = 16
+    label_height = 20
+    panel_height = max(mask.shape[0] for _, mask in panels)
+    panel_width = sum(mask.shape[1] for _, mask in panels) + gap
+    overlay = Image.new("RGB", (panel_width, panel_height + label_height), "white")
+    draw = ImageDraw.Draw(overlay)
+    x_offset = 0
+    for label, mask in panels:
+        rgb = np.full((*mask.shape, 3), 255, dtype=np.uint8)
+        rgb[mask] = _REFERENCE if label == "Reference" else _SAMPLE
+        panel = Image.fromarray(rgb)
+        overlay.paste(panel, (x_offset, label_height))
+        draw.text(
+            (x_offset + 2, 3),
+            f"{label} (unaligned)",
+            fill="black",
+            font=ImageFont.load_default(),
+        )
+        x_offset += mask.shape[1] + gap
+    overlay.save(output_dir / _ARTIFACTS["overlay_raster"], format="PNG")
+
+    identity = result.identity
+    assert identity is not None
+    unavailable = (
+        "Ordered-path recovery failed; trajectory metrics are unavailable."
+    )
+    inputs = {}
+    for side, extracted in (("reference", reference), ("sample", sample)):
+        inputs[side] = {
+            "source_name": extracted.source_path.name,
+            "crop": extracted.crop.model_dump(mode="json"),
+            "mask_method": extracted.mask_result.method,
+            "mask_confidence": extracted.mask_result.confidence,
+            "warnings": extracted.mask_result.warnings,
+            "topology": extracted.diagnostics.topology.model_dump(mode="json"),
+            "path_coverage": (
+                extracted.ordered_path.coverage if extracted.ordered_path is not None else None
+            ),
+        }
+    artifacts = {
+        "input_reference": _ARTIFACTS["input_reference"],
+        "input_sample": _ARTIFACTS["input_sample"],
+        "mask_reference": _ARTIFACTS["mask_reference"],
+        "mask_sample": _ARTIFACTS["mask_sample"],
+        "skeleton_reference": _ARTIFACTS["skeleton_reference"],
+        "skeleton_sample": _ARTIFACTS["skeleton_sample"],
+        "overlay_raster": _ARTIFACTS["overlay_raster"],
+        "report_json": _ARTIFACTS["report_json"],
+        "report_markdown": _ARTIFACTS["report_markdown"],
+        "report_html": _ARTIFACTS["report_html"],
+    }
+    payload = {
+        "format": "inkgrammar-letter-comparison",
+        "format_version": 1,
+        "letter": result.letter,
+        "identity": {
+            "sample_id": identity.sample_id,
+            "reference_id": identity.reference_id,
+            "label": identity.label,
+        },
+        "capabilities": {
+            "raster": True,
+            "topology": True,
+            "ordered_path": False,
+            "curvature": False,
+            "unavailable_reason": unavailable,
+        },
+        "inputs": inputs,
+        "metrics": {
+            "raster": {
+                "reference_ink_pixels": int(reference.mask_result.mask.sum()),
+                "sample_ink_pixels": int(sample.mask_result.mask.sum()),
+            },
+            "topology": {
+                "reference": inputs["reference"]["topology"],
+                "sample": inputs["sample"]["topology"],
+            },
+        },
+        "artifacts": artifacts,
+        "warnings": list(
+            dict.fromkeys(
+                [*result.warnings, *reference.mask_result.warnings, *sample.mask_result.warnings]
+            )
+        ),
+    }
+    report_title = (
+        f"Glyph comparison: {identity.sample_id} to {identity.reference_id}"
+        if identity.label is None
+        else f"Letter comparison: {identity.label}"
+    )
+    (output_dir / _ARTIFACTS["report_json"]).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    markdown = [
+        f"# {report_title}",
+        "",
+        f"Sample `{identity.sample_id}` matched to reference `{identity.reference_id}`.",
+        "",
+        "## Available comparison capabilities",
+        "",
+        "Raster masks and topology are available. Ordered-path, curvature, and trajectory metrics "
+        "are unavailable because an ordered path could not be recovered.",
+        "",
+        "![Reference and sample masks, shown side by side without alignment](overlay-raster.png)",
+        "",
+        "![Reference mask](mask-reference.png)",
+        "![Sample mask](mask-sample.png)",
+        "",
+        "See [report.json](report.json) for input metadata and topology diagnostics.",
+        "",
+    ]
+    (output_dir / _ARTIFACTS["report_markdown"]).write_text("\n".join(markdown), encoding="utf-8")
+    images = "".join(
+        f'<figure><img src="{name}" alt="{html.escape(description)}">'
+        f"<figcaption>{html.escape(description)}</figcaption></figure>"
+        for name, description in (
+            ("overlay-raster.png", "Unaligned reference and sample masks"),
+            ("mask-reference.png", "Reference ink mask"),
+            ("mask-sample.png", "Sample ink mask"),
+            ("skeleton-reference.png", "Reference skeleton"),
+            ("skeleton-sample.png", "Sample skeleton"),
+        )
+    )
+    page = (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        f"<title>{html.escape(report_title)}</title>"
+        "<style>body{font:16px sans-serif;max-width:1000px;margin:2rem auto;padding:0 1rem}"
+        "img{max-width:100%;height:auto;border:1px solid #bbb}"
+        "figure{display:inline-block;vertical-align:top}"
+        "</style></head><body>"
+        f"<h1>{html.escape(report_title)}</h1>"
+        f"<p>Sample <code>{html.escape(identity.sample_id)}</code> matched to reference "
+        f"<code>{html.escape(identity.reference_id)}</code>.</p>"
+        f"<p>{html.escape(unavailable)} Raster masks and topology remain available.</p>"
+        f"{images}<h2>Topology</h2><pre>"
+        f"{html.escape(json.dumps(payload['metrics']['topology'], indent=2))}</pre>"
+        '<p><a href="report.json">Machine-readable report</a></p></body></html>'
+    )
+    (output_dir / _ARTIFACTS["report_html"]).write_text(page, encoding="utf-8")
+    return WrittenComparisonReport(output_dir, payload)
+
+
 def write_comparison_report(
     result: ComparisonResult,
     output_dir: str | Path,
 ) -> WrittenComparisonReport:
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
-    analysis = analyze_comparison(result)
+    if result.alignment is None:
+        return _write_raster_only_report(result, destination)
 
+    analysis = analyze_comparison(result)
     _save_rgb_crop(result.reference.image, destination / _ARTIFACTS["input_reference"])
     _save_rgb_crop(result.sample.image, destination / _ARTIFACTS["input_sample"])
     _write_extraction_images(result.reference, destination, "reference")

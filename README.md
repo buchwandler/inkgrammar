@@ -120,6 +120,23 @@ print(report.html_path)
 
 The ordered paths are aligned using translation, rotation, and positive uniform scale, without reflection. The selected sample direction is inferred from the reference match, not observed from the image. Position errors are normalized by reference path length. Raw path-length ratios do not represent physical size, stroke width is diagnostic only, and no composite correctness score is produced.
 
+### Automatically match a multi-glyph page
+
+Use `--letters N` to request an exact number of visibly separated standalone glyphs from the sample image:
+
+```bash
+inkgrammar compare-letter reference.jpg mine.jpg \
+  --letters 3 \
+  --output build/version1
+```
+
+The reference image is segmented into an unlabeled gallery. Each sample glyph is ranked independently against that gallery, so multiple samples may select the same reference. Retrieval returns ranked alternatives and marks a close best/second match as ambiguous. Costs are ranking values, not probabilities or correctness percentages. The workflow uses shape and topology features only. It does not perform OCR or infer character labels.
+
+`--letters N` means exactly N glyphs, not an estimate. If the page cannot be segmented confidently into that count, the command exits with an error and reports diagnostic images under `build/version1/segmentation/`. Version 1 expects standalone glyphs with visible whitespace between them, normally arranged on one writing row. Connected cursive words are not supported.
+
+A successful run writes `index.html`, `summary.md`, and `summary.json`; segmentation masks, numbered candidate overlays and manifests; reference candidate crops under `reference-index/`; and a `sample-NNN/` directory for each glyph. Each sample directory contains the selected reference, ranked-alternative thumbnails, match JSON, and the detailed pairwise report. If ordered-path extraction is unavailable, the pair report still contains raster and topology results. The reference gallery and derived descriptors/extractions are cached by source content hash inside the output directory, so rerunning with the same output directory can reuse them.
+
+The automatic mode does not change the manual crop workflow above. Use `--letter`, `--reference-crop`, and `--sample-crop` together for manual comparison; do not combine them with `--letters`.
 ## Fit a connection from actual output
 
 ```bash

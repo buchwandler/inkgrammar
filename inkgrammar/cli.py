@@ -52,34 +52,78 @@ def _parse_crop_coordinates(value: str, option: str) -> tuple[int, int, int, int
 def compare_letter_command(
     reference: Path = typer.Argument(..., exists=True),  # noqa: B008
     sample: Path = typer.Argument(..., exists=True),  # noqa: B008
-    letter: str = typer.Option(..., "--letter"),
-    reference_crop: str = typer.Option(..., "--reference-crop", help="x,y,width,height"),
-    sample_crop: str = typer.Option(..., "--sample-crop", help="x,y,width,height"),
+    letter: str | None = typer.Option(None, "--letter"),  # noqa: B008
+    reference_crop: str | None = typer.Option(
+        None, "--reference-crop", help="x,y,width,height"
+    ),  # noqa: B008
+    sample_crop: str | None = typer.Option(
+        None, "--sample-crop", help="x,y,width,height"
+    ),  # noqa: B008
     output: Path = typer.Option(..., "--output"),  # noqa: B008
+    letters: int | None = typer.Option(
+        None,
+        "--letters",
+        help="Automatically match exactly N visibly separated standalone glyphs.",
+    ),  # noqa: B008
 ) -> None:
-    """Compare two manually cropped images of one known letter."""
-    from .comparison.api import compare_letter_images
+    """Compare manual crops or automatically match a multi-glyph sample page."""
+    manual_options = (letter, reference_crop, sample_crop)
+    if letters is not None:
+        if letters < 1:
+            raise typer.BadParameter("--letters must be a positive integer")
+        if any(value is not None for value in manual_options):
+            raise typer.BadParameter(
+                "--letters cannot be combined with --letter, --reference-crop, or --sample-crop"
+            )
+        automatic = True
+    else:
+        if any(value is None for value in manual_options):
+            raise typer.BadParameter(
+                "choose --letters N or provide --letter, --reference-crop, and --sample-crop"
+            )
+        automatic = False
 
     try:
-        report = compare_letter_images(
-            reference,
-            sample,
-            letter=letter,
-            reference_crop=_parse_crop_coordinates(reference_crop, "--reference-crop"),
-            sample_crop=_parse_crop_coordinates(sample_crop, "--sample-crop"),
-            output_dir=output,
-        )
+        from .comparison.segmentation import SegmentationError
+        if automatic:
+            from .comparison.batch import compare_letter_page
+
+            report = compare_letter_page(
+                reference,
+                sample,
+                expected_letters=letters,
+                output_dir=output,
+            )
+        else:
+            from .comparison.api import compare_letter_images
+
+            report = compare_letter_images(
+                reference,
+                sample,
+                letter=letter,
+                reference_crop=_parse_crop_coordinates(reference_crop, "--reference-crop"),
+                sample_crop=_parse_crop_coordinates(sample_crop, "--sample-crop"),
+                output_dir=output,
+            )
     except ImportError as exc:
         raise typer.BadParameter(
             'comparison dependencies are missing; install inkgrammar with the "comparison" extra'
         ) from exc
+    except SegmentationError as exc:
+        message = str(exc)
+        if exc.diagnostic_path is not None:
+            message += f" Diagnostics: {exc.diagnostic_path}"
+        raise typer.BadParameter(message) from exc
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    typer.echo(f"HTML report: {report.html_path}")
-    typer.echo(f"JSON report: {report.json_path}")
-
-
+    if automatic:
+        typer.echo(f"HTML summary: {report.html_path}")
+        typer.echo(f"Markdown summary: {report.markdown_path}")
+        typer.echo(f"JSON summary: {report.json_path}")
+    else:
+        typer.echo(f"HTML report: {report.html_path}")
+        typer.echo(f"JSON report: {report.json_path}")
 @page_app.command("extract")
 def page_extract(
     image: Path = typer.Argument(..., exists=True),  # noqa: B008
